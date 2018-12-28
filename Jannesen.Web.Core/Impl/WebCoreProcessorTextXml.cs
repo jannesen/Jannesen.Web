@@ -1,0 +1,36 @@
+﻿using System;
+using System.Xml;
+using System.Web;
+
+namespace Jannesen.Web.Core.Impl
+{
+    public class WebCoreProcessorTextXml : IWebCoreCallProcessor
+    {
+        private                 XmlDocument         _document;
+
+        public                  void                Proces(WebCoreCall httpCall)
+        {
+            try {
+
+                using(System.IO.StreamReader reader = httpCall.GetBodyText("text/xml"))
+                {
+                    if (reader != null) {
+                        _document = new XmlDocument();
+                        _document.Load(reader);
+                    }
+                }
+            }
+            catch(Exception err) {
+                throw new WebRequestException("Error in XML HTTP-BODY.", err);
+            }
+        }
+
+        public                  string              GetStringValue(string xpath)
+        {
+            if (_document == null)
+                throw new WebRequestException("Empty body.");
+
+            return _document.SelectSingleNode(xpath)?.Value;
+        }
+    }
+}
