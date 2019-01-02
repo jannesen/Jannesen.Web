@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Net;
@@ -238,8 +238,7 @@ namespace Jannesen.Web.Core.Impl
                 if (contentTypeParts[i].StartsWith("charset=")) {
                     string  charset     = contentTypeParts[i].Substring(8);
 
-                    switch(charset.ToLower())
-                    {
+                    switch(charset.ToLower()) {
                     case "unicode": encoding = System.Text.Encoding.Unicode;    break;
                     case "utf-8":   encoding = System.Text.Encoding.UTF8;       break;
                     default:        throw new NotImplementedException("Invalid characterset '" + charset + "'.");

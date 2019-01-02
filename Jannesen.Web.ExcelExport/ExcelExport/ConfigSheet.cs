@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Collections.Generic;
 using Jannesen.Web.Core.Impl;
 
@@ -89,8 +89,7 @@ namespace Jannesen.Web.ExcelExport.ExcelExport
 
             if (configReader.hasChildren) {
                 while (configReader.ReadNextElement()) {
-                    switch(configReader.ElementName)
-                    {
+                    switch(configReader.ElementName) {
                     case "column":
                         {
                             ConfigColumn    column = new ConfigColumn(col, row, configReader, parent);

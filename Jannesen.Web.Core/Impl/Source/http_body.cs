@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Web;
 using Jannesen.Web.Core.Impl;
 
@@ -21,8 +21,7 @@ namespace Jannesen.Web.Core.Impl.Source
 
         public                                              http_body(string name_args): base(name_args)
         {
-            switch(Name)
-            {
+            switch(Name) {
             case "content-type":
             case "content_type":        _valueCode = ValueNameCode.ContentType;     break;
             case "content-length":
@@ -41,8 +40,7 @@ namespace Jannesen.Web.Core.Impl.Source
             if (httpCall.Request.HttpMethod == "GET" || httpCall.Request.HttpMethod == "HEAD")
                 throw new WebHandlerConfigException("BODY not available in with HTTP/GET.");
 
-            switch(_valueCode)
-            {
+            switch(_valueCode) {
             case ValueNameCode.ContentType:     return new WebCoreDataValue((object)httpCall.RequestContentType);
             case ValueNameCode.ContentLength:   return new WebCoreDataValue((object)httpCall.RequestContentLength);
             case ValueNameCode.Data:            return new WebCoreDataValue((object)httpCall.GetBodyData());

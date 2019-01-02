@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Collections.Generic;
 using System.Data;
 using System.Text;
@@ -49,8 +49,7 @@ namespace Jannesen.Web.MSSql.Library
 
         public      virtual             object              ConvertToSqlParameterValue(WebCoreDataValue value)
         {
-            switch (value.Type)
-            {
+            switch (value.Type) {
             case WebCoreDataValueType.ClrValue:     return ConvertClrToValue(value.Value);
             case WebCoreDataValueType.StringValue:  return ConvertStringToValue((string)(value.Value));
             default:                                return null;

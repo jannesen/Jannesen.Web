@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.IO;
 using System.Net;
 using System.Web;
@@ -34,8 +34,7 @@ namespace Jannesen.Web.Core.Impl
         }
         public      static      Stream          GetCompressor(string compressor, Stream outstream)
         {
-            switch(compressor)
-            {
+            switch(compressor) {
             case null:      return outstream;
             case "gzip":    return new System.IO.Compression.GZipStream   (outstream, System.IO.Compression.CompressionMode.Compress, true);
             case "deflate": return new System.IO.Compression.DeflateStream(outstream, System.IO.Compression.CompressionMode.Compress, true);

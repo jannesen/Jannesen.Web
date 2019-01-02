@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.IO;
 using System.Data.SqlClient;
 using System.Net;
@@ -30,8 +30,7 @@ namespace Jannesen.Web.Core.Impl
             {
                 using (StreamWriter streamWriter = new StreamWriter(buffer, new UTF8Encoding(false, false), 0x1000, true))
                 {
-                    switch (ContentType)
-                    {
+                    switch (ContentType) {
                     case "text/xml":            _writeXml(streamWriter);    break;
                     case "application/json":    _writeJson(streamWriter);   break;
                     default:                    _writeText(streamWriter);   break;

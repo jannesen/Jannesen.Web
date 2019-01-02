@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Reflection;
@@ -213,8 +213,7 @@ namespace Jannesen.Web.Core
 
                         System.Diagnostics.EventLogEntryType    type  = System.Diagnostics.EventLogEntryType.Error;
 
-                        switch(id)
-                        {
+                        switch(id) {
                         case EventID.Startup:           type = System.Diagnostics.EventLogEntryType.Information;    break;
                         case EventID.StartupWithError:  type = System.Diagnostics.EventLogEntryType.Warning;        break;
                         case EventID.NewLogfile:        type = System.Diagnostics.EventLogEntryType.Information;    break;
@@ -472,8 +471,7 @@ namespace Jannesen.Web.Core
 
                     while (configReader.ReadNextElement()) {
                         try {
-                            switch(configReader.ElementName)
-                            {
+                            switch(configReader.ElementName) {
                             case "name":
                                 {
                                     _name = configReader.GetValueString("name");

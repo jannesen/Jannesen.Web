@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Collections.Generic;
 using System.Data;
 using System.Data.SqlClient;
@@ -20,8 +20,7 @@ namespace Jannesen.Web.MSSql.Sqx
         {
             public  static          ResponseRoot                ParseType(WebCoreConfigReader configReader, string type, bool root)
             {
-                switch(type)
-                {
+                switch(type) {
                 case "object":
                     return new ResponseObject(configReader, false, root);
                 case "object:mandatory":
@@ -135,8 +134,7 @@ namespace Jannesen.Web.MSSql.Sqx
                 var fields = new List<ResponseObjectField>();
 
                 while (configReader.ReadNextElement()) {
-                    switch(configReader.ElementName)
-                    {
+                    switch(configReader.ElementName) {
                     case    "field":    fields.Add(new ResponseObjectField(configReader));  break;
                     default:            configReader.InvalidElement();                      break;
                     }
@@ -224,8 +222,7 @@ namespace Jannesen.Web.MSSql.Sqx
                 var responses = new List<ResponseMsg>();
 
                 while (configReader.ReadNextElement()) {
-                    switch(configReader.ElementName)
-                    {
+                    switch(configReader.ElementName) {
                     case "parameter":
                         ParseParameter(configReader);
                         break;
@@ -332,8 +329,7 @@ namespace Jannesen.Web.MSSql.Sqx
                 if (!xmlReader.Read())
                     throw new WebConversionException("Unexpected EOF in xml.");
 
-                switch(xmlReader.NodeType)
-                {
+                switch(xmlReader.NodeType) {
                 case XmlNodeType.Element:       return true;
                 case XmlNodeType.EndElement:    return false;
                 }

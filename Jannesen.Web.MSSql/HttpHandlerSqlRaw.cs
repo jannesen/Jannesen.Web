@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Net;
@@ -18,8 +18,7 @@ namespace Jannesen.Web.MSSql.Sqx
         {
             if (configReader.hasChildren) {
                 while (configReader.ReadNextElement()) {
-                    switch(configReader.ElementName)
-                    {
+                    switch(configReader.ElementName) {
                     case    "parameter":    ParseParameter(configReader);               break;
                     default:                configReader.InvalidElement();              break;
                     }
@@ -34,8 +33,7 @@ namespace Jannesen.Web.MSSql.Sqx
             if (HandleResponseOptions(webResponseBuffer, dataReader) == HttpStatusCode.OK) {
                 if (dataReader.Read()) {
                     for (int col= 0 ; col < dataReader.FieldCount ; ++col) {
-                        switch(dataReader.GetName(col).ToLower())
-                        {
+                        switch(dataReader.GetName(col).ToLower()) {
                         case "content-type":
                             {
                                 SqlString   String = dataReader.GetSqlString(col);

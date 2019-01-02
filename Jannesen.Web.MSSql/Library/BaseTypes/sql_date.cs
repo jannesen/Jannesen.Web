@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Data;
 using System.Data.SqlClient;
 using System.Data.SqlTypes;
@@ -41,8 +41,7 @@ namespace Jannesen.Web.MSSql.Library.BaseType
                     fields[fieldpos] = fields[fieldpos]*10 + (chr-'0');
                 }
                 else {
-                    switch(fieldpos)
-                    {
+                    switch(fieldpos) {
                     case 0: // year
                     case 1: // month
                         if (chr!='-') goto invalid_date;

@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
@@ -216,8 +216,7 @@ namespace Jannesen.Web.ExcelExport.ExcelExport
         }
         private                 uint                        _getNumberingFormat(string format)
         {
-            switch(format)
-            {
+            switch(format) {
             case "0":                           return  1;
             case "0.00":                        return  2;
             case "#,##0":                       return  3;

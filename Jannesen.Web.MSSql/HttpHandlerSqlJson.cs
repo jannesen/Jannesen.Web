@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Collections.Generic;
 using System.Data;
 using System.Data.SqlClient;
@@ -27,8 +27,7 @@ namespace Jannesen.Web.MSSql.Sqx
         {
             if (configReader.hasChildren) {
                 while (configReader.ReadNextElement()) {
-                    switch(configReader.ElementName)
-                    {
+                    switch(configReader.ElementName) {
                     case    "parameter":    ParseParameter(configReader);               break;
                     default:                configReader.InvalidElement();              break;
                     }
@@ -100,8 +99,7 @@ namespace Jannesen.Web.MSSql.Sqx
                         }
                         else
                         if (xmlReader.Name.Length >= 3 && xmlReader.Name[0] == '_' && xmlReader.Name[2] == '_') {
-                            switch(xmlReader.Name[1])
-                            {
+                            switch(xmlReader.Name[1]) {
                             case 'a':       return _parseToJsonArray(xmlReader);
                             case 'o':       return _parseToJsonObject(xmlReader);
                             default:        return _jsonConvertValue(xmlReader.Name[1], _parseElementValue(xmlReader));
@@ -150,8 +148,7 @@ namespace Jannesen.Web.MSSql.Sqx
             for (;;) {
                 _parseReadNode(xmlReader);
 
-                switch(xmlReader.NodeType)
-                {
+                switch(xmlReader.NodeType) {
                 case XmlNodeType.EndElement:
                     return jsonObject;
 
@@ -161,8 +158,7 @@ namespace Jannesen.Web.MSSql.Sqx
 
                         try {
                             if (name.Length > 3 && name[0] == '_' && name[2] == '_') {
-                                switch(name[1])
-                                {
+                                switch(name[1]) {
                                 case 'a':       jsonObject.Add(name.Substring(3), _parseToJsonArray(xmlReader));                                    break;
                                 case 'o':       jsonObject.Add(name.Substring(3), _parseToJsonObject(xmlReader));                                   break;
                                 default:        jsonObject.Add(name.Substring(3), _jsonConvertValue(name[1], _parseElementValue(xmlReader)));       break;
@@ -195,8 +191,7 @@ namespace Jannesen.Web.MSSql.Sqx
                 for (;;) {
                     _parseReadNode(xmlReader);
 
-                    switch(xmlReader.NodeType)
-                    {
+                    switch(xmlReader.NodeType) {
                     case XmlNodeType.EndElement:
                         return rtn;
 
@@ -220,8 +215,7 @@ namespace Jannesen.Web.MSSql.Sqx
                 for (;;) {
                     _parseReadNode(xmlReader);
 
-                    switch(xmlReader.NodeType)
-                    {
+                    switch(xmlReader.NodeType) {
                     case XmlNodeType.EndElement:
                         return rtn;
 
@@ -251,15 +245,13 @@ namespace Jannesen.Web.MSSql.Sqx
         }
         private                 object                      _jsonConvertValue(char t, string svalue)
         {
-            switch(t)
-            {
+            switch(t) {
             case 's':   return svalue;
             case 'i':   return !string.IsNullOrEmpty(svalue) ? (object)int.Parse(svalue, System.Globalization.CultureInfo.InvariantCulture)   : null;
             case 'n':   return !string.IsNullOrEmpty(svalue) ? (object)float.Parse(svalue, System.Globalization.CultureInfo.InvariantCulture) : null;
 
             case 'b':
-                switch(svalue)
-                {
+                switch(svalue) {
                 case null:      return null;
                 case "":        return null;
                 case "0":       return false;

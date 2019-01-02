@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Web;
 using Jannesen.Web.Core.Impl;
 
@@ -25,8 +25,7 @@ namespace Jannesen.Web.Core.Impl
         public          string                  StringValue
         {
             get {
-                switch(Type)
-                {
+                switch(Type) {
                 default:
                 case WebCoreDataValueType.NoValue:
                     return null;

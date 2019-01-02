@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Collections.Generic;
 using System.Data.SqlClient;
 using System.Web;
@@ -39,8 +39,7 @@ namespace Jannesen.Web.MSSql.Library
         {
             WebCoreDataValue    value = _source.GetValue(httpCall);
 
-            switch (value.Type)
-            {
+            switch (value.Type) {
             case WebCoreDataValueType.NoValue:
                 if (!_optional)
                     throw new WebRequestException("Missing parameter '" + _source.ToString() + "' in request.");

@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Data;
 using System.Data.SqlClient;
 using System.Data.SqlTypes;
@@ -29,8 +29,7 @@ namespace Jannesen.Web.MSSql.Library.BaseType
         }
         public          override            object              ConvertStringToValue(string sValue)
         {
-            switch(sValue)
-            {
+            switch(sValue) {
             case null:      return null;
             case "":        return null;
             case "1":       return true;

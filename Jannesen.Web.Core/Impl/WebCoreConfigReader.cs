@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Collections.Generic;
 using System.Text;
 using System.Xml;
@@ -87,8 +87,7 @@ namespace Jannesen.Web.Core.Impl
                 if (!_xmlReader.Read())
                     throw new WebConfigException("Unexpected EOF.", this);
 
-                switch(_xmlReader.NodeType)
-                {
+                switch(_xmlReader.NodeType) {
                 case XmlNodeType.Element:
                     return true;
 
@@ -149,8 +148,7 @@ namespace Jannesen.Web.Core.Impl
                 throw new WebConfigException("Current file is not absolute", this);
 
             foreach(string p in path.Replace("\\", "/").Split('/')) {
-                switch(p)
-                {
+                switch(p) {
                 case ".":
                     break;
 
@@ -259,8 +257,7 @@ namespace Jannesen.Web.Core.Impl
             if (value == null)
                 return defaultValue;
 
-            switch(value)
-            {
+            switch(value) {
             case "0":
             case "n":
             case "false":

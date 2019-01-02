@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Collections.Generic;
 using System.Net;
 using System.Web;
@@ -25,8 +25,7 @@ namespace Jannesen.Web.ExcelExport
 
             if (configReader.hasChildren) {
                 while (configReader.ReadNextElement()) {
-                    switch(configReader.ElementName)
-                    {
+                    switch(configReader.ElementName) {
                     case    "parameter":    ParseParameter(configReader);                       break;
                     case    "sheet":        _sheets.Add(new ConfigSheet(configReader));         break;
                     default:                configReader.InvalidElement();                      break;

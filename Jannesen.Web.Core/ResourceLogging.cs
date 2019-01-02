@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.IO;
 using System.Web;
 using Jannesen.Web.Core.Impl;
@@ -114,8 +114,7 @@ namespace Jannesen.Web.Core
                 string  key   = call.Request.Headers.GetKey(i);
                 string  value = call.Request.Headers[i];
 
-                switch(key)
-                {
+                switch(key) {
                 case "Authorization":
                     value = "*****";
                     break;

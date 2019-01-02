@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Collections.Generic;
 using System.Net;
 using System.Web;
@@ -84,15 +84,13 @@ retry:      using (SqlConnection sqlConnection = GetConnection())
                     code = msg.Substring(1, i - 1);
                 }
                 else {
-                    switch(((SqlException)err).Number)
-                    {
+                    switch(((SqlException)err).Number) {
                     case -2:    code = "DATABASE-TIMEOUT";      break;
                     default:    code = "DATABASE-ERROR";        break;
                     }
                 }
 
-                switch(code)
-                {
+                switch(code) {
                 case "INVALID-BASIC-AUTHENTICATION":        return 401;
                 default:                                    return 500;
                 }
@@ -130,8 +128,7 @@ retry:      using (SqlConnection sqlConnection = GetConnection())
                         for (int i = 0 ; i < dataReader.FieldCount ; ++i) {
                             string fieldname = dataReader.GetName(i);
 
-                            switch(fieldname)
-                            {
+                            switch(fieldname) {
                             case "opt.cache.lastmodified":
                                 webResponseBuffer.LastModified = dataReader.GetDateTime(i);
                                 break;

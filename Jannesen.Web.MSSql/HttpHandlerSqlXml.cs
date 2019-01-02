@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Net;
@@ -30,8 +30,7 @@ namespace Jannesen.Web.MSSql.Sqx
 
             if (configReader.hasChildren) {
                 while (configReader.ReadNextElement()) {
-                    switch(configReader.ElementName)
-                    {
+                    switch(configReader.ElementName) {
                     case    "parameter":    ParseParameter(configReader);               break;
                     default:                configReader.InvalidElement();              break;
                     }

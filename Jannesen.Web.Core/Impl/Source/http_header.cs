@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Web;
 using Jannesen.Web.Core.Impl;
 
@@ -23,8 +23,7 @@ namespace Jannesen.Web.Core.Impl.Source
 
         public                                              http_header(string name_args): base(name_args)
         {
-            switch(Name)
-            {
+            switch(Name) {
             case "method":                      _valueCode = ValueNameCode.Method;                  break;
             case "if-modified-since":
             case "if_modified_since":           _valueCode = ValueNameCode.IfModifiedSince;         break;
@@ -45,8 +44,7 @@ namespace Jannesen.Web.Core.Impl.Source
 
         public      override        WebCoreDataValue        GetValue(WebCoreCall httpCall)
         {
-            switch(_valueCode)
-            {
+            switch(_valueCode) {
             case ValueNameCode.Method:              return new WebCoreDataValue((object)httpCall.HttpMethod);
             case ValueNameCode.IfModifiedSince:     return new WebCoreDataValue((object)httpCall.RequestIfModifiedSince);
             case ValueNameCode.IfNoneMatch:         return new WebCoreDataValue((object)httpCall.RequestIfNoneMatch);
