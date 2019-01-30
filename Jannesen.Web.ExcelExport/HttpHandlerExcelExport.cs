@@ -38,8 +38,7 @@ namespace Jannesen.Web.ExcelExport
         {
             WebCoreResponseBuffer   webResponseBuffer = new WebCoreResponseBuffer("application/vnd.openxmlformats-officedocument.spreadsheetml.sheet", false, false);
 
-            lock(_singleLock)
-            {
+            lock(_singleLock) {
                 using (MemoryStream buffer = new MemoryStream(4096000))
                 {
                     ExcelExport.ExportToExcel.Export(_sheets, dataReader, buffer);

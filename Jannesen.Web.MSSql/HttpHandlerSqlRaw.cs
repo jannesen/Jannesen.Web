@@ -34,8 +34,7 @@ namespace Jannesen.Web.MSSql.Sqx
                 if (dataReader.Read()) {
                     for (int col= 0 ; col < dataReader.FieldCount ; ++col) {
                         switch(dataReader.GetName(col).ToLower()) {
-                        case "content-type":
-                            {
+                        case "content-type": {
                                 SqlString   String = dataReader.GetSqlString(col);
 
                                 if (!String.IsNull)
@@ -43,8 +42,7 @@ namespace Jannesen.Web.MSSql.Sqx
                             }
                             break;
 
-                        case "text":
-                            {
+                        case "text": {
                                 SqlString text = dataReader.GetSqlString(col);
 
                                 if (!text.IsNull) {
@@ -53,8 +51,7 @@ namespace Jannesen.Web.MSSql.Sqx
                             }
                             break;
 
-                        case "data":
-                            {
+                        case "data": {
                                 SqlBinary data = dataReader.GetSqlBinary(col);
 
                                 if (!data.IsNull)

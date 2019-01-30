@@ -90,8 +90,7 @@ namespace Jannesen.Web.ExcelExport.ExcelExport
             if (configReader.hasChildren) {
                 while (configReader.ReadNextElement()) {
                     switch(configReader.ElementName) {
-                    case "column":
-                        {
+                    case "column": {
                             ConfigColumn    column = new ConfigColumn(col, row, configReader, parent);
                             _columns.Add(column);
 

@@ -86,8 +86,7 @@ namespace Jannesen.Web.Core
 
         public      static              WebApplication                      GetApplication()
         {
-            lock(_appLock)
-            {
+            lock(_appLock) {
                 if (_application == null || _application.Status != AppStatus.Initialized)
                     throw new WebAppNotInitialized();
 
@@ -248,8 +247,7 @@ namespace Jannesen.Web.Core
         }
         public      static              string                              GetRelPath(string path)
         {
-            lock(_appLock)
-            {
+            lock(_appLock) {
                 if (_application == null)
                     throw new WebAppNotInitialized();
 
@@ -258,8 +256,7 @@ namespace Jannesen.Web.Core
         }
         public      static              WebCoreDataSource                   GetDataSource(string source, string name)
         {
-            lock(_appLock)
-            {
+            lock(_appLock) {
                 if (_application == null)
                     throw new WebAppNotInitialized();
 
@@ -268,8 +265,7 @@ namespace Jannesen.Web.Core
         }
         public      static              object                              ConstructDynamicClass(WebCoreAttribureDynamicClass className, params object[] args)
         {
-            lock(_appLock)
-            {
+            lock(_appLock) {
                 if (_application == null)
                     throw new WebAppNotInitialized();
 
@@ -279,16 +275,14 @@ namespace Jannesen.Web.Core
 
         public      static              void                                AppDomainInitialize()
         {
-            lock(_appLock)
-            {
+            lock(_appLock) {
                 if (_application == null)
                     InitializeAppl();
             }
         }
         public      static              void                                AppDomainUnload()
         {
-            lock(_appLock)
-            {
+            lock(_appLock) {
                 if (_application != null) {
                     _application.Unload();
                     _application = null;
@@ -472,15 +466,13 @@ namespace Jannesen.Web.Core
                     while (configReader.ReadNextElement()) {
                         try {
                             switch(configReader.ElementName) {
-                            case "name":
-                                {
+                            case "name": {
                                     _name = configReader.GetValueString("name");
                                     configReader.NoChildElements();
                                 }
                                 break;
 
-                            case "load":
-                                {
+                            case "load": {
                                     string name = configReader.GetValueString("name");
                                     configReader.NoChildElements();
 
@@ -497,8 +489,7 @@ namespace Jannesen.Web.Core
                                 _addResource((WebCoreResource)waConstructDynamicClass(new WebCoreAttribureResource(configReader.GetValueString("type")), configReader));
                                 break;
 
-                            case "include":
-                                {
+                            case "include": {
                                     string  file = configReader.GetValueString("file").Replace("\\", "/");
                                     configReader.NoChildElements();
 

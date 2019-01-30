@@ -37,8 +37,7 @@ namespace Jannesen.Web.Core
 
         public      override    void                Unload()
         {
-            lock(_logLock)
-            {
+            lock(_logLock) {
                 if (_filestream != null) {
                     _filestream.Dispose();
                     _filestream = null;
@@ -48,8 +47,7 @@ namespace Jannesen.Web.Core
 
         public                  void                Logging(WebCoreCall call, WebCoreResponse response, HttpResponse httpResponse)
         {
-            lock(_logLock)
-            {
+            lock(_logLock) {
                 try {
                     using (StreamWriter writer = _getLogStream())
                     {
@@ -65,8 +63,7 @@ namespace Jannesen.Web.Core
         }
         public                  void                Logging(WebCoreCall call, Exception err)
         {
-            lock(_logLock)
-            {
+            lock(_logLock) {
                 try {
                     using (StreamWriter writer = _getLogStream())
                     {

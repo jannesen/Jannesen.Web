@@ -12,8 +12,7 @@ namespace Jannesen.Web.Core
         {
             int     usage;
 
-            lock(_lock)
-            {
+            lock(_lock) {
                 usage = --_usage;
             }
 
@@ -24,8 +23,7 @@ namespace Jannesen.Web.Core
         {
             int     usage;
 
-            lock(_lock)
-            {
+            lock(_lock) {
                 usage = _usage++;
             }
 

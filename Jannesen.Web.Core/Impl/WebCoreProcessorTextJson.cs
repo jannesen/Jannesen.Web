@@ -19,10 +19,11 @@ namespace Jannesen.Web.Core.Impl
         public                  void                Proces(WebCoreCall httpCall)
         {
             try {
-                using(System.IO.StreamReader reader = httpCall.GetBodyText("application/json"))
-                {
-                    if (reader != null)
-                        _document = JsonReader.Parse(reader);
+                var stream = httpCall.GetBodyText("application/json");
+                if (stream != null) {
+                    using(var reader = new JsonReader(stream)) {
+                        _document = reader.ParseDocument();
+                    }
                 }
             }
             catch(Exception err) {

@@ -18,8 +18,7 @@ namespace Jannesen.Web.MSSql.Library
         {
             ValueConvertor   valueType;
 
-            lock(_cache)
-            {
+            lock(_cache) {
                 if (!_cache.TryGetValue(nameparameter, out valueType)) {
                     string  name;
                     string  parm;
