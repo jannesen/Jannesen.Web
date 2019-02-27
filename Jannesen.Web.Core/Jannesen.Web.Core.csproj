@@ -47,11 +47,11 @@
     <Compile Include="GlobalSuppressions.cs" />
     <Compile Include="HandlerDenyAccess.cs" />
     <Compile Include="HandlerFactory.cs" />
-    <Compile Include="Impl\WebCoreResponseRedirect.cs" />
     <Compile Include="ResourceLogging.cs" />
     <Compile Include="ResourceWebService.cs" />
     <Compile Include="WebApplication.cs" />
     <Compile Include="Impl\Exceptions.cs" />
+    <Compile Include="Impl\WebCoreResponseRedirect.cs" />
     <Compile Include="Impl\Source\http_body.cs" />
     <Compile Include="Impl\Source\http_cookie.cs" />
     <Compile Include="Impl\Source\http_formdata.cs" />

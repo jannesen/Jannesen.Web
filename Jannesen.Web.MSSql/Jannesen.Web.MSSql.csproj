@@ -60,10 +60,14 @@
     <Compile Include="HttpHandlerSqlRaw.cs" />
     <Compile Include="HttpHandlerSqlJson.cs" />
     <Compile Include="HttpHandlerSqlXml.cs" />
-    <Compile Include="Library\BaseTypes\sql_clr.cs" />
-    <Compile Include="Library\BaseTypes\sql_numeric.cs" />
+    <Compile Include="ResourceMSSqlDatabase.cs" />	
     <Compile Include="Library\ParameterList.cs" />
     <Compile Include="Library\ValueConvertor.cs" />
+    <Compile Include="Library\ValueConvertorAttributeBaseType.cs" />
+    <Compile Include="Library\HttpHandlerMSSql.cs" />
+    <Compile Include="Library\ParameterValue.cs" />	
+    <Compile Include="Library\BaseTypes\sql_clr.cs" />
+    <Compile Include="Library\BaseTypes\sql_numeric.cs" />
     <Compile Include="Library\BaseTypes\sql_decimal.cs" />
     <Compile Include="Library\BaseTypes\sql_money.cs" />
     <Compile Include="Library\BaseTypes\sql_xml.cs" />
@@ -88,11 +92,7 @@
     <Compile Include="Library\BaseTypes\sql_float.cs" />
     <Compile Include="Library\BaseTypes\sql_real.cs" />
     <Compile Include="Library\BaseTypes\sql_tinyint.cs" />
-    <Compile Include="Library\ValueConvertorAttributeBaseType.cs" />
     <Compile Include="Library\Source\http_textjsonxml.cs" />
-    <Compile Include="ResourceMSSqlDatabase.cs" />
-    <Compile Include="Library\HttpHandlerMSSql.cs" />
-    <Compile Include="Library\ParameterValue.cs" />
   </ItemGroup>
   <ItemGroup>
     <None Include="Jannesen.Web.MSSql.snk" />
