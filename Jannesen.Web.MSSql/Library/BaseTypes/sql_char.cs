@@ -2,6 +2,7 @@
 using System.Data;
 using System.Data.SqlClient;
 using System.Data.SqlTypes;
+using System.Globalization;
 
 namespace Jannesen.Web.MSSql.Library.BaseType
 {
@@ -30,7 +31,7 @@ namespace Jannesen.Web.MSSql.Library.BaseType
                 return null;
 
             if (sValue.Length > Length)
-                throw new FormatException("String longer then " + Length.ToString() + " .");
+                throw new FormatException("String longer then " + Length.ToString(CultureInfo.InvariantCulture) + " .");
 
             return sValue;
         }
@@ -42,7 +43,7 @@ namespace Jannesen.Web.MSSql.Library.BaseType
 
         public          override            string              ToString()
         {
-            return "varchar(" + Length.ToString() + ")";
+            return "varchar(" + Length.ToString(CultureInfo.InvariantCulture) + ")";
         }
     }
 }

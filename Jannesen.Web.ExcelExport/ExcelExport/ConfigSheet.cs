@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Globalization;
 using Jannesen.Web.Core.Impl;
 
 namespace Jannesen.Web.ExcelExport.ExcelExport
@@ -137,7 +138,7 @@ namespace Jannesen.Web.ExcelExport.ExcelExport
         {
             for(int c = 0 ; c < _columnsWidth.Count ; ++c) {
                 if (_columnsWidth[c] == -1)
-                    throw new Exception("With not set for column #" + c.ToString() + ".");
+                    throw new Exception("With not set for column #" + c.ToString(CultureInfo.InvariantCulture) + ".");
             }
         }
     }

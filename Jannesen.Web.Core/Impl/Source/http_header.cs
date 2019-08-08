@@ -19,7 +19,7 @@ namespace Jannesen.Web.Core.Impl.Source
             BasicPasswd
         }
 
-        private                     ValueNameCode           _valueCode;
+        private readonly            ValueNameCode           _valueCode;
 
         public                                              http_header(string name_args): base(name_args)
         {

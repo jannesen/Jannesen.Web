@@ -1,6 +1,7 @@
 ﻿using System;
 using System.IO;
 using System.Data.SqlClient;
+using System.Globalization;
 using System.Net;
 using System.Web;
 using System.Xml;
@@ -11,11 +12,10 @@ namespace Jannesen.Web.Core.Impl
 {
     public class WebCoreResponseError: WebCoreResponseBuffer
     {
-        private                 WebCoreHttpHandler      _handler;
-        private                 Exception               _err;
+        private readonly        WebCoreHttpHandler      _handler;
+        private readonly        Exception               _err;
         private                 string                  _code;
 
-        [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Usage", "CA2202:Do not dispose objects multiple times")] //!!Bug in validate don't known leaveOpen
         public                                          WebCoreResponseError(WebCoreHttpHandler handler, Exception err, string contentType): base(contentType, false, true)
         {
             _handler = handler;
@@ -70,7 +70,7 @@ namespace Jannesen.Web.Core.Impl
                     if (statusCode == 500) { // HttpException are not used for server error
                         statusCode = 400;
                     }
-                    _code = "HTTP-ERROR-CODE-" + statusCode.ToString();
+                    _code = "HTTP-ERROR-CODE-" + statusCode.ToString(CultureInfo.InvariantCulture);
                     return (HttpStatusCode)statusCode;
                 }
 

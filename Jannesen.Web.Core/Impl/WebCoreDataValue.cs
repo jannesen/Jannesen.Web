@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Globalization;
 using System.Web;
 using Jannesen.Web.Core.Impl;
 
@@ -11,6 +12,7 @@ namespace Jannesen.Web.Core.Impl
         StringValue     = 2
     }
 
+#pragma warning disable CA1815 // Override equals and operator equals on value types
     public struct WebCoreDataValue
     {
         public          WebCoreDataValueType    Type;
@@ -32,10 +34,10 @@ namespace Jannesen.Web.Core.Impl
 
                 case WebCoreDataValueType.ClrValue:
                     if (Value is string)        return (string)Value;
-                    if (Value is byte)          return ((byte) Value).ToString(System.Globalization.CultureInfo.InvariantCulture);
-                    if (Value is Int16)         return ((Int16)Value).ToString(System.Globalization.CultureInfo.InvariantCulture);
-                    if (Value is Int32)         return ((Int32)Value).ToString(System.Globalization.CultureInfo.InvariantCulture);
-                    if (Value is Int64)         return ((Int64)Value).ToString(System.Globalization.CultureInfo.InvariantCulture);
+                    if (Value is byte)          return ((byte) Value).ToString(CultureInfo.InvariantCulture);
+                    if (Value is Int16)         return ((Int16)Value).ToString(CultureInfo.InvariantCulture);
+                    if (Value is Int32)         return ((Int32)Value).ToString(CultureInfo.InvariantCulture);
+                    if (Value is Int64)         return ((Int64)Value).ToString(CultureInfo.InvariantCulture);
 
                     throw new InvalidOperationException("No conversion possible from " + Value.GetType().FullName + " to StringValue.");
 
@@ -73,4 +75,5 @@ namespace Jannesen.Web.Core.Impl
             this.Value = value;
         }
     }
+#pragma warning restore CA1815
 }

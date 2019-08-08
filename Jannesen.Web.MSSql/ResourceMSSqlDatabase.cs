@@ -7,12 +7,12 @@ namespace Jannesen.Web.MSSql
     [WebCoreAttribureResource("mssql")]
     public class ResourceMSSqlDatabase: WebCoreResource
     {
-        private                 string              _server;
-        private                 string              _instance;
-        private                 string              _database;
-        private                 string              _username;
-        private                 string              _passwd;
-        private                 string              _connectString;
+        private readonly        string              _server;
+        private readonly        string              _instance;
+        private readonly        string              _database;
+        private readonly        string              _username;
+        private readonly        string              _passwd;
+        private readonly        string              _connectString;
 
         public      override    string              Type
         {

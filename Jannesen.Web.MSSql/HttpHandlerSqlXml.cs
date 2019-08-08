@@ -15,7 +15,7 @@ namespace Jannesen.Web.MSSql.Sqx
     [WebCoreAttribureHttpHandler("sql-xml")]
     public class HttpHandlerSqlXml: HttpHandlerMSSql
     {
-        private                 bool                        _xmlIdent;
+        private readonly        bool                        _xmlIdent;
 
         public      override    string                      Mimetype
         {
@@ -38,7 +38,6 @@ namespace Jannesen.Web.MSSql.Sqx
             }
         }
 
-        [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Usage", "CA2202:Do not dispose objects multiple times")] //!!Bug in validate don't known leaveOpen
         protected   override    WebCoreResponse             Process(WebCoreCall httpCall, SqlDataReader dataReader)
         {
             WebCoreResponseBuffer   webResponseBuffer = new WebCoreResponseBuffer("text/xml; charset=utf-8", this.Public, true);
@@ -66,22 +65,17 @@ namespace Jannesen.Web.MSSql.Sqx
             return webResponseBuffer;
         }
 
-        [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Usage", "CA2202:Do not dispose objects multiple times")]
         private                 void                        _fetchXmlIdent(StreamWriter textStream, SqlDataReader dataReader)
         {
-            using (MemoryStream xmlMemory = new MemoryStream())
-            {
-                using (StreamWriter xmlStream = new StreamWriter(xmlMemory, new System.Text.UTF8Encoding(false), 1024, true))
-                {
+            using (MemoryStream xmlMemory = new MemoryStream()) {
+                using (StreamWriter xmlStream = new StreamWriter(xmlMemory, new System.Text.UTF8Encoding(false), 1024, true)) {
                     _fetchData(xmlStream, dataReader);
                 }
 
                 xmlMemory.Seek(0, SeekOrigin.Begin);
 
-                using (XmlReader xmlInput = new XmlTextReader(new StreamReader(xmlMemory, new System.Text.UTF8Encoding(false))))
-                {
-                    using (XmlTextWriter xmlWriter = new XmlTextWriter(textStream))
-                    {
+                using (var xmlInput = new XmlTextReader(new StreamReader(xmlMemory, new System.Text.UTF8Encoding(false))) { DtdProcessing=DtdProcessing.Prohibit, XmlResolver=null }) {
+                    using (XmlTextWriter xmlWriter = new XmlTextWriter(textStream)) {
                         xmlWriter.Formatting = Formatting.Indented;
                         xmlWriter.Indentation = 1;
                         xmlWriter.IndentChar = '\t';
@@ -93,7 +87,7 @@ namespace Jannesen.Web.MSSql.Sqx
                 }
             }
         }
-        private                 void                        _fetchData(StreamWriter textStream, SqlDataReader dataReader)
+        private     static      void                        _fetchData(StreamWriter textStream, SqlDataReader dataReader)
         {
             bool        fempty = true;
 

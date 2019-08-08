@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Globalization;
 using System.IO;
 using System.Net;
 using System.Web;
@@ -7,10 +8,10 @@ namespace Jannesen.Web.StaticFile.Internal
 {
     class ResponseStaticFile: ResponseStatic
     {
-        private                 string          _physicalPath;
-        private                 long            _length;
+        private readonly        string          _physicalPath;
+        private readonly        long            _length;
 
-        public                                  ResponseStaticFile(string contentType, bool cachepublic, string physicalPath, FileInfo fileinfo): base(contentType, cachepublic, fileinfo.LastWriteTimeUtc, "W/\"" + fileinfo.LastWriteTimeUtc.ToFileTimeUtc().ToString("x8", System.Globalization.CultureInfo.InvariantCulture) + "\"")
+        public                                  ResponseStaticFile(string contentType, bool cachepublic, string physicalPath, FileInfo fileinfo): base(contentType, cachepublic, fileinfo.LastWriteTimeUtc, "W/\"" + fileinfo.LastWriteTimeUtc.ToFileTimeUtc().ToString("x8", CultureInfo.InvariantCulture) + "\"")
         {
             _physicalPath = physicalPath;
             _length       = fileinfo.Length;

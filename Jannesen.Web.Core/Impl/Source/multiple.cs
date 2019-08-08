@@ -8,7 +8,7 @@ namespace Jannesen.Web.Core.Impl.Source
     {
         public      const           char                SplitChar = '|';
 
-        private                     WebCoreDataSource[] _list;
+        private readonly            WebCoreDataSource[] _list;
 
         public                                          multiple(string source, string name_args): base(source)
         {

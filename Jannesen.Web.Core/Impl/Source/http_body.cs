@@ -17,7 +17,7 @@ namespace Jannesen.Web.Core.Impl.Source
             TextXml
         }
 
-        private                     ValueNameCode           _valueCode;
+        private readonly            ValueNameCode           _valueCode;
 
         public                                              http_body(string name_args): base(name_args)
         {

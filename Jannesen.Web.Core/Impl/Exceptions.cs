@@ -55,20 +55,24 @@ namespace Jannesen.Web.Core.Impl
             LineNumber = configReader.LineNumber;
         }
 
-        [SecurityPermissionAttribute(SecurityAction.Demand, SerializationFormatter = true)]
         protected                           WebConfigException(SerializationInfo info, StreamingContext context) : base(info, context)
         {
-            this.Filename   = info.GetString("Filename");
-            this.LineNumber = info.GetInt32("LineNumber");
+            this.Filename   = info.GetString(nameof(Filename));
+            this.LineNumber = info.GetInt32(nameof(LineNumber));
         }
-
         [SecurityPermissionAttribute(SecurityAction.Demand, SerializationFormatter = true)]
         public      override    void        GetObjectData(SerializationInfo info, StreamingContext context)
         {
             base.GetObjectData(info, context);
+            info.AddValue(nameof(Filename),   this.Filename);
+            info.AddValue(nameof(LineNumber), this.LineNumber);
+        }
 
-            info.AddValue("Filename",   this.Filename);
-            info.AddValue("LineNumber", this.LineNumber);
+        public  override    string          Source
+        {
+            get {
+                return "Jannesen.Web.Core";
+            }
         }
     }
 
@@ -79,6 +83,9 @@ namespace Jannesen.Web.Core.Impl
         {
         }
         public                              WebSourceException(string message, Exception innerException): base(message, innerException)
+        {
+        }
+        protected                           WebSourceException(SerializationInfo info, StreamingContext context): base(info, context)
         {
         }
 
@@ -99,6 +106,9 @@ namespace Jannesen.Web.Core.Impl
         public                              WebConversionException(string message, Exception innerException): base(message, innerException)
         {
         }
+        protected                           WebConversionException(SerializationInfo info, StreamingContext context): base(info, context)
+        {
+        }
 
         public  override    string          Source
         {
@@ -117,6 +127,9 @@ namespace Jannesen.Web.Core.Impl
         public                              WebInvalidValueException(string message, Exception innerException): base(message, innerException)
         {
         }
+        protected                           WebInvalidValueException(SerializationInfo info, StreamingContext context): base(info, context)
+        {
+        }
 
         public  override    string          Source
         {
@@ -133,6 +146,9 @@ namespace Jannesen.Web.Core.Impl
         {
         }
         public                              WebHandlerConfigException(string message, Exception innerException): base(message, innerException)
+        {
+        }
+        protected                           WebHandlerConfigException(SerializationInfo info, StreamingContext context): base(info, context)
         {
         }
 
@@ -155,6 +171,9 @@ namespace Jannesen.Web.Core.Impl
         }
 
         public                              WebResourceNotFoundException(string message): base(message)
+        {
+        }
+        protected                           WebResourceNotFoundException(SerializationInfo info, StreamingContext context): base(info, context)
         {
         }
 
@@ -182,6 +201,9 @@ namespace Jannesen.Web.Core.Impl
         public                              WebInitializationException(string message, Exception innerException): base(message, innerException)
         {
         }
+        protected                           WebInitializationException(SerializationInfo info, StreamingContext context): base(info, context)
+        {
+        }
     }
 
     [Serializable]
@@ -197,6 +219,9 @@ namespace Jannesen.Web.Core.Impl
         public                              WebAppNotInitialized(): base("WebApplication not initialized")
         {
         }
+        protected                           WebAppNotInitialized(SerializationInfo info, StreamingContext context): base(info, context)
+        {
+        }
     }
 
     [Serializable]
@@ -210,6 +235,9 @@ namespace Jannesen.Web.Core.Impl
         }
 
         public                              WebResourceDownException(string message): base(message)
+        {
+        }
+        protected                           WebResourceDownException(SerializationInfo info, StreamingContext context): base(info, context)
         {
         }
     }
@@ -230,6 +258,9 @@ namespace Jannesen.Web.Core.Impl
         public                              WebRequestException(string message, Exception innerException): base(message, innerException)
         {
         }
+        protected                           WebRequestException(SerializationInfo info, StreamingContext context): base(info, context)
+        {
+        }
     }
 
     [Serializable]
@@ -246,6 +277,9 @@ namespace Jannesen.Web.Core.Impl
         {
         }
         public                              WebResponseException(string message, Exception innerException): base(message, innerException)
+        {
+        }
+        protected                           WebResponseException(SerializationInfo info, StreamingContext context): base(info, context)
         {
         }
     }
@@ -266,6 +300,9 @@ namespace Jannesen.Web.Core.Impl
         public                              WebBasicAutorizationException(string message, Exception innerException): base(message, innerException)
         {
         }
+        protected                           WebBasicAutorizationException(SerializationInfo info, StreamingContext context): base(info, context)
+        {
+        }
     }
 
     [Serializable]
@@ -279,6 +316,9 @@ namespace Jannesen.Web.Core.Impl
         }
 
         public                              InternalErrorException(string message): base(message)
+        {
+        }
+        protected                           InternalErrorException(SerializationInfo info, StreamingContext context): base(info, context)
         {
         }
     }

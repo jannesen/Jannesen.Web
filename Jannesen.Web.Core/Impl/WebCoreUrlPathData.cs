@@ -1,13 +1,17 @@
 ﻿using System;
 using System.Collections.Specialized;
+using System.Runtime.Serialization;
 using System.Text.RegularExpressions;
 
 namespace Jannesen.Web.Core.Impl
 {
-    [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Usage", "CA2237:MarkISerializableTypesWithSerializable")]
+    [Serializable]
     public class WebCoreUrlPathData: NameValueCollection, IWebCoreCallProcessor
     {
         public                      WebCoreUrlPathData()
+        {
+        }
+        protected                   WebCoreUrlPathData(SerializationInfo info, StreamingContext context): base(info, context)
         {
         }
 

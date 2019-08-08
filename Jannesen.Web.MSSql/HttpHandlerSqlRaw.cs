@@ -33,7 +33,7 @@ namespace Jannesen.Web.MSSql.Sqx
             if (HandleResponseOptions(webResponseBuffer, dataReader) == HttpStatusCode.OK) {
                 if (dataReader.Read()) {
                     for (int col= 0 ; col < dataReader.FieldCount ; ++col) {
-                        switch(dataReader.GetName(col).ToLower()) {
+                        switch(dataReader.GetName(col).ToLowerInvariant()) {
                         case "content-type": {
                                 SqlString   String = dataReader.GetSqlString(col);
 

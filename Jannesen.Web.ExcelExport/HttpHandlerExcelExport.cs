@@ -16,8 +16,8 @@ namespace Jannesen.Web.ExcelExport
     [WebCoreAttribureHttpHandler("sql-excelexport")]
     public class HttpHandlerExcelExport: HttpHandlerMSSql
     {
-        private                 ConfigSheetList             _sheets;
-        private     static      object                      _singleLock = new Object();
+        private     readonly    ConfigSheetList             _sheets;
+        private static readonly object                      _singleLock = new Object();
 
         public                                              HttpHandlerExcelExport(WebCoreConfigReader configReader): base(configReader)
         {

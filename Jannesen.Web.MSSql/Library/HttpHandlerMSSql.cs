@@ -12,11 +12,11 @@ namespace Jannesen.Web.MSSql.Library
 {
     public abstract class HttpHandlerMSSql: WebCoreHttpHandler
     {
-        private                 string                      _procedure;
-        private                 string                      _database;
-        private                 int                         _timeout;
-        private                 ParameterList               _parameters;
-        private                 bool                        _mapTo200;
+        private readonly        string                      _procedure;
+        private readonly        string                      _database;
+        private readonly        int                         _timeout;
+        private readonly        ParameterList               _parameters;
+        private readonly        bool                        _mapTo200;
 
         public      override    bool                        MapTo200
         {
@@ -45,17 +45,14 @@ namespace Jannesen.Web.MSSql.Library
             _parameters.Add(parameter);
         }
 
-        [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Security", "CA2100:Review SQL queries for security vulnerabilities")]
         public       override   WebCoreResponse             Process(WebCoreCall httpCall)
         {
             int retry_count = 0;
 
 retry:      using (SqlConnection sqlConnection = GetConnection())
             {
-                using (SqlCommand sqlCommand = new SqlCommand(_procedure, sqlConnection))
+                using (SqlCommand sqlCommand = new SqlCommand(_procedure, sqlConnection) {CommandType = CommandType.StoredProcedure, CommandTimeout = _timeout } )
                 {
-                    sqlCommand.CommandType    = CommandType.StoredProcedure;
-                    sqlCommand.CommandTimeout = _timeout;
                     _parameters.AddParametersToCommand(sqlCommand, httpCall);
 
                     try {
@@ -80,7 +77,7 @@ retry:      using (SqlConnection sqlConnection = GetConnection())
                 string      msg = err.Message;
                 int         i;
 
-                if (msg.Length > 2 && msg[0] == '[' && (i = msg.IndexOf("] ")) > 0) {
+                if (msg.Length > 2 && msg[0] == '[' && (i = msg.IndexOf("] ", StringComparison.InvariantCulture)) > 0) {
                     code = msg.Substring(1, i - 1);
                 }
                 else {
@@ -120,10 +117,10 @@ retry:      using (SqlConnection sqlConnection = GetConnection())
         {
             return WebApplication.GetResource<ResourceMSSqlDatabase>(_database).GetConnection();
         }
-        protected               HttpStatusCode              HandleResponseOptions(WebCoreResponseBuffer webResponseBuffer, SqlDataReader dataReader)
+        protected   static      HttpStatusCode              HandleResponseOptions(WebCoreResponseBuffer webResponseBuffer, SqlDataReader dataReader)
         {
             try {
-                if (dataReader.FieldCount>0 && dataReader.GetName(0).StartsWith("opt.")) {
+                if (dataReader.FieldCount>0 && dataReader.GetName(0).StartsWith("opt.", StringComparison.InvariantCulture)) {
                     if (dataReader.Read()) {
                         for (int i = 0 ; i < dataReader.FieldCount ; ++i) {
                             string fieldname = dataReader.GetName(i);

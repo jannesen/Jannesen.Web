@@ -4,10 +4,10 @@ using System.Web;
 
 namespace Jannesen.Web.Core.Impl
 {
-    public abstract class WebCoreResource
+    public abstract class WebCoreResource: IDisposable
     {
-        private                 string              _name;
-        private                 bool                _down;
+        private readonly        string              _name;
+        private readonly        bool                _down;
 
         public      abstract    string              Type
         {
@@ -31,15 +31,23 @@ namespace Jannesen.Web.Core.Impl
             _name = configReader.GetValueString("name");
             _down = configReader.GetValueBool  ("down", false);
         }
-
-        public      virtual     void                Unload()
+                                                    ~WebCoreResource()
+        {
+            Dispose(false);
+        }
+        public                  void                Dispose()
+        {
+            Dispose(true);
+            GC.SuppressFinalize(this);
+        }
+        protected   virtual     void                Dispose(bool disposing)
         {
         }
     }
 
-    public class CoreResourceDictionary
+    public sealed class CoreResourceDictionary: IDisposable
     {
-        private                 Dictionary<string, WebCoreResource>     _dictionary;
+        private readonly        Dictionary<string, WebCoreResource>     _dictionary;
 
         public                                                          CoreResourceDictionary()
         {
@@ -55,21 +63,21 @@ namespace Jannesen.Web.Core.Impl
 
             throw new WebResourceNotFoundException("Unknown resource '" + type.Name + "/" + name + "'.");
         }
-
-        public                  void                                    Add(WebCoreResource resource)
-        {
-            _dictionary.Add(resource.GetType().Name + "/" + resource.Name, resource);
-        }
-        public                  void                                    Unload()
+        public                  void                                    Dispose()
         {
             foreach(WebCoreResource resource in _dictionary.Values) {
                 try {
-                    resource.Unload();
+                    resource.Dispose();
                 }
                 catch(Exception err) {
                     WebApplication.LogError("Unloading resource '" + resource.Name + "' failed.", err);
                 }
             }
+        }
+
+        public                  void                                    Add(WebCoreResource resource)
+        {
+            _dictionary.Add(resource.GetType().Name + "/" + resource.Name, resource);
         }
     }
 }

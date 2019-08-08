@@ -2,6 +2,7 @@
 using System.Data;
 using System.Data.SqlClient;
 using System.Data.SqlTypes;
+using System.Globalization;
 
 namespace Jannesen.Web.MSSql.Library.BaseType
 {
@@ -45,7 +46,7 @@ namespace Jannesen.Web.MSSql.Library.BaseType
 
         public          override            string              ToString()
         {
-            return "binary(" + Length.ToString() + ")";
+            return "binary(" + Length.ToString(CultureInfo.InvariantCulture) + ")";
         }
     }
 }

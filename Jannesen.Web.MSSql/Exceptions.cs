@@ -10,6 +10,9 @@ namespace Jannesen.Web.MSSql
         public                              NoDataException(string message): base(message)
         {
         }
+        protected                           NoDataException(SerializationInfo info,  StreamingContext context): base(info, context)
+        {
+        }
 
         public  override    string          Source
         {

@@ -5,8 +5,8 @@ namespace Jannesen.Web.Core
 {
     public class ApplModule: IHttpModule
     {
-        public      static              object      _lock = new object();
-        public      static              int         _usage;
+        private     static readonly     object      _lock = new object();
+        private     static              int         _usage;
 
         public                          void        Dispose()
         {

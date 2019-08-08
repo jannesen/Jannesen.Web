@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Globalization;
 using System.Net;
 using System.Web;
 
@@ -7,11 +8,11 @@ namespace Jannesen.Web.Core.Impl
 {
     public abstract class WebCoreHttpHandler: IHttpHandler
     {
-        private                 string                              _path;
-        private                 string                              _verb;
-        private                 bool                                _public;
-        private                 WebCoreWildcardPathProcessor        _wildcardPathProcessor;
-        private                 ResourceLogging                     _logging;
+        private readonly        string                              _path;
+        private readonly        string                              _verb;
+        private readonly        bool                                _public;
+        private readonly        WebCoreWildcardPathProcessor        _wildcardPathProcessor;
+        private readonly        ResourceLogging                     _logging;
 
         public                  string                              Path
         {
@@ -66,7 +67,7 @@ namespace Jannesen.Web.Core.Impl
         public                                                      WebCoreHttpHandler(WebCoreConfigReader configReader)
         {
             _path   = configReader.GetValuePathName("path");
-            _verb   = string.Intern(configReader.GetValueString("verb", "GET").ToUpper());
+            _verb   = string.Intern(configReader.GetValueString("verb", "GET").ToUpperInvariant());
             _public = configReader.GetValueBool("public", false);
 
             string logging = configReader.GetValueString("logging", null);
@@ -84,7 +85,7 @@ namespace Jannesen.Web.Core.Impl
 
         public      virtual     void                                ProcessRequest(HttpContext context)
         {
-            System.Threading.Thread.CurrentThread.CurrentCulture = System.Globalization.CultureInfo.InvariantCulture;
+            System.Threading.Thread.CurrentThread.CurrentCulture = CultureInfo.InvariantCulture;
 
             if (Public) {
                 using (SystemSection systemSection = new SystemSection())
@@ -153,8 +154,8 @@ namespace Jannesen.Web.Core.Impl
     {
         private class VerbDictionary
         {
-            private                 Dictionary<string, WebCoreHttpHandler>      _exact;
-            private                 List<WebCoreHttpHandler>                    _wildcard;
+            private readonly            Dictionary<string, WebCoreHttpHandler>      _exact;
+            private readonly            List<WebCoreHttpHandler>                    _wildcard;
 
             public                                                              VerbDictionary()
             {
@@ -193,7 +194,7 @@ namespace Jannesen.Web.Core.Impl
             }
         }
 
-        private                 Dictionary<string, VerbDictionary>          _dictionary;
+        private readonly        Dictionary<string, VerbDictionary>          _dictionary;
 
         public                                                              CoreHttpHandlerDictionary()
         {

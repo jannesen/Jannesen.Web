@@ -8,12 +8,12 @@ namespace Jannesen.Web.StaticFile.Internal
 {
     class FileCache
     {
-        private                 string                      _physicalPath;
-        private                 string                      _contentEncoding;
-        private                 byte[]                      _data;
-        private                 DateTime                    _lastWriteTimeUtc;
-        private                 string                      _eTag;
-        private                 bool                        _decodeCharSet;
+        private readonly        string                      _physicalPath;
+        private readonly        string                      _contentEncoding;
+        private readonly        byte[]                      _data;
+        private readonly        DateTime                    _lastWriteTimeUtc;
+        private readonly        string                      _eTag;
+        private readonly        bool                        _decodeCharSet;
 
         public                  string                      PhysicalPath
         {
@@ -97,7 +97,7 @@ namespace Jannesen.Web.StaticFile.Internal
             }
 
             _lastWriteTimeUtc = fileinfo.LastWriteTimeUtc;
-//          _eTag             = "W/\"" + fileinfo.LastWriteTimeUtc.ToFileTimeUtc().ToString("x8", System.Globalization.CultureInfo.InvariantCulture) + "\"";
+//          _eTag             = "W/\"" + fileinfo.LastWriteTimeUtc.ToFileTimeUtc().ToString("x8", CultureInfo.InvariantCulture) + "\"";
         }
 
         public                  ResponseStaticCache         GetCompressedResponse(string contentType, bool publicCache)

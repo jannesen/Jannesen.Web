@@ -27,7 +27,7 @@ namespace Jannesen.Web.MSSql.Sqx
                     return new ResponseObject(configReader, true, root);
 
                 default:
-                    if (type.StartsWith("array:"))
+                    if (type.StartsWith("array:", StringComparison.InvariantCulture))
                         return new ResponseArray(configReader, type.Substring(6));
 
                     return new ResponseValue(type);
@@ -41,7 +41,7 @@ namespace Jannesen.Web.MSSql.Sqx
         }
         class ResponseValue: ResponseRoot
         {
-            private                 ValueConvertor              _valueConvertor;
+            private readonly        ValueConvertor              _valueConvertor;
 
             public                                              ResponseValue(string nativeType)
             {
@@ -213,8 +213,8 @@ namespace Jannesen.Web.MSSql.Sqx
             }
         }
 
-        private                 bool                        _jsmodule;
-        private                 ResponseMsg[]               _responses;
+        private readonly        bool                        _jsmodule;
+        private readonly        ResponseMsg[]               _responses;
 
         public                                              HttpHandlerSqlXmlJson2(WebCoreConfigReader configReader): base(configReader)
         {
@@ -244,7 +244,7 @@ namespace Jannesen.Web.MSSql.Sqx
                     _responses = responses.ToArray();
             }
 
-            if (Path.EndsWith(".js")) {
+            if (Path.EndsWith(".js", StringComparison.InvariantCulture)) {
                 if (_responses == null)
                     throw new WebConfigException("Missing response", configReader);
 
@@ -252,7 +252,6 @@ namespace Jannesen.Web.MSSql.Sqx
             }
         }
 
-        [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Usage", "CA2202:Do not dispose objects multiple times")] //!!Bug in validate don't known leaveOpen
         protected   override    WebCoreResponse             Process(WebCoreCall httpCall, SqlCommand sqlCommand)
         {
             var responseBuffer = new WebCoreResponseBuffer(Mimetype + "; charset=utf-8", this.Public, true);

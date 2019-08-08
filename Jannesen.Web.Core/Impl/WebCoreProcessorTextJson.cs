@@ -39,7 +39,7 @@ namespace Jannesen.Web.Core.Impl
             if (!(_document is JsonObject))
                 throw new WebRequestException("JSON root must by a object");
 
-            if (name.IndexOf(".") < 0)
+            if (name.IndexOf(".", StringComparison.InvariantCulture) < 0)
                 return ((JsonObject)_document).TryGetValue(name, out rtn);
 
             object  obj = _document;

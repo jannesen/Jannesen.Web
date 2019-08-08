@@ -2,14 +2,15 @@
 using System.Data;
 using System.Data.SqlClient;
 using System.Data.SqlTypes;
+using System.Globalization;
 
 namespace Jannesen.Web.MSSql.Library.BaseType
 {
     [ValueConvertorAttributeBaseType("decimal")]
     class sql_decimal: ValueConvertor_SqlNative
     {
-        private                             int                 _precision;
-        private                             int                 _scale;
+        private readonly                    int                 _precision;
+        private readonly                    int                 _scale;
 
         public                              int                 Precision
         {
@@ -36,12 +37,12 @@ namespace Jannesen.Web.MSSql.Library.BaseType
                 int     i = s.IndexOf(',');
 
                 if (i < 0) {
-                    _precision = int.Parse(s);
+                    _precision = int.Parse(s, System.Globalization.NumberStyles.Integer, CultureInfo.InvariantCulture);
                     _scale     = 0;
                 }
                 else {
-                    _precision = int.Parse(s.Substring(0, i));
-                    _scale     = int.Parse(s.Substring(i + 1));
+                    _precision = int.Parse(s.Substring(0, i), System.Globalization.NumberStyles.Integer, CultureInfo.InvariantCulture);
+                    _scale     = int.Parse(s.Substring(i + 1), System.Globalization.NumberStyles.Integer, CultureInfo.InvariantCulture);
                 }
             }
             catch
@@ -67,7 +68,7 @@ namespace Jannesen.Web.MSSql.Library.BaseType
             if (string.IsNullOrEmpty(sValue))
                 return null;
 
-            return decimal.Parse(sValue, System.Globalization.CultureInfo.InvariantCulture);
+            return decimal.Parse(sValue, CultureInfo.InvariantCulture);
         }
         public          override            void                ConvertXmlValueToJson(string sValue, Jannesen.FileFormat.Json.JsonWriter jsonWriter)
         {
@@ -76,7 +77,7 @@ namespace Jannesen.Web.MSSql.Library.BaseType
 
         public          override            string              ToString()
         {
-            return "decimal(" + Precision.ToString() + "." + Scale.ToString() + ")";
+            return "decimal(" + Precision.ToString(CultureInfo.InvariantCulture) + "." + Scale.ToString(CultureInfo.InvariantCulture) + ")";
         }
     }
 }

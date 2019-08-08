@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Globalization;
 using System.Text;
 using System.Xml;
 
@@ -7,10 +8,10 @@ namespace Jannesen.Web.Core.Impl
 {
     public sealed class WebCoreConfigReader : IDisposable
     {
-        private                 WebApplication      _application;
-        private                 string              _path;
-        private                 string              _filename;
-        private                 XmlTextReader       _xmlReader;
+        private readonly        WebApplication      _application;
+        private readonly        string              _path;
+        private readonly        string              _filename;
+        private readonly        XmlTextReader       _xmlReader;
 
         public                  string              Path
         {
@@ -63,7 +64,7 @@ namespace Jannesen.Web.Core.Impl
             _application = application;
             _path        = path;
             _filename    = filename;
-            _xmlReader   = new XmlTextReader(_filename);
+            _xmlReader   = new XmlTextReader(_filename) { DtdProcessing = DtdProcessing.Prohibit, XmlResolver = null };
         }
         public                  void                Dispose()
         {
@@ -141,7 +142,7 @@ namespace Jannesen.Web.Core.Impl
                 parts.RemoveAt(parts.Count - 1);
             }
             else
-            if (_filename.StartsWith("\\")) {
+            if (_filename.StartsWith("\\", StringComparison.InvariantCulture)) {
                 throw new WebConfigException("Relative to UNC not supported.", this);
             }
             else
@@ -199,7 +200,7 @@ namespace Jannesen.Web.Core.Impl
                 throw new WebConfigException("Missing attribute '" + name + "'.", this);
 
             try {
-                ivalue = int.Parse(value, System.Globalization.CultureInfo.InvariantCulture);
+                ivalue = int.Parse(value, CultureInfo.InvariantCulture);
             }
             catch(Exception) {
                 throw new WebConfigException("Invalid integer value in attribute '" + name + "'.", this);
@@ -219,7 +220,7 @@ namespace Jannesen.Web.Core.Impl
                 return defaultValue;
 
             try {
-                ivalue = int.Parse(value, System.Globalization.CultureInfo.InvariantCulture);
+                ivalue = int.Parse(value, CultureInfo.InvariantCulture);
             }
             catch(Exception) {
                 throw new WebConfigException("Invalid integer value in attribute '" + name + "'.", this);
@@ -239,7 +240,7 @@ namespace Jannesen.Web.Core.Impl
                 return null;
 
             try {
-                ivalue = int.Parse(value, System.Globalization.CultureInfo.InvariantCulture);
+                ivalue = int.Parse(value, CultureInfo.InvariantCulture);
             }
             catch(Exception) {
                 throw new WebConfigException("Invalid integer value in attribute '" + name + "'.", this);
@@ -292,7 +293,7 @@ namespace Jannesen.Web.Core.Impl
                 throw new WebConfigException("Missing attribute '" + name + "'.", this);
 
             try {
-                dvalue = double.Parse(value, System.Globalization.CultureInfo.InvariantCulture);
+                dvalue = double.Parse(value, CultureInfo.InvariantCulture);
             }
             catch(Exception) {
                 throw new WebConfigException("Invalid double value in attribute '" + name + "'.", this);
@@ -312,7 +313,7 @@ namespace Jannesen.Web.Core.Impl
                 return defaultValue;
 
             try {
-                dvalue = double.Parse(value, System.Globalization.CultureInfo.InvariantCulture);
+                dvalue = double.Parse(value, CultureInfo.InvariantCulture);
             }
             catch(Exception) {
                 throw new WebConfigException("Invalid double value in attribute '" + name + "'.", this);
@@ -332,7 +333,7 @@ namespace Jannesen.Web.Core.Impl
                 return null;
 
             try {
-                dvalue = double.Parse(value, System.Globalization.CultureInfo.InvariantCulture);
+                dvalue = double.Parse(value, CultureInfo.InvariantCulture);
             }
             catch(Exception) {
                 throw new WebConfigException("Invalid double value in attribute '" + name + "'.", this);
@@ -353,10 +354,22 @@ namespace Jannesen.Web.Core.Impl
 //          if (pathname == "/" || pathname.IndexOf('\\') >= 0 || pathname.IndexOf("/./") >= 0 || pathname.IndexOf("/../") >= 0)
 //              throw new WebConfigException("Invalid pathname in attribute '" + name + "'.", this);
 
-            if (pathname.StartsWith("/"))
+            if (pathname.StartsWith("/", StringComparison.InvariantCulture))
                 return pathname;
 
             return _path + pathname;
+        }
+
+        public                  Dictionary<string, string>  GetValueDictionary()
+        {
+            var dictionary = new Dictionary<string, string>();
+
+            while (_xmlReader.MoveToNextAttribute())
+            {
+                dictionary.Add(_xmlReader.Name, _xmlReader.Value);
+            }
+
+            return dictionary;
         }
     }
 }

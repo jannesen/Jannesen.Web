@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Data;
+using System.Globalization;
 using System.Text;
 using Jannesen.Web.Core;
 using Jannesen.Web.Core.Impl;
@@ -12,7 +13,7 @@ namespace Jannesen.Web.MSSql.Library
         public      abstract            SqlDbType           DBType                      { get; }
         public      abstract            Type                ClrType                     { get; }
 
-        private     static              Dictionary<string, ValueConvertor>       _cache = new Dictionary<string, ValueConvertor>(256);
+        private     static readonly     Dictionary<string, ValueConvertor>       _cache = new Dictionary<string, ValueConvertor>(256);
 
         public      static              ValueConvertor      GetType(string nameparameter)
         {
@@ -79,14 +80,14 @@ namespace Jannesen.Web.MSSql.Library
                 throw new FormatException("Syntax error type.");
         }
 
-        protected                       void                ConvertIntValueToJson(string sint, Jannesen.FileFormat.Json.JsonWriter jsonWriter)
+        protected   static              void                ConvertIntValueToJson(string sint, Jannesen.FileFormat.Json.JsonWriter jsonWriter)
         {
             if (string.IsNullOrEmpty(sint))
                 jsonWriter.WriteNull();
             else
                 jsonWriter.WriteRawValue(sint);
         }
-        protected                       void                ConvertNumberValueToJson(string snumber, Jannesen.FileFormat.Json.JsonWriter jsonWriter)
+        protected   static              void                ConvertNumberValueToJson(string snumber, Jannesen.FileFormat.Json.JsonWriter jsonWriter)
         {
             if (string.IsNullOrEmpty(snumber))
                 jsonWriter.WriteNull();
@@ -166,7 +167,7 @@ namespace Jannesen.Web.MSSql.Library
 
     public abstract class ValueConvertor_SqlNativeWithLength: ValueConvertor_SqlNative
     {
-        private                         int                 _length;
+        private readonly                int                 _length;
 
         public                          int                 Length
         {
@@ -180,7 +181,7 @@ namespace Jannesen.Web.MSSql.Library
             if (string.IsNullOrEmpty(s))
                 throw new FormatException("Syntax error sql-type.");
 
-            _length = (s == "max") ? int.MaxValue : int.Parse(s);
+            _length = (s == "max") ? int.MaxValue : int.Parse(s, System.Globalization.NumberStyles.Integer, CultureInfo.InvariantCulture);
         }
     }
 }

@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Globalization;
 using System.IO;
 using System.Net;
 using System.Web;
@@ -9,8 +10,8 @@ namespace Jannesen.Web.Core.Impl
     public class WebCoreResponseBuffer: WebCoreResponse
     {
         private                 string              _contentType;
-        private                 bool                _cachepublic;
-        private                 bool                _compression;
+        private readonly        bool                _cachepublic;
+        private readonly        bool                _compression;
         private                 DateTime            _lastModified;
         private                 string              _eTag;
         private                 int                 _cacheMaxAge;
@@ -95,14 +96,14 @@ namespace Jannesen.Web.Core.Impl
         public                  void                SetData(byte[] data)
         {
             if (data == null)
-                throw new ArgumentNullException("data");
+                throw new ArgumentNullException(nameof(data));
             _data   = data;
             _length = data.Length;
         }
         public                  void                SetData(byte[] data, int length)
         {
             if (data == null)
-                throw new ArgumentNullException("data");
+                throw new ArgumentNullException(nameof(data));
 
             _data   = data;
             _length = length;
@@ -131,7 +132,7 @@ namespace Jannesen.Web.Core.Impl
                     }
 
                     response.AddHeader("Cache-Control", _cacheMaxAge >= 0
-                                                        ? ((_cachepublic ? "public, max-age=" : "private, max-age=") + _cacheMaxAge.ToString() + ", must-revalidate")
+                                                        ? ((_cachepublic ? "public, max-age=" : "private, max-age=") + _cacheMaxAge.ToString(CultureInfo.InvariantCulture) + ", must-revalidate")
                                                         : ((_cachepublic ? "public"           : "private"          )                                                ));
 
                     if ((req_etag != null             && _eTag == req_etag                   ) ||
@@ -143,7 +144,7 @@ namespace Jannesen.Web.Core.Impl
                 }
                 else
                 if (_cacheMaxAge > 0)
-                    response.AddHeader("Cache-Control", (_cachepublic ? "public, max-age=" : "private, max-age=") + _cacheMaxAge.ToString());
+                    response.AddHeader("Cache-Control", (_cachepublic ? "public, max-age=" : "private, max-age=") + _cacheMaxAge.ToString(CultureInfo.InvariantCulture));
                 else
                     response.AddHeader("Cache-Control", "no-cache, no-store");
             }
@@ -167,7 +168,7 @@ namespace Jannesen.Web.Core.Impl
                                 using (Stream stream = GetCompressor(contentEncoding, buffer))
                                     stream.Write(_data, 0, _length);
 
-                                response.AppendHeader("Content-Length", buffer.Length.ToString());
+                                response.AppendHeader("Content-Length", buffer.Length.ToString(CultureInfo.InvariantCulture));
                                 response.OutputStream.Write(buffer.GetBuffer(), 0, (int)buffer.Length);
                             }
 
@@ -175,7 +176,7 @@ namespace Jannesen.Web.Core.Impl
                         }
                     }
 
-                    response.AppendHeader("Content-Length", _length.ToString());
+                    response.AppendHeader("Content-Length", _length.ToString(CultureInfo.InvariantCulture));
                     response.OutputStream.Write(_data, 0, _length);
                 }
             }
@@ -183,7 +184,7 @@ namespace Jannesen.Web.Core.Impl
 
         public      override    void                WriteLoggingData(StreamWriter writer)
         {
-            if (_contentType.IndexOf("charset=utf-8") > 0) {
+            if (_contentType.IndexOf("charset=utf-8", StringComparison.InvariantCulture) > 0) {
                 writer.WriteLine();
                 writer.Flush();
                 writer.BaseStream.Write(_data, 0, _length);

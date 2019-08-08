@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Globalization;
 using System.IO;
 using System.Reflection;
 using System.Web;
@@ -8,7 +9,7 @@ using Jannesen.Web.Core.Impl;
 
 namespace Jannesen.Web.Core
 {
-    public class WebApplication
+    public class WebApplication: IDisposable
     {
         public  enum    EventID
         {
@@ -57,18 +58,17 @@ namespace Jannesen.Web.Core
             }
         }
 
-        private     static              object                                                      _appLock      = new object();
+        private     static readonly     object                                                      _appLock      = new object();
         private     static              WebApplication                                              _application  = null;
         private     static              string                                                      _name         = "Jannesen.Web";
 
         private                         AppStatus                                                   _status;
-        private                         string                                                      _basePath;
-        private                         string                                                      _appPath;
-        private                         List<DependanceFile>                                        _dependanceFiles;
-        private                         List<Assembly>                                              _loadedModules;
-        private                         Dictionary<WebCoreAttribureDynamicClass, ConstructorInfo>   _dynamicClasses;
-        private                         CoreHttpHandlerDictionary                                   _httpHandlers;
-        private                         CoreResourceDictionary                                      _resources;
+        private     readonly            string                                                      _basePath;
+        private     readonly            List<DependanceFile>                                        _dependanceFiles;
+        private     readonly            List<Assembly>                                              _loadedModules;
+        private     readonly            Dictionary<WebCoreAttribureDynamicClass, ConstructorInfo>   _dynamicClasses;
+        private     readonly            CoreHttpHandlerDictionary                                   _httpHandlers;
+        private     readonly            CoreResourceDictionary                                      _resources;
         private                         DateTime                                                    _nextDependanceCheck;
 
         public      static              string                              Name
@@ -118,7 +118,7 @@ namespace Jannesen.Web.Core
             if (exception.Errors.Count > 0) {
                 EventID id = EventID.Warning;
 
-                if (!message.EndsWith("\n"))
+                if (!message.EndsWith("\n", StringComparison.InvariantCulture))
                     message += "\r\n";
 
                 message += "\r\nSqlError(s):\r\n" ;
@@ -132,7 +132,7 @@ namespace Jannesen.Web.Core
                     if (!string.IsNullOrEmpty(err.Procedure))
                         message += err.Procedure + "(" + err.LineNumber + "): ";
 
-                    message += "#" + err.Number.ToString() + " " + err.Message + "\r\n";
+                    message += "#" + err.Number.ToString(CultureInfo.InvariantCulture) + " " + err.Message + "\r\n";
                 }
 
                 LogEvent(id, message);
@@ -149,7 +149,7 @@ namespace Jannesen.Web.Core
             Exception ex;
 
             if (exception != null) {
-                if (!message.EndsWith("\n"))
+                if (!message.EndsWith("\n", StringComparison.InvariantCulture))
                     message += "\r\n";
 
                 message += "\r\nException(s):\r\n" ;
@@ -162,7 +162,7 @@ namespace Jannesen.Web.Core
 
                     if (ex is IFileLocation fileLocation) {
                         if (fileLocation !=null && fileLocation.Filename != null)
-                            m = fileLocation.Filename + "(" + fileLocation.LineNumber.ToString() + "): " + m;
+                            m = fileLocation.Filename + "(" + fileLocation.LineNumber.ToString(CultureInfo.InvariantCulture) + "): " + m;
                     }
 
                     message += "  " + m + "\r\n";
@@ -284,17 +284,16 @@ namespace Jannesen.Web.Core
         {
             lock(_appLock) {
                 if (_application != null) {
-                    _application.Unload();
+                    _application.Dispose();
                     _application = null;
                 }
             }
         }
 
-        public                                                              WebApplication(string basePath, string appPath)
+        public                                                              WebApplication(string basePath)
         {
             _status              = AppStatus.None;
             _basePath            = basePath;
-            _appPath             = appPath;
             _dependanceFiles     = new List<DependanceFile>(32);
             _loadedModules       = new List<Assembly>();
             _dynamicClasses      = new Dictionary<WebCoreAttribureDynamicClass, ConstructorInfo>(256);
@@ -302,8 +301,21 @@ namespace Jannesen.Web.Core
             _resources           = new CoreResourceDictionary();
             _nextDependanceCheck = DateTime.UtcNow.AddTicks(TimeSpan.TicksPerSecond * DependanceCheckTime);
 
-            if (!_basePath.EndsWith("/"))
+            if (!_basePath.EndsWith("/", StringComparison.InvariantCulture))
                 _basePath += "/";
+        }
+                                                                            ~WebApplication()
+        {
+            Dispose(false);
+        }
+        public                          void                                Dispose()
+        {
+            Dispose(true);
+            GC.SuppressFinalize(this);
+        }
+        protected   virtual             void                                Dispose(bool disposing)
+        {
+            _resources.Dispose();
         }
 
         public                          WebCoreHttpHandler                  waGetHttpHandler(string path, string verb)
@@ -316,7 +328,7 @@ namespace Jannesen.Web.Core
         }
         public                          string                              waGetRelPath(string path)
         {
-            if (string.Compare(path, 0, _basePath, 0, _basePath.Length, true) != 0)
+            if (string.Compare(path, 0, _basePath, 0, _basePath.Length, StringComparison.InvariantCultureIgnoreCase) != 0)
                 throw new InternalErrorException("Requested path not in application");
 
             return path.Substring(_basePath.Length-1);
@@ -326,7 +338,7 @@ namespace Jannesen.Web.Core
             if (source.IndexOf(Jannesen.Web.Core.Impl.Source.multiple.SplitChar) >= 0)
                 return new Jannesen.Web.Core.Impl.Source.multiple(source, name);
 
-            int         sep     = source.IndexOf(":");
+            int         sep     = source.IndexOf(":", StringComparison.InvariantCulture);
 
             if (sep > 0) {
                 name   = source.Substring(sep + 1);
@@ -367,11 +379,11 @@ namespace Jannesen.Web.Core
         protected   static              void                                InitializeAppl()
         {
             if (_application != null) {
-                _application.Unload();
+                _application.Dispose();
                 LogEvent(EventID.ReInitialize, "Reinitialize");
             }
 
-            _application = new WebApplication(HttpRuntime.AppDomainAppVirtualPath, HttpRuntime.AppDomainAppPath);
+            _application = new WebApplication(HttpRuntime.AppDomainAppVirtualPath);
             _application.LoadConfiguration();
         }
         protected                       bool                                NeedsReInitialize()
@@ -420,10 +432,6 @@ namespace Jannesen.Web.Core
                     LogError("Initialization failed." , err);
                 }
             }
-        }
-        protected                       void                                Unload()
-        {
-            _resources.Unload();
         }
 
         private                         int                                 _loadDirectoryConfig(VirtualDirectory vdir)
@@ -493,7 +501,7 @@ namespace Jannesen.Web.Core
                                     string  file = configReader.GetValueString("file").Replace("\\", "/");
                                     configReader.NoChildElements();
 
-                                    if (file.StartsWith("../") || abspath == null) {
+                                    if (file.StartsWith("../", StringComparison.InvariantCulture) || abspath == null) {
                                         if (_loadConfig(null, configReader.CombinePhysicalPath(file)) < 0)
                                             rtn = -1;
                                     }
@@ -572,17 +580,6 @@ namespace Jannesen.Web.Core
                     throw new WebInitializationException("Failed to process class '" + type.FullName + "'.", err);
                 }
             }
-        }
-        private     static              string[]                            _directories(string path)
-        {
-            List<string>        names = new List<string>();
-
-            foreach(DirectoryInfo info in (new DirectoryInfo(path)).GetDirectories())
-                names.Add(info.Name);
-
-            names.Sort();
-
-            return names.ToArray();
         }
     }
 }

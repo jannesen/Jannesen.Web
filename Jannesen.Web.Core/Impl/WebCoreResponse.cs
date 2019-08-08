@@ -10,7 +10,7 @@ namespace Jannesen.Web.Core.Impl
         public      abstract    void            Send(WebCoreCall call, HttpResponse response);
         public      abstract    void            WriteLoggingData(StreamWriter writer);
 
-        private     static      string[]        _compressors = new string[] { "gzip", "deflate" };
+        private static readonly string[]        _compressors = new string[] { "gzip", "deflate" };
         public      static      string          GetResponseCompressionEncoding(WebCoreCall httpCall)
         {
             string s = httpCall.Request.Headers["Accept-Encoding"];
@@ -19,10 +19,10 @@ namespace Jannesen.Web.Core.Impl
                 for(int c = 0 ; c < _compressors.Length ; ++c) {
                     string compressor = _compressors[c];
 
-                    int i = s.IndexOf(compressor);
+                    int i = s.IndexOf(compressor, StringComparison.InvariantCulture);
 
                     if (i >= 0) {
-                        i = i + compressor.Length;
+                        i += compressor.Length;
 
                         if (i >= s.Length || s[i] == ',')
                             return compressor;

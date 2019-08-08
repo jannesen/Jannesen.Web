@@ -24,7 +24,9 @@ namespace Jannesen.Web.MSSql.Library.Source
 
             using (StringWriter stringWriter = new StringWriter())
             {
+#pragma warning disable CA2000 // refecence to stringWriter which is disposed
                 XmlWriter xmlWriter = XmlWriter.Create(stringWriter, new XmlWriterSettings() { CloseOutput=false, OmitXmlDeclaration=true });
+#pragma warning restore CA2000
 
                 if (jsondoc is JsonObject)
                     _jsonToXmlElement(xmlWriter, "json-object", (JsonObject)jsondoc);
@@ -79,7 +81,7 @@ namespace Jannesen.Web.MSSql.Library.Source
 
             xmlWriter.WriteEndElement();
         }
-        private                     void                    _jsonToXmlAttribute(XmlWriter xmlWriter, string attributeName, object value)
+        private     static          void                    _jsonToXmlAttribute(XmlWriter xmlWriter, string attributeName, object value)
         {
             if (value != null) {
                 if (value is string)

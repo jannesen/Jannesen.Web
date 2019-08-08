@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Globalization;
 using System.IO;
 using System.Net;
 using System.Web;
@@ -8,10 +9,10 @@ namespace Jannesen.Web.StaticFile.Internal
 {
     abstract class ResponseStatic: WebCoreResponse
     {
-        private                 string              _contentType;
-        private                 bool                _cachepublic;
-        private                 DateTime?           _lastModified;
-        private                 string              _eTag;
+        private readonly        string              _contentType;
+        private readonly        bool                _cachepublic;
+        private readonly        DateTime?           _lastModified;
+        private readonly        string              _eTag;
         private                 int                 _cacheMaxAge;
 
         public                  int                 CacheMaxAge
@@ -52,7 +53,7 @@ namespace Jannesen.Web.StaticFile.Internal
             }
 
             response.AddHeader("Cache-Control",     (_cachepublic ? "public" : "private" ) +
-                                                    (_cacheMaxAge > 0 ? ", max-age=" + _cacheMaxAge.ToString() : (_cacheMaxAge == 0 ? ", max-age=0, must-revalidate" : "")));
+                                                    (_cacheMaxAge > 0 ? ", max-age=" + _cacheMaxAge.ToString(CultureInfo.InvariantCulture) : (_cacheMaxAge == 0 ? ", max-age=0, must-revalidate" : "")));
             response.AppendHeader("Content-Type", _contentType);
 
             if ((etag != null             && _eTag == etag                   ) ||

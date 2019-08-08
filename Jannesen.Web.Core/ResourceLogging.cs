@@ -1,16 +1,16 @@
 ﻿using System;
+using System.Globalization;
 using System.IO;
 using System.Web;
 using Jannesen.Web.Core.Impl;
 
 namespace Jannesen.Web.Core
 {
-    [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Design", "CA1001:TypesThatOwnDisposableFieldsShouldBeDisposable")] // Handle by Unload
     [WebCoreAttribureResource("logging")]
     public class ResourceLogging: WebCoreResource
     {
-        private                 string              _directory;
-        private                 object              _logLock;
+        private readonly        string              _directory;
+        private readonly        object              _logLock;
         private                 FileStream          _filestream;
         private                 DateTime            _nextFile;
 
@@ -35,7 +35,7 @@ namespace Jannesen.Web.Core
             _nextFile  = DateTime.MinValue;
         }
 
-        public      override    void                Unload()
+        protected   override    void                Dispose(bool disposing)
         {
             lock(_logLock) {
                 if (_filestream != null) {
@@ -88,7 +88,7 @@ namespace Jannesen.Web.Core
                     _filestream = null;
                 }
 
-                string fileName = _directory + "\\weblog-" + now.ToString("yyyy-MM-dd") + ".log";
+                string fileName = _directory + "\\weblog-" + now.ToString("yyyy-MM-dd", CultureInfo.InvariantCulture) + ".log";
                 WebApplication.LogEvent(WebApplication.EventID.NewLogfile, "New logfile: " + fileName);
                 _filestream = new FileStream(fileName, FileMode.Append, FileAccess.Write, FileShare.ReadWrite, 1);
                 _nextFile   = new DateTime(now.Ticks - (now.Ticks % TimeSpan.TicksPerDay) + TimeSpan.TicksPerDay);
@@ -96,10 +96,10 @@ namespace Jannesen.Web.Core
 
             return new StreamWriter(_filestream, System.Text.Encoding.UTF8, 0x10000, true);
         }
-        public                  void                _logRequest(StreamWriter writer, WebCoreCall call)
+        public      static      void                _logRequest(StreamWriter writer, WebCoreCall call)
         {
             writer.Write("### REQUEST ### @");
-            writer.WriteLine(call.Timestamp.ToString("yyyy-dd-MM HH:mm:ss"));
+            writer.WriteLine(call.Timestamp.ToString("yyyy-dd-MM HH:mm:ss", CultureInfo.InvariantCulture));
 
             writer.Write(call.Request.HttpMethod);
             writer.Write(" ");
@@ -117,7 +117,7 @@ namespace Jannesen.Web.Core
                     break;
 
                 case "Content-Type":
-                    if (value.IndexOf("charset=utf-8") > 0 || value.IndexOf("charset=UTF-8") > 0)
+                    if (value.IndexOf("charset=utf-8", StringComparison.InvariantCulture) > 0 || value.IndexOf("charset=UTF-8", StringComparison.InvariantCulture) > 0)
                         textbody = true;
                     break;
                 }
@@ -137,7 +137,7 @@ namespace Jannesen.Web.Core
                     writer.WriteLine("[BINARY-DATA]");
             }
         }
-        public                  void                _logResponse(StreamWriter writer, WebCoreResponse response, HttpResponse httpResponse)
+        public      static      void                _logResponse(StreamWriter writer, WebCoreResponse response, HttpResponse httpResponse)
         {
             writer.WriteLine("### RESPONSE ");
 
@@ -159,7 +159,7 @@ namespace Jannesen.Web.Core
             if (hasContentLength)
                 response.WriteLoggingData(writer);
         }
-        public                  void                _logError(StreamWriter writer, Exception err)
+        public      static      void                _logError(StreamWriter writer, Exception err)
         {
             writer.WriteLine("### ERROR");
 
@@ -168,7 +168,7 @@ namespace Jannesen.Web.Core
                 err = err.InnerException;
             }
         }
-        public                  void                _logEnd(StreamWriter writer)
+        public      static      void                _logEnd(StreamWriter writer)
         {
             writer.WriteLine("###");
             writer.WriteLine();

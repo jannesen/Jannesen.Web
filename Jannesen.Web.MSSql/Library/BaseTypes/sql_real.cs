@@ -2,6 +2,7 @@
 using System.Data;
 using System.Data.SqlClient;
 using System.Data.SqlTypes;
+using System.Globalization;
 
 namespace Jannesen.Web.MSSql.Library.BaseType
 {
@@ -35,7 +36,7 @@ namespace Jannesen.Web.MSSql.Library.BaseType
             if (string.IsNullOrEmpty(sValue))
                 return null;
 
-            return Single.Parse(sValue, System.Globalization.CultureInfo.InvariantCulture);
+            return Single.Parse(sValue, CultureInfo.InvariantCulture);
         }
         public          override            void                ConvertXmlValueToJson(string sValue, Jannesen.FileFormat.Json.JsonWriter jsonWriter)
         {
@@ -44,7 +45,7 @@ namespace Jannesen.Web.MSSql.Library.BaseType
 
         public          override            string              ToString()
         {
-            return "real(" + Length.ToString() + ")";
+            return "real(" + Length.ToString(CultureInfo.InvariantCulture) + ")";
         }
     }
 }

@@ -2,6 +2,7 @@
 using System.Data;
 using System.Data.SqlClient;
 using System.Data.SqlTypes;
+using System.Globalization;
 
 namespace Jannesen.Web.MSSql.Library.BaseType
 {
@@ -22,7 +23,7 @@ namespace Jannesen.Web.MSSql.Library.BaseType
             if (value == null)      return null;
             if (value is byte[] byteValue) {
                 if (byteValue.Length > Length)
-                    throw new FormatException("Varbinary longer then " + Length.ToString() + " .");
+                    throw new FormatException("Varbinary longer then " + Length.ToString(CultureInfo.InvariantCulture) + " .");
 
                 return byteValue;
             }
@@ -38,14 +39,14 @@ namespace Jannesen.Web.MSSql.Library.BaseType
             byte[]  bValue = System.Convert.FromBase64String(sValue);
 
             if (bValue.Length > Length)
-                throw new FormatException("Varbinary longer then " + Length.ToString() + " .");
+                throw new FormatException("Varbinary longer then " + Length.ToString(CultureInfo.InvariantCulture) + " .");
 
             return bValue;
         }
 
         public          override            string              ToString()
         {
-            return "varbinary(" + Length.ToString() + ")";
+            return "varbinary(" + Length.ToString(CultureInfo.InvariantCulture) + ")";
         }
     }
 }

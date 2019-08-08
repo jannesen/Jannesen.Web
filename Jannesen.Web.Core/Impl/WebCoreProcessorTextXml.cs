@@ -12,11 +12,13 @@ namespace Jannesen.Web.Core.Impl
         {
             try {
 
-                using(System.IO.StreamReader reader = httpCall.GetBodyText("text/xml"))
+                using(var reader = httpCall.GetBodyText("text/xml"))
                 {
                     if (reader != null) {
-                        _document = new XmlDocument();
-                        _document.Load(reader);
+                        _document = new XmlDocument() { XmlResolver=null } ;
+#pragma warning disable CA2000 // Disposed StreamReader
+                        _document.Load(new XmlTextReader(reader) { DtdProcessing = DtdProcessing.Prohibit, XmlResolver = null });
+#pragma warning restore CA2000
                     }
                 }
             }

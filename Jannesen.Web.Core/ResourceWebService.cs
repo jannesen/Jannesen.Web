@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.IO;
 using System.Security.Cryptography.X509Certificates;
 using Jannesen.Web.Core.Impl;
@@ -8,12 +9,13 @@ namespace Jannesen.Web.Core
     [WebCoreAttribureResource("webservice")]
     public class ResourceWebService: WebCoreResource
     {
-        private                 string                          _baseUrl;
-        private                 string                          _key;
-        private                 string                          _username;
-        private                 string                          _passwd;
-        private                 X509Certificate2Collection      _certificates;
-
+        private readonly        string                          _baseUrl;
+        private readonly        string                          _key;
+        private readonly        string                          _username;
+        private readonly        string                          _passwd;
+        private readonly        X509Certificate2Collection      _certificates;
+        private readonly        Dictionary<string, string>      _properties;
+        
         public      override    string                          Type
         {
             get {
@@ -52,12 +54,21 @@ namespace Jannesen.Web.Core
             }
         }
 
+        public Dictionary<string, string> Properties
+        {
+            get
+            {
+                return _properties;
+            }
+        }
+
         public                                                  ResourceWebService(WebCoreConfigReader configReader): base(configReader)
         {
             _baseUrl  = configReader.GetValueString("baseurl");
             _key      = configReader.GetValueString("key", null);
             _username = configReader.GetValueString("username", null);
             _passwd   = (_username != null) ? configReader.GetValueString("passwd") : null;
+            _properties = configReader.GetValueDictionary();
 
             var certificate = configReader.GetValueString("certificate", null);
             if (certificate != null) {

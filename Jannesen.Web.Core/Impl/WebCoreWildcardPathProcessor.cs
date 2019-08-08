@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Globalization;
 using System.Text;
 using System.Text.RegularExpressions;
 
@@ -75,11 +76,6 @@ namespace Jannesen.Web.Core.Impl
                 while (filter(expression[pos]))
                     regex.Append(expression[pos++]);
             }
-            private     void                    _process_int()
-            {
-                while (pos < length && (expression[pos] >= '0' && expression[pos] <= '9'))
-                    regex.Append(expression[pos++]);
-            }
             private     void                    _process_wildcard()
             {
                 while (pos < length && expression[pos] != '}') {
@@ -139,15 +135,15 @@ namespace Jannesen.Web.Core.Impl
                     throw new FormatException("Invalid wildcard path expression.");
 
                 regex.Append(@"\u");
-                regex.Append(((Int16)expression[pos++]).ToString("X4"));
+                regex.Append(((Int16)expression[pos++]).ToString("X4", CultureInfo.InvariantCulture));
             }
         }
 
-        private                 string                              _prefix;
-        private                 string                              _suffix;
-        private                 string                              _expression;
-        private                 string[]                            _names;
-        private                 Regex                               _regex;
+        private readonly        string                              _prefix;
+        private readonly        string                              _suffix;
+        private readonly        string                              _expression;
+        private readonly        string[]                            _names;
+        private readonly        Regex                               _regex;
 
         public                  string                              Prefix
         {
@@ -217,7 +213,7 @@ namespace Jannesen.Web.Core.Impl
         public                  bool                                IsMatch(string path)
         {
             if (path.Length - _prefix.Length - _suffix.Length >= 0 &&
-                path.StartsWith(_prefix) && path.EndsWith(_suffix))
+                path.StartsWith(_prefix, StringComparison.InvariantCulture) && path.EndsWith(_suffix, StringComparison.InvariantCulture))
             {
                 if (_regex == null)
                     return true;

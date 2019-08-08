@@ -10,15 +10,15 @@ namespace Jannesen.Web.ExcelExport.ExcelExport
 {
     class ExcelStyleSheet
     {
-        private                 NumberingFormats            _numberingFormats;
-        private                 Fonts                       _fonts;
-        private                 Fills                       _fills;
-        private                 Borders                     _borders;
-        private                 CellStyleFormats            _cellStyleFormats;
-        private                 CellFormats                 _cellFormats;
-        private                 CellStyles                  _cellStyles;
-        private                 DifferentialFormats         _differentialFormats;
-        private                 TableStyles                 _tableStyles;
+        private readonly        NumberingFormats            _numberingFormats;
+        private readonly        Fonts                       _fonts;
+        private readonly        Fills                       _fills;
+        private readonly        Borders                     _borders;
+        private readonly        CellStyleFormats            _cellStyleFormats;
+        private readonly        CellFormats                 _cellFormats;
+        private readonly        CellStyles                  _cellStyles;
+        private readonly        DifferentialFormats         _differentialFormats;
+        private readonly        TableStyles                 _tableStyles;
         private                 uint                        _cellFormatId;
         private                 uint                        _numberingFormatsIndex;
 
@@ -201,7 +201,7 @@ namespace Jannesen.Web.ExcelExport.ExcelExport
         {
             return _getOpenXmlElement(_cellFormats, cellFormat);
         }
-        private                 uint                        _getOpenXmlElement(OpenXmlElement list, OpenXmlElement element)
+        private static          uint                        _getOpenXmlElement(OpenXmlElement list, OpenXmlElement element)
         {
             int i;
 
@@ -262,19 +262,6 @@ namespace Jannesen.Web.ExcelExport.ExcelExport
                     }
                 }
             }
-        }
-        private                 bool                        _cmpAlignment(Alignment a1, Alignment a2)
-        {
-            if (a1 == null && a2 == null)
-                return true;
-
-            if (a1 != null && a2 != null) {
-                if (a1.Horizontal == a2.Horizontal &&
-                    a1.Vertical   == a2.Vertical)
-                    return true;
-            }
-
-            return false;
         }
     }
 }

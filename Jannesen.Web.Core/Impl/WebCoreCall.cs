@@ -13,63 +13,63 @@ namespace Jannesen.Web.Core.Impl
 
     public class WebCoreCall
     {
-        private         DateTime                            _timestamp;
-        private         HttpContext                         _context;
-        private         HttpRequest                         _request;
-        private         WebCoreHttpHandler                  _handler;
-        private         byte[]                              _requestBodyData;
-        private         List<object>                        _requestProcessors;
+        private readonly        DateTime                            _timestamp;
+        private readonly        HttpContext                         _context;
+        private readonly        HttpRequest                         _request;
+        private readonly        WebCoreHttpHandler                  _handler;
+        private                 byte[]                              _requestBodyData;
+        private                 List<object>                        _requestProcessors;
 
-        public          DateTime                            Timestamp
+        public                  DateTime                            Timestamp
         {
             get {
                 return _timestamp;
             }
         }
-        public          HttpContext                         Context
+        public                  HttpContext                         Context
         {
             get {
                 return _context;
             }
         }
-        public          HttpRequest                         Request
+        public                  HttpRequest                         Request
         {
             get {
                 return _request;
             }
         }
-        public          WebCoreHttpHandler                  Handler
+        public                  WebCoreHttpHandler                  Handler
         {
             get {
                 return _handler;
             }
         }
-        internal        byte[]                              RequestBodyData
+        internal                byte[]                              RequestBodyData
         {
             get {
                 return _requestBodyData;
             }
         }
-        public          System.Web.Caching.Cache            Cache
+        public                  System.Web.Caching.Cache            Cache
         {
             get {
                 return _context.Cache;
             }
         }
 
-        public          string                              HttpMethod
+        public                  string                              HttpMethod
         {
             get {
                 return _request.HttpMethod;
             }
         }
-        public          string                              RequestContentType
+        public                  string                              RequestContentType
         {
             get {
                 return _request.ContentType;
             }
         }
-        public          int?                                RequestContentLength
+        public                  int?                                RequestContentLength
         {
             get {
                 string s = _request.Headers["Content-Length"];
@@ -82,7 +82,7 @@ namespace Jannesen.Web.Core.Impl
                 return null;
             }
         }
-        public          DateTime?                           RequestIfModifiedSince
+        public                  DateTime?                           RequestIfModifiedSince
         {
             get {
                 string s = _request.Headers["If-Modified-Since"];
@@ -95,7 +95,7 @@ namespace Jannesen.Web.Core.Impl
                 return null;
             }
         }
-        public          string                              RequestIfNoneMatch
+        public                  string                              RequestIfNoneMatch
         {
             get {
                 string s = _request.Headers["If-None-Match"];
@@ -103,7 +103,7 @@ namespace Jannesen.Web.Core.Impl
                 return !string.IsNullOrEmpty(s) ? s : null;
             }
         }
-        public          string                              RequestReferer
+        public                  string                              RequestReferer
         {
             get {
                 string s = _request.Headers["Referer"];
@@ -111,7 +111,7 @@ namespace Jannesen.Web.Core.Impl
                 return !string.IsNullOrEmpty(s) ? s : null;
             }
         }
-        public          string                              RequestUserAgent
+        public                  string                              RequestUserAgent
         {
             get {
                 string s = _request.UserAgent;
@@ -119,7 +119,7 @@ namespace Jannesen.Web.Core.Impl
                 return !string.IsNullOrEmpty(s) ? s : null;
             }
         }
-        public          string                              RequestRemoteAddr
+        public                  string                              RequestRemoteAddr
         {
             get {
                 string rtn = _request.Headers["X-Forwarded-For"];
@@ -130,32 +130,32 @@ namespace Jannesen.Web.Core.Impl
                 return !string.IsNullOrEmpty(rtn) ? rtn : null;
             }
         }
-        public          WebCoreProcessorBasicAutorization   RequestBasicAutorization
+        public                  WebCoreProcessorBasicAutorization   RequestBasicAutorization
         {
             get {
                 return GetRequestProcessor<WebCoreProcessorBasicAutorization>();
             }
         }
-        public          WebCoreUrlPathData                  RequestUrlPathData
+        public                  WebCoreUrlPathData                  RequestUrlPathData
         {
             get {
                 return GetRequestProcessor<WebCoreUrlPathData>();
             }
         }
-        public          WebCoreProcessorTextXml             RequestTextXml
+        public                  WebCoreProcessorTextXml             RequestTextXml
         {
             get {
                 return GetRequestProcessor<WebCoreProcessorTextXml>();
             }
         }
-        public          WebCoreProcessorTextJson            RequestTextJson
+        public                  WebCoreProcessorTextJson            RequestTextJson
         {
             get {
                 return GetRequestProcessor<WebCoreProcessorTextJson>();
             }
         }
 
-        public                                              WebCoreCall(HttpContext httpCall, WebCoreHttpHandler handler)
+        public                                                      WebCoreCall(HttpContext httpCall, WebCoreHttpHandler handler)
         {
             _timestamp   = DateTime.UtcNow;
             _context     = httpCall;
@@ -163,7 +163,7 @@ namespace Jannesen.Web.Core.Impl
             _handler     = handler;
         }
 
-        public          T                                   GetRequestProcessor<T>() where T: IWebCoreCallProcessor, new()
+        public                  T                                   GetRequestProcessor<T>() where T: IWebCoreCallProcessor, new()
         {
         // Find if already created.
             if (_requestProcessors != null) {
@@ -187,7 +187,7 @@ namespace Jannesen.Web.Core.Impl
                 return processor;
             }
         }
-        public          byte[]                              GetBodyData()
+        public                  byte[]                              GetBodyData()
         {
             if (_requestBodyData == null) {
                 int?    length = RequestContentLength;
@@ -214,7 +214,7 @@ namespace Jannesen.Web.Core.Impl
 
             return _requestBodyData;
         }
-        public          StreamReader                        GetBodyText(string contenttype)
+        public                  StreamReader                        GetBodyText(string contenttype)
         {
             var     requestContentType = RequestContentType;
 
@@ -235,10 +235,10 @@ namespace Jannesen.Web.Core.Impl
                 throw new WebRequestException("Expect " + contenttype + " body.");
 
             for (int i = 1 ; i < contentTypeParts.Length ; ++i) {
-                if (contentTypeParts[i].StartsWith("charset=")) {
+                if (contentTypeParts[i].StartsWith("charset=", StringComparison.InvariantCulture)) {
                     string  charset     = contentTypeParts[i].Substring(8);
 
-                    switch(charset.ToLower()) {
+                    switch(charset.ToLowerInvariant()) {
                     case "unicode": encoding = System.Text.Encoding.Unicode;    break;
                     case "utf-8":   encoding = System.Text.Encoding.UTF8;       break;
                     default:        throw new NotImplementedException("Invalid characterset '" + charset + "'.");
@@ -251,10 +251,10 @@ namespace Jannesen.Web.Core.Impl
 
             return new System.IO.StreamReader(new System.IO.MemoryStream(GetBodyData(), false), encoding, false, 4096, false);
         }
-        public          string                              GetBodyString(string contenttype)
+        public                  string                              GetBodyString(string contenttype)
         {
-            using(System.IO.StreamReader reader = GetBodyText(contenttype))
-                return reader != null ? reader.ReadToEnd() : null;
+            using(var reader = GetBodyText(contenttype))
+                return reader?.ReadToEnd();
         }
     }
 }

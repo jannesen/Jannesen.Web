@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Globalization;
 using System.IO;
 using System.Net;
 using System.Web;
@@ -7,7 +8,7 @@ namespace Jannesen.Web.StaticFile.Internal
 {
     class ResponseStaticCache: ResponseStatic
     {
-        private                 FileCache       _fileCache;
+        private readonly        FileCache       _fileCache;
 
         public                                  ResponseStaticCache(string contentType, bool publicCache, FileCache fileCache) : base(contentType, publicCache, null, fileCache.ETag)
         {
@@ -17,7 +18,7 @@ namespace Jannesen.Web.StaticFile.Internal
         protected   override    void            SendBodyData(HttpResponse response)
         {
             response.AppendHeader("Content-Encoding", _fileCache.ContentEncoding);
-            response.AppendHeader("Content-Length",   _fileCache.Data.Length.ToString());
+            response.AppendHeader("Content-Length",   _fileCache.Data.Length.ToString(CultureInfo.InvariantCulture));
             response.OutputStream.Write(_fileCache.Data, 0, _fileCache.Data.Length);
         }
 

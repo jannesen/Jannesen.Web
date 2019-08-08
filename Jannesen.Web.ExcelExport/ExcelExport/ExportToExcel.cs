@@ -108,7 +108,7 @@ namespace Jannesen.Web.ExcelExport.ExcelExport
                 _mapDataSet(sheetConfig, dataReader);
                 _excelFreePanes(worksheet, sheetConfig.Config.FreezeColumn, sheetConfig.Config.HeaderRows);
                 _setupColumnsWidth(sheetConfig, worksheet);
-                _copyHeader(sheetConfig, worksheet, sheetData);
+                _copyHeader(sheetConfig, sheetData);
                 _copyData(sheetConfig, sheetData, dataReader);
 
                 worksheet.AppendChild(sheetData);
@@ -126,7 +126,7 @@ namespace Jannesen.Web.ExcelExport.ExcelExport
             }
             while (dataReader.NextResult());
         }
-        private                 void                        _mapDataSet(ProcessConfigSheet config, SqlDataReader dataReader)
+        private     static      void                        _mapDataSet(ProcessConfigSheet config, SqlDataReader dataReader)
         {
             foreach(ProcessConfigColumn colcnf in config.Columns) {
                 colcnf.ExcelColumnName = _excelColumnName(colcnf.Config.Col);
@@ -146,7 +146,7 @@ namespace Jannesen.Web.ExcelExport.ExcelExport
                     colcnf.FieldNr = -1;
             }
         }
-        private                 void                        _setupColumnsWidth(ProcessConfigSheet config, Worksheet worksheet)
+        private     static      void                        _setupColumnsWidth(ProcessConfigSheet config, Worksheet worksheet)
         {
             {
                 List<double>    columnsWidth    = config.Config.ColumnsWidth;
@@ -176,7 +176,7 @@ namespace Jannesen.Web.ExcelExport.ExcelExport
                     worksheet.Append(columns);
             }
         }
-        private                 void                        _copyHeader(ProcessConfigSheet config, Worksheet worksheet, SheetData sheetData)
+        private     static      void                        _copyHeader(ProcessConfigSheet config, SheetData sheetData)
         {
             for (int row = 0 ; row < config.Config.HeaderRows ; ++row) {
                 Row         headerRow  = new Row { RowIndex = (uint)row + 1 };
@@ -185,7 +185,7 @@ namespace Jannesen.Web.ExcelExport.ExcelExport
                     if (colcfg.Config.Row == row && colcfg.Config.Title != null) {
                         Cell cell = new Cell()
                                             {
-                                                CellReference   = colcfg.ExcelColumnName + (row+1).ToString(),
+                                                CellReference   = colcfg.ExcelColumnName + (row+1).ToString(CultureInfo.InvariantCulture),
                                                 DataType        = CellValues.String,
                                                 StyleIndex      = colcfg.HeaderStyleIndex
                                             };
@@ -200,14 +200,14 @@ namespace Jannesen.Web.ExcelExport.ExcelExport
                 sheetData.Append(headerRow);
             }
         }
-        private                 void                        _copyData(ProcessConfigSheet config, SheetData sheetData, SqlDataReader dataReader)
+        private     static      void                        _copyData(ProcessConfigSheet config, SheetData sheetData, SqlDataReader dataReader)
         {
             uint    rownr = (uint)config.Config.HeaderRows;
             int     r     = 0;
 
             while (dataReader.Read()) {
                 Row     row    = new Row { RowIndex = ++rownr };
-                string  srownr = rownr.ToString();
+                string  srownr = rownr.ToString(CultureInfo.InvariantCulture);
                 bool    odd    = (++r % 2) == 1;
 
                 foreach (ProcessConfigColumn colcfg in config.Columns) {
@@ -226,17 +226,17 @@ namespace Jannesen.Web.ExcelExport.ExcelExport
                             else
                             if (colcfg.SqlType == typeof(System.Byte)) {
                                 dataType  = CellValues.Number;
-                                textValue = dataReader.GetByte(colcfg.FieldNr).ToString();
+                                textValue = dataReader.GetByte(colcfg.FieldNr).ToString(CultureInfo.InvariantCulture);
                             }
                             else
                             if (colcfg.SqlType == typeof(System.Int16)) {
                                 dataType  = CellValues.Number;
-                                textValue = dataReader.GetInt16(colcfg.FieldNr).ToString();
+                                textValue = dataReader.GetInt16(colcfg.FieldNr).ToString(CultureInfo.InvariantCulture);
                             }
                             else
                             if (colcfg.SqlType == typeof(System.Int32)) {
                                 dataType  = CellValues.Number;
-                                textValue = dataReader.GetInt32(colcfg.FieldNr).ToString();
+                                textValue = dataReader.GetInt32(colcfg.FieldNr).ToString(CultureInfo.InvariantCulture);
                             }
                             else
                             if (colcfg.SqlType == typeof(System.DateTime)) {
@@ -278,7 +278,7 @@ namespace Jannesen.Web.ExcelExport.ExcelExport
                 sheetData.Append(row);
             }
         }
-        private                 void                        _columnsMerge(ProcessConfigSheet config, Worksheet worksheet)
+        private     static      void                        _columnsMerge(ProcessConfigSheet config, Worksheet worksheet)
         {
             foreach(ProcessConfigColumn colcfg in config.Columns) {
                 if (colcfg.Config.ColSpan > 1 || colcfg.Config.RowSpan > 1) {
@@ -288,7 +288,7 @@ namespace Jannesen.Web.ExcelExport.ExcelExport
             }
         }
 
-        private                 void                        _excelMergeCells(Worksheet worksheet, int col1, int row1, int col2, int row2)
+        private     static      void                        _excelMergeCells(Worksheet worksheet, int col1, int row1, int col2, int row2)
         {
             string  r = _excelCellName(col1, row1) + ":" + _excelCellName(col2, row2);
 
@@ -297,7 +297,7 @@ namespace Jannesen.Web.ExcelExport.ExcelExport
                                                         Reference = new StringValue(r)
                                                     });
         }
-        private                 void                        _excelFreePanes(Worksheet worksheet, int col, int row)
+        private     static      void                        _excelFreePanes(Worksheet worksheet, int col, int row)
         {
             SheetView sheetView = new SheetView()
                                     {
@@ -321,12 +321,12 @@ namespace Jannesen.Web.ExcelExport.ExcelExport
         }
         private     static      string                      _excelCellName(int colnr, int rownr)
         {
-            return _excelColumnName(colnr) + (rownr+1).ToString();
+            return _excelColumnName(colnr) + (rownr+1).ToString(CultureInfo.InvariantCulture);
         }
         private     static      string                      _excelColumnName(int colnr)
         {
             if (colnr < 26)
-                return ((char)('A' + colnr)).ToString();
+                return ((char)('A' + colnr)).ToString(CultureInfo.InvariantCulture);
 
             StringBuilder       builder = new StringBuilder(2);
 
@@ -337,40 +337,40 @@ namespace Jannesen.Web.ExcelExport.ExcelExport
         }
         private     static      MergeCells                  _getMergeCells(Worksheet worksheet)
         {
-            if (worksheet.Elements<MergeCells>().Count() > 0)
+            if (worksheet.Elements<MergeCells>().Any())
                 return worksheet.Elements<MergeCells>().First();
 
             MergeCells  mergeCells = new MergeCells();
 
             // Insert a MergeCells object into the specified position.
-            if (worksheet.Elements<CustomSheetView>().Count() > 0) {
+            if (worksheet.Elements<CustomSheetView>().Any()) {
                 worksheet.InsertAfter(mergeCells, worksheet.Elements<CustomSheetView>().First());
             }
-            else if (worksheet.Elements<DataConsolidate>().Count() > 0)
+            else if (worksheet.Elements<DataConsolidate>().Any())
             {
                 worksheet.InsertAfter(mergeCells, worksheet.Elements<DataConsolidate>().First());
             }
-            else if (worksheet.Elements<SortState>().Count() > 0)
+            else if (worksheet.Elements<SortState>().Any())
             {
                 worksheet.InsertAfter(mergeCells, worksheet.Elements<SortState>().First());
             }
-            else if (worksheet.Elements<AutoFilter>().Count() > 0)
+            else if (worksheet.Elements<AutoFilter>().Any())
             {
                 worksheet.InsertAfter(mergeCells, worksheet.Elements<AutoFilter>().First());
             }
-            else if (worksheet.Elements<Scenarios>().Count() > 0)
+            else if (worksheet.Elements<Scenarios>().Any())
             {
                 worksheet.InsertAfter(mergeCells, worksheet.Elements<Scenarios>().First());
             }
-            else if (worksheet.Elements<ProtectedRanges>().Count() > 0)
+            else if (worksheet.Elements<ProtectedRanges>().Any())
             {
                 worksheet.InsertAfter(mergeCells, worksheet.Elements<ProtectedRanges>().First());
             }
-            else if (worksheet.Elements<SheetProtection>().Count() > 0)
+            else if (worksheet.Elements<SheetProtection>().Any())
             {
                 worksheet.InsertAfter(mergeCells, worksheet.Elements<SheetProtection>().First());
             }
-            else if (worksheet.Elements<SheetCalculationProperties>().Count() > 0)
+            else if (worksheet.Elements<SheetCalculationProperties>().Any())
             {
                 worksheet.InsertAfter(mergeCells, worksheet.Elements<SheetCalculationProperties>().First());
             }

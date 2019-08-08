@@ -8,7 +8,7 @@ namespace Jannesen.Web.Core.Impl
     [AttributeUsage(AttributeTargets.Class)]
     public abstract class WebCoreAttribureDynamicClass: Attribute
     {
-        private                 string                          _name;
+        private readonly        string                          _name;
 
         public      abstract    string                          Type            { get ; }
         public                  string                          Name

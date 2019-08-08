@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Data;
 using System.Data.SqlClient;
 using System.Data.SqlTypes;
+using System.Globalization;
 using System.IO;
 using System.Net;
 using System.Web;
@@ -35,7 +36,6 @@ namespace Jannesen.Web.MSSql.Sqx
             }
         }
 
-        [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Usage", "CA2202:Do not dispose objects multiple times")] //!!Bug in validate don't known leaveOpen
         protected   override    WebCoreResponse             Process(WebCoreCall httpCall, SqlDataReader dataReader)
         {
             WebCoreResponseBuffer   webResponseBuffer = new WebCoreResponseBuffer("application/json; charset=utf-8", this.Public, true);
@@ -66,7 +66,6 @@ namespace Jannesen.Web.MSSql.Sqx
             return webResponseBuffer;
         }
 
-        [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Usage", "CA2202:Do not dispose objects multiple times")] // False alert
         private                 object                      _xmlToJson(SqlDataReader dataReader)
         {
             using (MemoryStream     memoryStream = new MemoryStream())
@@ -89,7 +88,7 @@ namespace Jannesen.Web.MSSql.Sqx
                 if (!fempty) {
                     memoryStream.Seek(0, SeekOrigin.Begin);
 
-                    using (XmlTextReader xmlReader = new XmlTextReader(new StreamReader(memoryStream, System.Text.Encoding.UTF8, false, 4096, true)))
+                    using (var xmlReader = new XmlTextReader(new StreamReader(memoryStream, System.Text.Encoding.UTF8, false, 4096, true)){ DtdProcessing = DtdProcessing.Prohibit, XmlResolver = null })
                     {
                         while (xmlReader.NodeType != XmlNodeType.Element)
                             _parseReadNode(xmlReader);
@@ -206,7 +205,7 @@ namespace Jannesen.Web.MSSql.Sqx
 
             return rtn;
         }
-        private                 string                      _parseElementValue(XmlTextReader xmlReader)
+        private     static      string                      _parseElementValue(XmlTextReader xmlReader)
         {
             if (!xmlReader.IsEmptyElement) {
                 string  rtn = "";
@@ -237,17 +236,17 @@ namespace Jannesen.Web.MSSql.Sqx
                 return "";
             }
         }
-        private                 void                        _parseReadNode(XmlTextReader xmlReader)
+        private     static      void                        _parseReadNode(XmlTextReader xmlReader)
         {
             if (!xmlReader.Read())
                 throw new WebConversionException("Reading EOF on xml-document.");
         }
-        private                 object                      _jsonConvertValue(char t, string svalue)
+        private     static      object                      _jsonConvertValue(char t, string svalue)
         {
             switch(t) {
             case 's':   return svalue;
-            case 'i':   return !string.IsNullOrEmpty(svalue) ? (object)int.Parse(svalue, System.Globalization.CultureInfo.InvariantCulture)   : null;
-            case 'n':   return !string.IsNullOrEmpty(svalue) ? (object)float.Parse(svalue, System.Globalization.CultureInfo.InvariantCulture) : null;
+            case 'i':   return !string.IsNullOrEmpty(svalue) ? (object)int.Parse(svalue, CultureInfo.InvariantCulture)   : null;
+            case 'n':   return !string.IsNullOrEmpty(svalue) ? (object)float.Parse(svalue, CultureInfo.InvariantCulture) : null;
 
             case 'b':
                 switch(svalue) {

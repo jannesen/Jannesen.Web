@@ -12,11 +12,11 @@ namespace Jannesen.Web.StaticFile
     [WebCoreAttribureHttpHandler("staticfile")]
     public class HttpHandlerStaticFile: WebCoreHttpHandler
     {
-        private                 string              _mimetype;
-        private                 bool                _compress;
-        private                 int                 _cacheMaxAge;
-        private                 int                 _versionCacheMaxAge;
-        private                 bool                _decodeCharSet;
+        private readonly        string              _mimetype;
+        private readonly        bool                _compress;
+        private readonly        int                 _cacheMaxAge;
+        private readonly        int                 _versionCacheMaxAge;
+        private readonly        bool                _decodeCharSet;
 
         public  override        string              Mimetype
         {
@@ -79,7 +79,7 @@ namespace Jannesen.Web.StaticFile
             return response;
         }
 
-        protected               FileInfo            GetFileInfo(string physicalPath)
+        protected   static      FileInfo            GetFileInfo(string physicalPath)
         {
             FileInfo    fileinfo;
 

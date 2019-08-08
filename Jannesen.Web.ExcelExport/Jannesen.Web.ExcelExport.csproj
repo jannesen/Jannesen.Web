@@ -31,29 +31,46 @@
     <Optimize>true</Optimize>
     <OutputPath>..\bin\</OutputPath>
     <DefineConstants>TRACE</DefineConstants>
-    <RunCodeAnalysis>true</RunCodeAnalysis>
   </PropertyGroup>
+  <!-- Import CodeAnalysis if package exists in upper directory -->
+  <PropertyGroup>
+    <PackagesRootCodeAnalysis>$([MSBuild]::GetDirectoryNameOfFileAbove($(MSBuildThisFileDirectory), 'packages\Microsoft.CodeAnalysis.FxCopAnalyzers.2.9.4\build\Microsoft.CodeAnalysis.FxCopAnalyzers.props'))</PackagesRootCodeAnalysis>
+  </PropertyGroup>
+  <Import Condition="'$(PackagesRootCodeAnalysis)'!=''" Project="$(PackagesRootCodeAnalysis)\packages\Microsoft.CodeAnalysis.FxCopAnalyzers.2.9.4\build\Microsoft.CodeAnalysis.FxCopAnalyzers.props" />
+  <Import Condition="'$(PackagesRootCodeAnalysis)'!=''" Project="$(PackagesRootCodeAnalysis)\packages\Microsoft.NetFramework.Analyzers.2.9.4\build\Microsoft.NetFramework.Analyzers.props" />
+  <Import Condition="'$(PackagesRootCodeAnalysis)'!=''" Project="$(PackagesRootCodeAnalysis)\packages\Microsoft.NetCore.Analyzers.2.9.4\build\Microsoft.NetCore.Analyzers.props" />
+  <Import Condition="'$(PackagesRootCodeAnalysis)'!=''" Project="$(PackagesRootCodeAnalysis)\packages\Microsoft.CodeQuality.Analyzers.2.9.4\build\Microsoft.CodeQuality.Analyzers.props" />
+  <Import Condition="'$(PackagesRootCodeAnalysis)'!=''" Project="$(PackagesRootCodeAnalysis)\packages\Microsoft.CodeAnalysis.VersionCheckAnalyzer.2.9.4\build\Microsoft.CodeAnalysis.VersionCheckAnalyzer.props" />
+  <ItemGroup Condition="'$(PackagesRootCodeAnalysis)' != ''">
+    <Analyzer Include="$(PackagesRootCodeAnalysis)\packages\Microsoft.CodeAnalysis.VersionCheckAnalyzer.2.9.4\analyzers\dotnet\cs\Microsoft.CodeAnalysis.VersionCheckAnalyzer.resources.dll" />
+    <Analyzer Include="$(PackagesRootCodeAnalysis)\packages\Microsoft.CodeAnalysis.VersionCheckAnalyzer.2.9.4\analyzers\dotnet\Microsoft.CodeAnalysis.VersionCheckAnalyzer.dll" />
+    <Analyzer Include="$(PackagesRootCodeAnalysis)\packages\Microsoft.CodeQuality.Analyzers.2.9.4\analyzers\dotnet\cs\Humanizer.dll" />
+    <Analyzer Include="$(PackagesRootCodeAnalysis)\packages\Microsoft.CodeQuality.Analyzers.2.9.4\analyzers\dotnet\cs\Microsoft.CodeQuality.Analyzers.dll" />
+    <Analyzer Include="$(PackagesRootCodeAnalysis)\packages\Microsoft.CodeQuality.Analyzers.2.9.4\analyzers\dotnet\cs\Microsoft.CodeQuality.CSharp.Analyzers.dll" />
+    <Analyzer Include="$(PackagesRootCodeAnalysis)\packages\Microsoft.NetCore.Analyzers.2.9.4\analyzers\dotnet\cs\Microsoft.NetCore.Analyzers.dll" />
+    <Analyzer Include="$(PackagesRootCodeAnalysis)\packages\Microsoft.NetCore.Analyzers.2.9.4\analyzers\dotnet\cs\Microsoft.NetCore.CSharp.Analyzers.dll" />
+    <Analyzer Include="$(PackagesRootCodeAnalysis)\packages\Microsoft.NetFramework.Analyzers.2.9.4\analyzers\dotnet\cs\Microsoft.NetFramework.Analyzers.dll" />
+    <Analyzer Include="$(PackagesRootCodeAnalysis)\packages\Microsoft.NetFramework.Analyzers.2.9.4\analyzers\dotnet\cs\Microsoft.NetFramework.CSharp.Analyzers.dll" />
+  </ItemGroup>
+  <!-- ======================================================== -->
   <ItemGroup>
-    <Reference Include="DocumentFormat.OpenXml, Version=2.8.1.0, Culture=neutral, PublicKeyToken=8fb06cb64d019a17, processorArchitecture=MSIL">
-      <HintPath>..\packages\DocumentFormat.OpenXml.2.8.1\lib\net46\DocumentFormat.OpenXml.dll</HintPath>
-    </Reference>
     <Reference Include="System" />
     <Reference Include="System.Configuration" />
     <Reference Include="System.Core" />
     <Reference Include="System.Data" />
+    <Reference Include="System.Runtime.Serialization" />
     <Reference Include="System.Web" />
     <Reference Include="System.Xml" />
+    <Reference Include="System.Xml.Linq" />
     <Reference Include="WindowsBase" />
   </ItemGroup>
-  <ItemGroup>
-    <PackageReference Include="DocumentFormat.OpenXml" Version="2.8.1" />
-  </ItemGroup>  
   <ItemGroup>
     <Compile Include="AssemblyInfo.cs" />
     <Compile Include="ExcelExport\ConfigColumn.cs" />
     <Compile Include="ExcelExport\ConfigSheet.cs" />
     <Compile Include="ExcelExport\ExcelStyleSheet.cs" />
     <Compile Include="ExcelExport\ExportToExcel.cs" />
+    <Compile Include="GlobalSuppressions.cs" />
     <Compile Include="HttpHandlerExcelExport.cs" />
   </ItemGroup>
   <ItemGroup>
