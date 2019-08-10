@@ -88,8 +88,7 @@ namespace Jannesen.Web.Core.Impl
             System.Threading.Thread.CurrentThread.CurrentCulture = CultureInfo.InvariantCulture;
 
             if (Public) {
-                using (SystemSection systemSection = new SystemSection())
-                {
+                using (SystemSection systemSection = new SystemSection()) {
                     systemSection.ToSystem();
 
                     _processRequest(context);

@@ -60,8 +60,7 @@ namespace Jannesen.Web.ExcelExport.ExcelExport
 
         private                 void                        _process(ProcessConfigSheet[] config, SqlDataReader dataReader, Stream outputStream)
         {
-            using (_document = SpreadsheetDocument.Create(outputStream, SpreadsheetDocumentType.Workbook))
-            {
+            using (_document = SpreadsheetDocument.Create(outputStream, SpreadsheetDocumentType.Workbook)) {
                 _document.AddWorkbookPart();
                 _document.WorkbookPart.Workbook = new DocumentFormat.OpenXml.Spreadsheet.Workbook();
 

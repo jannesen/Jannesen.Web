@@ -27,7 +27,7 @@ namespace Jannesen.Web.MSSql.Sqx
                     return new ResponseObject(configReader, true, root);
 
                 default:
-                    if (type.StartsWith("array:", StringComparison.InvariantCulture))
+                    if (type.StartsWith("array:", StringComparison.Ordinal))
                         return new ResponseArray(configReader, type.Substring(6));
 
                     return new ResponseValue(type);
@@ -244,7 +244,7 @@ namespace Jannesen.Web.MSSql.Sqx
                     _responses = responses.ToArray();
             }
 
-            if (Path.EndsWith(".js", StringComparison.InvariantCulture)) {
+            if (Path.EndsWith(".js", StringComparison.Ordinal)) {
                 if (_responses == null)
                     throw new WebConfigException("Missing response", configReader);
 
@@ -260,8 +260,7 @@ namespace Jannesen.Web.MSSql.Sqx
                 sqlCommand.ExecuteNonQuery();
             }
             else {
-                using (var dataReader = sqlCommand.ExecuteReader())
-                {
+                using (var dataReader = sqlCommand.ExecuteReader()) {
                     if (HandleResponseOptions(responseBuffer, dataReader) == HttpStatusCode.OK) {
                         ResponseRoot responseformat = null;
 
@@ -279,19 +278,16 @@ namespace Jannesen.Web.MSSql.Sqx
                             responseformat = _findResponseMsg(null);
 
                         try {
-                            using (MemoryStream buffer = new MemoryStream(0x10000))
-                            {
+                            using (MemoryStream buffer = new MemoryStream(0x10000)) {
                                 var streamBuffer = new StreamWriter(buffer, new System.Text.UTF8Encoding(false), 1024, true);
 
                                 if (_jsmodule) {
                                     streamBuffer.Write("define([], function() { return ");
                                 }
 
-                                using (JsonWriter jsonWriter = new JsonWriter(streamBuffer, true))
-                                {
+                                using (JsonWriter jsonWriter = new JsonWriter(streamBuffer, true)) {
                                     if (!dataReader.IsDBNull(0)) {
-                                        using (var xmlReader = dataReader.GetXmlReader(0))
-                                        {
+                                        using (var xmlReader = dataReader.GetXmlReader(0)) {
                                             ReadNextElement(xmlReader);
                                             responseformat.Convert(jsonWriter, xmlReader);
                                         }

@@ -163,8 +163,7 @@ namespace Jannesen.Web.Core.Impl
                         if (contentEncoding != null) {
                             response.AddHeader("Content-Encoding", contentEncoding);
 
-                            using (MemoryStream buffer = new MemoryStream(_length > 0x4000 ? _length / 4 : 0x1000))
-                            {
+                            using (MemoryStream buffer = new MemoryStream(_length > 0x4000 ? _length / 4 : 0x1000)) {
                                 using (Stream stream = GetCompressor(contentEncoding, buffer))
                                     stream.Write(_data, 0, _length);
 
@@ -184,7 +183,7 @@ namespace Jannesen.Web.Core.Impl
 
         public      override    void                WriteLoggingData(StreamWriter writer)
         {
-            if (_contentType.IndexOf("charset=utf-8", StringComparison.InvariantCulture) > 0) {
+            if (_contentType.IndexOf("charset=utf-8", StringComparison.Ordinal) > 0) {
                 writer.WriteLine();
                 writer.Flush();
                 writer.BaseStream.Write(_data, 0, _length);

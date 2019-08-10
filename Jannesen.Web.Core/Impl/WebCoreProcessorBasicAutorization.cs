@@ -26,7 +26,7 @@ namespace Jannesen.Web.Core.Impl
         {
             string          authorization   = httpCall.Request.Headers["Authorization"];
 
-            if (authorization != null && authorization.StartsWith("Basic ", StringComparison.InvariantCulture)) {
+            if (authorization != null && authorization.StartsWith("Basic ", StringComparison.Ordinal)) {
                 string  AuthStr     = System.Text.Encoding.ASCII.GetString(System.Convert.FromBase64String(authorization.Substring(6)));
                 int     AuthStrPos  = AuthStr.IndexOf(':');
 

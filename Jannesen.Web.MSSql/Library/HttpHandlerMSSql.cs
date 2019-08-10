@@ -51,8 +51,7 @@ namespace Jannesen.Web.MSSql.Library
 
 retry:      using (SqlConnection sqlConnection = GetConnection())
             {
-                using (SqlCommand sqlCommand = new SqlCommand(_procedure, sqlConnection) {CommandType = CommandType.StoredProcedure, CommandTimeout = _timeout } )
-                {
+                using (SqlCommand sqlCommand = new SqlCommand(_procedure, sqlConnection) {CommandType = CommandType.StoredProcedure, CommandTimeout = _timeout } ) {
                     _parameters.AddParametersToCommand(sqlCommand, httpCall);
 
                     try {
@@ -77,7 +76,7 @@ retry:      using (SqlConnection sqlConnection = GetConnection())
                 string      msg = err.Message;
                 int         i;
 
-                if (msg.Length > 2 && msg[0] == '[' && (i = msg.IndexOf("] ", StringComparison.InvariantCulture)) > 0) {
+                if (msg.Length > 2 && msg[0] == '[' && (i = msg.IndexOf("] ", StringComparison.Ordinal)) > 0) {
                     code = msg.Substring(1, i - 1);
                 }
                 else {
@@ -103,8 +102,7 @@ retry:      using (SqlConnection sqlConnection = GetConnection())
 
         protected   virtual     WebCoreResponse             Process(WebCoreCall httpCall, SqlCommand sqlCommand)
         {
-            using (SqlDataReader dataReader = sqlCommand.ExecuteReader())
-            {
+            using (SqlDataReader dataReader = sqlCommand.ExecuteReader()) {
                 return Process(httpCall, dataReader);
             }
         }
@@ -120,7 +118,7 @@ retry:      using (SqlConnection sqlConnection = GetConnection())
         protected   static      HttpStatusCode              HandleResponseOptions(WebCoreResponseBuffer webResponseBuffer, SqlDataReader dataReader)
         {
             try {
-                if (dataReader.FieldCount>0 && dataReader.GetName(0).StartsWith("opt.", StringComparison.InvariantCulture)) {
+                if (dataReader.FieldCount>0 && dataReader.GetName(0).StartsWith("opt.", StringComparison.Ordinal)) {
                     if (dataReader.Read()) {
                         for (int i = 0 ; i < dataReader.FieldCount ; ++i) {
                             string fieldname = dataReader.GetName(i);

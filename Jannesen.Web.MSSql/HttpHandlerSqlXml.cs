@@ -44,10 +44,8 @@ namespace Jannesen.Web.MSSql.Sqx
 
             if (HandleResponseOptions(webResponseBuffer, dataReader) == HttpStatusCode.OK) {
                 try {
-                    using (MemoryStream buffer = new MemoryStream(0x10000))
-                    {
-                        using (StreamWriter textStream  = new StreamWriter(buffer, new System.Text.UTF8Encoding(false), 1024, true))
-                        {
+                    using (MemoryStream buffer = new MemoryStream(0x10000)) {
+                        using (StreamWriter textStream  = new StreamWriter(buffer, new System.Text.UTF8Encoding(false), 1024, true)) {
                             if (_xmlIdent)
                                 _fetchXmlIdent(textStream, dataReader);
                             else

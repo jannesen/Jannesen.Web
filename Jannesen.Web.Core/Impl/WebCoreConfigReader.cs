@@ -142,7 +142,7 @@ namespace Jannesen.Web.Core.Impl
                 parts.RemoveAt(parts.Count - 1);
             }
             else
-            if (_filename.StartsWith("\\", StringComparison.InvariantCulture)) {
+            if (_filename.StartsWith("\\", StringComparison.Ordinal)) {
                 throw new WebConfigException("Relative to UNC not supported.", this);
             }
             else
@@ -354,7 +354,7 @@ namespace Jannesen.Web.Core.Impl
 //          if (pathname == "/" || pathname.IndexOf('\\') >= 0 || pathname.IndexOf("/./") >= 0 || pathname.IndexOf("/../") >= 0)
 //              throw new WebConfigException("Invalid pathname in attribute '" + name + "'.", this);
 
-            if (pathname.StartsWith("/", StringComparison.InvariantCulture))
+            if (pathname.StartsWith("/", StringComparison.Ordinal))
                 return pathname;
 
             return _path + pathname;
@@ -364,9 +364,11 @@ namespace Jannesen.Web.Core.Impl
         {
             var dictionary = new Dictionary<string, string>();
 
-            while (_xmlReader.MoveToNextAttribute())
-            {
-                dictionary.Add(_xmlReader.Name, _xmlReader.Value);
+            while (_xmlReader.MoveToNextAttribute()) {
+                if (_xmlReader.Name != "baseurl" && _xmlReader.Name != "key" && _xmlReader.Name != "certificate" && _xmlReader.Name != "username" && _xmlReader.Name != "passwd")
+                {
+                    dictionary.Add(_xmlReader.Name, _xmlReader.Value);
+                }
             }
 
             return dictionary;

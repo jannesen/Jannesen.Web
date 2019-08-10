@@ -22,8 +22,7 @@ namespace Jannesen.Web.MSSql.Library.Source
 
             object      jsondoc = httpCall.RequestTextJson.Document;
 
-            using (StringWriter stringWriter = new StringWriter())
-            {
+            using (StringWriter stringWriter = new StringWriter()) {
 #pragma warning disable CA2000 // refecence to stringWriter which is disposed
                 XmlWriter xmlWriter = XmlWriter.Create(stringWriter, new XmlWriterSettings() { CloseOutput=false, OmitXmlDeclaration=true });
 #pragma warning restore CA2000

@@ -213,7 +213,7 @@ namespace Jannesen.Web.Core.Impl
         public                  bool                                IsMatch(string path)
         {
             if (path.Length - _prefix.Length - _suffix.Length >= 0 &&
-                path.StartsWith(_prefix, StringComparison.InvariantCulture) && path.EndsWith(_suffix, StringComparison.InvariantCulture))
+                path.StartsWith(_prefix, StringComparison.Ordinal) && path.EndsWith(_suffix, StringComparison.Ordinal))
             {
                 if (_regex == null)
                     return true;

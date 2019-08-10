@@ -49,8 +49,7 @@ namespace Jannesen.Web.Core
         {
             lock(_logLock) {
                 try {
-                    using (StreamWriter writer = _getLogStream())
-                    {
+                    using (StreamWriter writer = _getLogStream()) {
                         _logRequest(writer, call);
                         _logResponse(writer, response, httpResponse);
                         _logEnd(writer);
@@ -65,8 +64,7 @@ namespace Jannesen.Web.Core
         {
             lock(_logLock) {
                 try {
-                    using (StreamWriter writer = _getLogStream())
-                    {
+                    using (StreamWriter writer = _getLogStream()) {
                         _logRequest(writer, call);
                         _logError(writer, err);
                         _logEnd(writer);
@@ -117,7 +115,7 @@ namespace Jannesen.Web.Core
                     break;
 
                 case "Content-Type":
-                    if (value.IndexOf("charset=utf-8", StringComparison.InvariantCulture) > 0 || value.IndexOf("charset=UTF-8", StringComparison.InvariantCulture) > 0)
+                    if (value.IndexOf("charset=utf-8", StringComparison.Ordinal) > 0 || value.IndexOf("charset=UTF-8", StringComparison.Ordinal) > 0)
                         textbody = true;
                     break;
                 }

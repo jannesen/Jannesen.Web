@@ -54,8 +54,7 @@ namespace Jannesen.Web.MSSql.Sqx
                     throw new WebResponseException("Convertion from XML to JSON failed.", err);
                 }
 
-                using (MemoryStream buffer = new MemoryStream(0x10000))
-                {
+                using (MemoryStream buffer = new MemoryStream(0x10000)) {
                     using (JsonWriter jsonWriter = new JsonWriter(new StreamWriter(buffer, new System.Text.UTF8Encoding(false), 1024, true), true))
                         jsonWriter.WriteValue(json);
 
@@ -68,12 +67,10 @@ namespace Jannesen.Web.MSSql.Sqx
 
         private                 object                      _xmlToJson(SqlDataReader dataReader)
         {
-            using (MemoryStream     memoryStream = new MemoryStream())
-            {
+            using (MemoryStream     memoryStream = new MemoryStream()) {
                 bool        fempty = true;
 
-                using (StreamWriter textStream  = new StreamWriter(memoryStream, new System.Text.UTF8Encoding(false), 1024, true))
-                {
+                using (StreamWriter textStream  = new StreamWriter(memoryStream, new System.Text.UTF8Encoding(false), 1024, true)) {
                     do {
                         while(dataReader.Read()) {
                             if (!dataReader.IsDBNull(0)) {
@@ -88,8 +85,7 @@ namespace Jannesen.Web.MSSql.Sqx
                 if (!fempty) {
                     memoryStream.Seek(0, SeekOrigin.Begin);
 
-                    using (var xmlReader = new XmlTextReader(new StreamReader(memoryStream, System.Text.Encoding.UTF8, false, 4096, true)){ DtdProcessing = DtdProcessing.Prohibit, XmlResolver = null })
-                    {
+                    using (var xmlReader = new XmlTextReader(new StreamReader(memoryStream, System.Text.Encoding.UTF8, false, 4096, true)){ DtdProcessing = DtdProcessing.Prohibit, XmlResolver = null }) {
                         while (xmlReader.NodeType != XmlNodeType.Element)
                             _parseReadNode(xmlReader);
 

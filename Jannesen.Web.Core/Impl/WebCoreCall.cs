@@ -197,8 +197,7 @@ namespace Jannesen.Web.Core.Impl
 
                 byte[]  buf = new byte[length.Value];
 
-                using (System.IO.Stream inputStream = _request.InputStream)
-                {
+                using (System.IO.Stream inputStream = _request.InputStream) {
                     int     size = 0;
                     int     rs;
 
@@ -235,7 +234,7 @@ namespace Jannesen.Web.Core.Impl
                 throw new WebRequestException("Expect " + contenttype + " body.");
 
             for (int i = 1 ; i < contentTypeParts.Length ; ++i) {
-                if (contentTypeParts[i].StartsWith("charset=", StringComparison.InvariantCulture)) {
+                if (contentTypeParts[i].StartsWith("charset=", StringComparison.Ordinal)) {
                     string  charset     = contentTypeParts[i].Substring(8);
 
                     switch(charset.ToLowerInvariant()) {

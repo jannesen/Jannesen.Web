@@ -15,7 +15,7 @@ namespace Jannesen.Web.Core
         private readonly        string                          _passwd;
         private readonly        X509Certificate2Collection      _certificates;
         private readonly        Dictionary<string, string>      _properties;
-        
+
         public      override    string                          Type
         {
             get {
@@ -56,8 +56,7 @@ namespace Jannesen.Web.Core
 
         public Dictionary<string, string> Properties
         {
-            get
-            {
+            get {
                 return _properties;
             }
         }
@@ -75,8 +74,7 @@ namespace Jannesen.Web.Core
                 try {
                     _certificates = new X509Certificate2Collection();
 
-                    using (var store = new X509Store(StoreName.My, StoreLocation.LocalMachine))
-                    {
+                    using (var store = new X509Store(StoreName.My, StoreLocation.LocalMachine)) {
                         try {
                             store.Open(OpenFlags.ReadOnly);
                         }

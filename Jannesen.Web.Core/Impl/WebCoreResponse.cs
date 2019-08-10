@@ -19,7 +19,7 @@ namespace Jannesen.Web.Core.Impl
                 for(int c = 0 ; c < _compressors.Length ; ++c) {
                     string compressor = _compressors[c];
 
-                    int i = s.IndexOf(compressor, StringComparison.InvariantCulture);
+                    int i = s.IndexOf(compressor, StringComparison.Ordinal);
 
                     if (i >= 0) {
                         i += compressor.Length;

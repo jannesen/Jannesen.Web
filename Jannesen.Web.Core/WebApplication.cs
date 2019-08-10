@@ -118,7 +118,7 @@ namespace Jannesen.Web.Core
             if (exception.Errors.Count > 0) {
                 EventID id = EventID.Warning;
 
-                if (!message.EndsWith("\n", StringComparison.InvariantCulture))
+                if (!message.EndsWith("\n", StringComparison.Ordinal))
                     message += "\r\n";
 
                 message += "\r\nSqlError(s):\r\n" ;
@@ -149,7 +149,7 @@ namespace Jannesen.Web.Core
             Exception ex;
 
             if (exception != null) {
-                if (!message.EndsWith("\n", StringComparison.InvariantCulture))
+                if (!message.EndsWith("\n", StringComparison.Ordinal))
                     message += "\r\n";
 
                 message += "\r\nException(s):\r\n" ;
@@ -200,13 +200,11 @@ namespace Jannesen.Web.Core
         {
             System.Diagnostics.Debug.WriteLine("LOG: "+message);
 
-            using (SystemSection systemSection = new SystemSection())
-            {
+            using (SystemSection systemSection = new SystemSection()) {
                 systemSection.ToSystem();
 
                 try {
-                    using (System.Diagnostics.EventLog  eventLog = new System.Diagnostics.EventLog())
-                    {
+                    using (System.Diagnostics.EventLog  eventLog = new System.Diagnostics.EventLog()) {
                         eventLog.Source = "Jannesen.Web";
                         eventLog.Log    = "Application";
 
@@ -301,7 +299,7 @@ namespace Jannesen.Web.Core
             _resources           = new CoreResourceDictionary();
             _nextDependanceCheck = DateTime.UtcNow.AddTicks(TimeSpan.TicksPerSecond * DependanceCheckTime);
 
-            if (!_basePath.EndsWith("/", StringComparison.InvariantCulture))
+            if (!_basePath.EndsWith("/", StringComparison.Ordinal))
                 _basePath += "/";
         }
                                                                             ~WebApplication()
@@ -328,7 +326,7 @@ namespace Jannesen.Web.Core
         }
         public                          string                              waGetRelPath(string path)
         {
-            if (string.Compare(path, 0, _basePath, 0, _basePath.Length, StringComparison.InvariantCultureIgnoreCase) != 0)
+            if (string.Compare(path, 0, _basePath, 0, _basePath.Length, StringComparison.OrdinalIgnoreCase) != 0)
                 throw new InternalErrorException("Requested path not in application");
 
             return path.Substring(_basePath.Length-1);
@@ -338,7 +336,7 @@ namespace Jannesen.Web.Core
             if (source.IndexOf(Jannesen.Web.Core.Impl.Source.multiple.SplitChar) >= 0)
                 return new Jannesen.Web.Core.Impl.Source.multiple(source, name);
 
-            int         sep     = source.IndexOf(":", StringComparison.InvariantCulture);
+            int         sep     = source.IndexOf(":", StringComparison.Ordinal);
 
             if (sep > 0) {
                 name   = source.Substring(sep + 1);
@@ -389,8 +387,7 @@ namespace Jannesen.Web.Core
         protected                       bool                                NeedsReInitialize()
         {
             if (_nextDependanceCheck < DateTime.UtcNow) {
-                using (SystemSection systemSection = new SystemSection())
-                {
+                using (SystemSection systemSection = new SystemSection()) {
                     systemSection.ToSystem();
 
                     for(int i = 0 ; i < _dependanceFiles.Count ; ++i) {
@@ -406,8 +403,7 @@ namespace Jannesen.Web.Core
         }
         protected                       void                                LoadConfiguration()
         {
-            using (SystemSection systemSection = new SystemSection())
-            {
+            using (SystemSection systemSection = new SystemSection()) {
                 systemSection.ToSystem();
 
                 try {
@@ -465,8 +461,7 @@ namespace Jannesen.Web.Core
             System.Diagnostics.Debug.WriteLine("LoadConfiguration: " + filename);
 
             try {
-                using (WebCoreConfigReader configReader = new WebCoreConfigReader(this, (abspath != null ? waGetRelPath(abspath) : null), filename))
-                {
+                using (WebCoreConfigReader configReader = new WebCoreConfigReader(this, (abspath != null ? waGetRelPath(abspath) : null), filename)) {
                     _dependanceFiles.Add(new DependanceFile(configReader.Filename));
 
                     configReader.ReadRootNode("configuration");
@@ -501,7 +496,7 @@ namespace Jannesen.Web.Core
                                     string  file = configReader.GetValueString("file").Replace("\\", "/");
                                     configReader.NoChildElements();
 
-                                    if (file.StartsWith("../", StringComparison.InvariantCulture) || abspath == null) {
+                                    if (file.StartsWith("../", StringComparison.Ordinal) || abspath == null) {
                                         if (_loadConfig(null, configReader.CombinePhysicalPath(file)) < 0)
                                             rtn = -1;
                                     }

@@ -26,10 +26,8 @@ namespace Jannesen.Web.Core.Impl
             if ((!(err is HttpException)) && _handler.MapTo200 && (StatusCode != HttpStatusCode.Unauthorized))
                 StatusCode = HttpStatusCode.OK;
 
-            using (MemoryStream buffer = new MemoryStream())
-            {
-                using (StreamWriter streamWriter = new StreamWriter(buffer, new UTF8Encoding(false, false), 0x1000, true))
-                {
+            using (MemoryStream buffer = new MemoryStream()) {
+                using (StreamWriter streamWriter = new StreamWriter(buffer, new UTF8Encoding(false, false), 0x1000, true)) {
                     switch (ContentType) {
                     case "text/xml":            _writeXml(streamWriter);    break;
                     case "application/json":    _writeJson(streamWriter);   break;
@@ -125,8 +123,7 @@ namespace Jannesen.Web.Core.Impl
         {
             ContentType = "text/xml; charset=utf-8";
 
-            using (XmlTextWriter xmlWriter = new XmlTextWriter(streamWriter))
-            {
+            using (XmlTextWriter xmlWriter = new XmlTextWriter(streamWriter)) {
                 xmlWriter.WriteStartElement("error");
                 xmlWriter.WriteAttributeString("code", _code);
 
@@ -144,8 +141,7 @@ namespace Jannesen.Web.Core.Impl
         {
             ContentType = "application/json; charset=utf-8";
 
-            using (JsonWriter jsonWriter = new JsonWriter(streamWriter, false))
-            {
+            using (JsonWriter jsonWriter = new JsonWriter(streamWriter, false)) {
                 jsonWriter.WriteStartObject();
 
                 if (_handler.MapTo200) {
