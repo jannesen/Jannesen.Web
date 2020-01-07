@@ -163,6 +163,10 @@ namespace Jannesen.Web.Core.Impl
             _handler     = handler;
         }
 
+        public                  string                              GetHeader(string name)
+        {
+            return _request.Headers[name];
+        }
         public                  T                                   GetRequestProcessor<T>() where T: IWebCoreCallProcessor, new()
         {
         // Find if already created.

@@ -7,53 +7,51 @@ namespace Jannesen.Web.Core.Impl.Source
     [WebCoreAttributeDataSource("header")]
     class http_header: WebCoreDataSource
     {
-        enum ValueNameCode
-        {
-            Method,
-            IfModifiedSince,
-            IfNoneMatch,
-            Referer,
-            UserAgent,
-            RemoteAddr,
-            BasicUsername,
-            BasicPasswd
-        }
-
-        private readonly            ValueNameCode           _valueCode;
+        private readonly            string                  _name;
 
         public                                              http_header(string name_args): base(name_args)
         {
             switch(Name) {
-            case "method":                      _valueCode = ValueNameCode.Method;                  break;
+            case "method":
             case "if-modified-since":
-            case "if_modified_since":           _valueCode = ValueNameCode.IfModifiedSince;         break;
+            case "if_modified_since":
             case "if-none-match":
-            case "if_none_match":               _valueCode = ValueNameCode.IfNoneMatch;             break;
-            case "referer":                     _valueCode = ValueNameCode.Referer;                 break;
+            case "if_none_match":
             case "user-agent":
-            case "user_agent":                  _valueCode = ValueNameCode.UserAgent;               break;
+            case "user_agent":
             case "remote-addr":
-            case "remote_addr":                 _valueCode = ValueNameCode.RemoteAddr;              break;
+            case "remote_addr":
             case "basic-username":
-            case "basic_username":              _valueCode = ValueNameCode.BasicUsername;           break;
+            case "basic_username":
             case "basic-passwd":
-            case "basic_passwd":                _valueCode = ValueNameCode.BasicPasswd;             break;
-            default:                            throw new WebSourceException("Unknown source header '" + Name + "'.");
+            case "basic_passwd":
+            case "referer":
+                _name = Name.Replace("_", "-");
+                break;
+
+            default:
+                if (Name.StartsWith("X-", StringComparison.Ordinal)) {
+                    _name = Name;
+                }
+                else {
+                    throw new WebSourceException("Unknown source header '" + Name + "'.");
+                }
+                break;
             }
         }
 
         public      override        WebCoreDataValue        GetValue(WebCoreCall httpCall)
         {
-            switch(_valueCode) {
-            case ValueNameCode.Method:              return new WebCoreDataValue((object)httpCall.HttpMethod);
-            case ValueNameCode.IfModifiedSince:     return new WebCoreDataValue((object)httpCall.RequestIfModifiedSince);
-            case ValueNameCode.IfNoneMatch:         return new WebCoreDataValue((object)httpCall.RequestIfNoneMatch);
-            case ValueNameCode.Referer:             return new WebCoreDataValue((object)httpCall.RequestReferer);
-            case ValueNameCode.UserAgent:           return new WebCoreDataValue((object)httpCall.RequestUserAgent);
-            case ValueNameCode.RemoteAddr:          return new WebCoreDataValue((object)httpCall.RequestRemoteAddr);
-            case ValueNameCode.BasicUsername:       return new WebCoreDataValue((object)httpCall.RequestBasicAutorization.UserName);
-            case ValueNameCode.BasicPasswd:         return new WebCoreDataValue((object)httpCall.RequestBasicAutorization.Passwd);
-            default:                                throw new NotImplementedException("Parameter header:" + Name + " not implemented.");
+            switch(_name) {
+            case "method":              return new WebCoreDataValue((object)httpCall.HttpMethod);
+            case "if-modified-since":   return new WebCoreDataValue((object)httpCall.RequestIfModifiedSince);
+            case "if-none-match":       return new WebCoreDataValue((object)httpCall.RequestIfNoneMatch);
+            case "referer":             return new WebCoreDataValue((object)httpCall.RequestReferer);
+            case "user-agent":          return new WebCoreDataValue((object)httpCall.RequestUserAgent);
+            case "remote-addr":         return new WebCoreDataValue((object)httpCall.RequestRemoteAddr);
+            case "basic-username":      return new WebCoreDataValue((object)httpCall.RequestBasicAutorization.UserName);
+            case "basic-passwd":        return new WebCoreDataValue((object)httpCall.RequestBasicAutorization.Passwd);
+            default:                    return new WebCoreDataValue((object)httpCall.GetHeader(_name));
             }
         }
 
