@@ -28,7 +28,7 @@ namespace Jannesen.Web.MSSql.Library.BaseType
             return NoConversion(value);
         }
 
-        protected                           object              ConvertStringToValue(string sValue, bool small)
+        protected       static              object              ConvertStringToValue(string sValue, bool small)
         {
             if (string.IsNullOrEmpty(sValue))
                 return null;
@@ -66,7 +66,7 @@ namespace Jannesen.Web.MSSql.Library.BaseType
 
                     case 5: // second
                         if (chr!='.') goto invalid_date;
-                        factor = 100;
+                        factor = (int)TimeSpan.TicksPerSecond / 10;
                         break;
 
                     default:
@@ -94,7 +94,7 @@ invalid_date:               throw new System.FormatException("Invalid date forma
                     throw new System.FormatException("datetime out of range.");
             }
 
-            return new DateTime(fields[0], fields[1], fields[2], fields[3], fields[4], fields[5], fields[6]);
+            return new DateTime(new DateTime(fields[0], fields[1], fields[2], fields[3], fields[4], fields[5]).Ticks + fields[6]);
         }
 
         public          override            string              ToString()
