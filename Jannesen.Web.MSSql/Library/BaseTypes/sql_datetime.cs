@@ -11,8 +11,10 @@ namespace Jannesen.Web.MSSql.Library.BaseType
         public          override            SqlDbType           DBType      { get { return System.Data.SqlDbType.DateTime;      } }
         public          override            Type                ClrType     { get { return typeof(DateTime);                    } }
 
-        public                                                  sql_datetime(string s): base(s)
+        public                                                  sql_datetime(string s)
         {
+            if (s != null)
+                throw new FormatException("Syntax error sql-type datetime.");
         }
 
         public          override            object              ConvertStringToValue(string sValue)
@@ -28,7 +30,7 @@ namespace Jannesen.Web.MSSql.Library.BaseType
             return NoConversion(value);
         }
 
-        protected       static              object              ConvertStringToValue(string sValue, bool small)
+        internal        static              object              ConvertStringToValue(string sValue, bool small)
         {
             if (string.IsNullOrEmpty(sValue))
                 return null;

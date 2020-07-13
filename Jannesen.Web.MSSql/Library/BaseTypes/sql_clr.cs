@@ -25,7 +25,6 @@ namespace Jannesen.Web.MSSql.Library.BaseType
             _type = Assembly.Load(parts[0]).GetType(parts[1], true);
 
             var sqlUserAttr = _type.GetCustomAttribute<Microsoft.SqlServer.Server.SqlUserDefinedTypeAttribute>();
-
             if (sqlUserAttr != null && sqlUserAttr.Format == Microsoft.SqlServer.Server.Format.Native && sqlUserAttr.IsByteOrdered && sqlUserAttr.IsFixedLength && _type.IsValueType) {
                 _size = Marshal.SizeOf(_type);
                 if (_size < 1 || _size > 8000)

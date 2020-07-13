@@ -7,7 +7,7 @@ using System.Globalization;
 namespace Jannesen.Web.MSSql.Library.BaseType
 {
     [ValueConvertorAttributeBaseType("datetime2")]
-    class sql_datetime2: sql_datetime
+    class sql_datetime2: ValueConvertor_SqlNative
     {
         private readonly                    int                 _precision;
 
@@ -21,7 +21,7 @@ namespace Jannesen.Web.MSSql.Library.BaseType
         public          override            SqlDbType           DBType      { get { return System.Data.SqlDbType.DateTime2;     } }
         public          override            Type                ClrType     { get { return typeof(DateTime);                    } }
 
-        public                                                  sql_datetime2(string s): base(s)
+        public                                                  sql_datetime2(string s)
         {
             if (string.IsNullOrEmpty(s))
                 throw new FormatException("Syntax error sql-type datetime2.");
@@ -29,13 +29,17 @@ namespace Jannesen.Web.MSSql.Library.BaseType
             _precision = int.Parse(s, System.Globalization.NumberStyles.Integer, CultureInfo.InvariantCulture);
         }
 
-        public          override            object              ConvertClrToValue(object value)
-        {
-            return base.ConvertClrToValue(value);
-        }
         public          override            object              ConvertStringToValue(string sValue)
         {
-            return ConvertStringToValue(sValue, true);
+            return sql_datetime.ConvertStringToValue(sValue, false);
+        }
+        public          override            object              ConvertClrToValue(object value)
+        {
+            if (value == null)      return null;
+            if (value is DateTime)  return value;
+            if (value is string)    return ConvertStringToValue((string)value);
+
+            return NoConversion(value);
         }
 
         public          override            string              ToString()
