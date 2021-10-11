@@ -72,7 +72,12 @@ namespace Jannesen.Web.MSSql.Library.BaseType
                         break;
 
                     default:
-invalid_date:               throw new System.FormatException("Invalid date format.");
+invalid_date:           if (fieldpos >= 5) {
+                            if ((chr=='Z' && pos==sValue.Length - 1) ||
+                                (chr=='+' && pos==sValue.Length - 6 && sValue[pos + 1]=='0' && sValue[pos + 2]=='0' && sValue[pos + 3]==':' && sValue[pos + 4]=='0' && sValue[pos + 5]=='0'))
+                                break;
+                        }
+                        throw new System.FormatException("Invalid date format.");
                     }
 
                     ++fieldpos;
