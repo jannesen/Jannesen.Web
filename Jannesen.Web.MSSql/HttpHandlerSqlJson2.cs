@@ -150,7 +150,7 @@ namespace Jannesen.Web.MSSql.Sqx
 
                 if (xmlReader != null) {
                     while (xmlReader.MoveToNextAttribute()) {
-                        var name  = xmlReader.Name;
+                        var name  = _normalizeName(xmlReader.Name);
                         jsonWriter.WriteName(name);
                         _findByName(ref curpos, name).Response.ConvertValue(jsonWriter, xmlReader.Value);
                     }
@@ -159,7 +159,7 @@ namespace Jannesen.Web.MSSql.Sqx
 
                     if (!xmlReader.IsEmptyElement) {
                         while (ReadNextElement(xmlReader)) {
-                            var name  = xmlReader.Name;
+                            var name  = _normalizeName(xmlReader.Name);
                             var field = _findByName(ref curpos, name);
 
                             jsonWriter.WriteName(name);
@@ -198,6 +198,30 @@ namespace Jannesen.Web.MSSql.Sqx
                 }
 
                 throw new KeyNotFoundException("Can't find field '" + name + "'.");
+            }
+            private         static  string                      _normalizeName(string name)
+            {
+                int pos = 0;
+                int p;
+
+                while ((p = name.IndexOf('_', pos)) >= 0) {
+                    if (p + 5 < name.Length && name[p + 1] == 'x' &&  name[p + 6] == '_') {
+                        var d1 = _ishexdigit(name[p + 2]);  if (d1 < 0) goto next;
+                        var d2 = _ishexdigit(name[p + 3]);  if (d2 < 0) goto next;
+                        var d3 = _ishexdigit(name[p + 4]);  if (d3 < 0) goto next;
+                        var d4 = _ishexdigit(name[p + 5]);  if (d4 < 0) goto next;
+                        var v = (d1 << 12) | (d2 << 8) | (d3 << 4) | (d4);
+                        name = name.Substring(0, p) + new string((char)v, 1) + name.Substring(p + 7);
+                    }
+next:               pos = p + 1;
+                }
+
+                return name;
+            }
+            private         static  int                         _ishexdigit(char c) {
+                if (c >= '0' && c <= '9')   return c - '0';
+                if (c >= 'A' && c <= 'F')   return c - 'A' + 10;
+                return -1;
             }
         }
         class ResponseMsg
