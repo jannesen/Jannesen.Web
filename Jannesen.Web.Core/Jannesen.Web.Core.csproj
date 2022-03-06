@@ -48,6 +48,7 @@
     <Compile Include="GlobalSuppressions.cs" />
     <Compile Include="HandlerDenyAccess.cs" />
     <Compile Include="HandlerFactory.cs" />
+    <Compile Include="Impl\IWebCoreErrorHandler.cs" />
     <Compile Include="ResourceLogging.cs" />
     <Compile Include="ResourceWebService.cs" />
     <Compile Include="WebApplication.cs" />

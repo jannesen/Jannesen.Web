@@ -12,6 +12,7 @@ namespace Jannesen.Web.Core.Impl
         private readonly        string                              _verb;
         private readonly        bool                                _public;
         private readonly        WebCoreWildcardPathProcessor        _wildcardPathProcessor;
+        private readonly        IWebCoreErrorHandler                _errorHandler;
         private readonly        ResourceLogging                     _logging;
 
         public                  string                              Path
@@ -70,6 +71,11 @@ namespace Jannesen.Web.Core.Impl
             _verb   = string.Intern(configReader.GetValueString("verb", "GET").ToUpperInvariant());
             _public = configReader.GetValueBool("public", false);
 
+            string errorHandler = configReader.GetValueString("error-handler", null);
+
+            if (errorHandler != null)
+                _errorHandler = configReader.Application.waGetErrorHandler(errorHandler);
+
             string logging = configReader.GetValueString("logging", null);
 
             if (logging != null)
@@ -100,8 +106,10 @@ namespace Jannesen.Web.Core.Impl
         }
 
         public      abstract    WebCoreResponse                     Process(WebCoreCall httpCall);
-        public      virtual     int                                 ProcessErrorCode(Exception err, ref string code)
+        public      virtual     int                                 ProcessErrorCode(Exception err, out string code, out string message)
         {
+            code    = null;
+            message = null;
             return 0;
         }
 
@@ -123,7 +131,7 @@ namespace Jannesen.Web.Core.Impl
                 case (int)HttpStatusCode.BadGateway:
                 case (int)HttpStatusCode.ServiceUnavailable:
                 case (int)HttpStatusCode.GatewayTimeout:
-                    webResponse = new WebCoreResponseError(this, err, Mimetype);
+                    webResponse = _errorHandler != null ? _errorHandler.GetErrorResponse(this, err) : new WebCoreResponseError(this, err, Mimetype);
                     break;
 
                 default:
@@ -137,7 +145,7 @@ namespace Jannesen.Web.Core.Impl
                 if (!(err is WebException && ((WebException)err).logError == false))
                     WebApplication.LogError(this, httpCall, err);
 
-                webResponse = new WebCoreResponseError(this, err, Mimetype);
+                webResponse = _errorHandler != null ? _errorHandler.GetErrorResponse(this, err) : new WebCoreResponseError(this, err, Mimetype);
             }
 
             if (webResponse != null) {

@@ -67,6 +67,7 @@ namespace Jannesen.Web.Core
         private     readonly            List<DependanceFile>                                        _dependanceFiles;
         private     readonly            List<Assembly>                                              _loadedModules;
         private     readonly            Dictionary<WebCoreAttribureDynamicClass, ConstructorInfo>   _dynamicClasses;
+        private     readonly            Dictionary<string, IWebCoreErrorHandler>                    _errorHandlers;
         private     readonly            CoreHttpHandlerDictionary                                   _httpHandlers;
         private     readonly            CoreResourceDictionary                                      _resources;
         private                         DateTime                                                    _nextDependanceCheck;
@@ -295,6 +296,7 @@ namespace Jannesen.Web.Core
             _dependanceFiles     = new List<DependanceFile>(32);
             _loadedModules       = new List<Assembly>();
             _dynamicClasses      = new Dictionary<WebCoreAttribureDynamicClass, ConstructorInfo>(256);
+            _errorHandlers       = new Dictionary<string, IWebCoreErrorHandler>(16);
             _httpHandlers        = new CoreHttpHandlerDictionary();
             _resources           = new CoreResourceDictionary();
             _nextDependanceCheck = DateTime.UtcNow.AddTicks(TimeSpan.TicksPerSecond * DependanceCheckTime);
@@ -323,6 +325,14 @@ namespace Jannesen.Web.Core
         public                          T                                   waGetResource<T>(string name) where T: WebCoreResource
         {
             return (T)_resources.GetWebResource(typeof(T), name);
+        }
+        public                          IWebCoreErrorHandler                waGetErrorHandler(string className)
+        {
+            if (!_errorHandlers.TryGetValue(className, out var errorHandler)) {
+                throw new KeyNotFoundException("Unknown error handler " + className + ".");
+            }
+
+            return errorHandler;
         }
         public                          string                              waGetRelPath(string path)
         {
@@ -570,6 +580,10 @@ namespace Jannesen.Web.Core
                 try {
                     foreach(WebCoreAttribureDynamicClass attr in type.GetCustomAttributes(typeof(WebCoreAttribureDynamicClass), false))
                         _dynamicClasses.Add(attr, attr.GetConstructor(type));
+
+                    if (type.GetTypeInfo().IsClass && typeof(IWebCoreErrorHandler).IsAssignableFrom(type)) {
+                        _errorHandlers.Add(type.FullName, (IWebCoreErrorHandler)(type.GetConstructor(Array.Empty<Type>()).Invoke(Array.Empty<object>())));
+                    }
                 }
                 catch(Exception err) {
                     throw new WebInitializationException("Failed to process class '" + type.FullName + "'.", err);

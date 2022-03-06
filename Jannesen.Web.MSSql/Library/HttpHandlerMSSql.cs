@@ -70,34 +70,51 @@ retry:      using (SqlConnection sqlConnection = GetConnection())
                 }
             }
         }
-        public      override    int                         ProcessErrorCode(Exception err, ref string code)
+        public      override    int                         ProcessErrorCode(Exception err, out string code, out string message)
         {
             if (err is SqlException) {
                 string      msg = err.Message;
                 int         i;
 
-                if (msg.Length > 2 && msg[0] == '[' && (i = msg.IndexOf("] ", StringComparison.Ordinal)) > 0) {
-                    code = msg.Substring(1, i - 1);
+                if (msg.Length > 2 && msg[0] == '[' && msg[msg.Length - 1] == ']') {
+                    code     = msg.Substring(1, msg.Length - 2);
+                    message  = code;
+                }
+                else if (msg.Length > 2 && msg[0] == '[' && (i = msg.IndexOf("] ", StringComparison.Ordinal)) > 0) {
+                    code     = msg.Substring(1, i - 1);
+                    message  = msg.Substring(i+2);
                 }
                 else {
                     switch(((SqlException)err).Number) {
-                    case -2:    code = "DATABASE-TIMEOUT";      break;
-                    default:    code = "DATABASE-ERROR";        break;
+                    case -2:
+                        code    = "DATABASE-TIMEOUT";
+                        message = "Database timeout";
+                        break;
+                    default:
+                        code    = "DATABASE-ERROR";
+                        message = msg;
+                        break;
                     }
                 }
 
                 switch(code) {
                 case "INVALID-AUTHENTICATION":              return 401;
                 case "INVALID-BASIC-AUTHENTICATION":        return 401;
+                case "NOT-FOUND":                           return 404;
+                case "HTTP-401":                            return 401;
+                case "HTTP-404":                            return 404;
                 default:                                    return 500;
                 }
             }
 
             if (err is NoDataException) {
-                code = "NO-DATA";
+                code    = "NO-DATA";
+                message = "No data retrieved";
                 return 500;
             }
 
+            code    = null;
+            message = null;
             return 0;
         }
 

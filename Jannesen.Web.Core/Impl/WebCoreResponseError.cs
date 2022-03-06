@@ -49,8 +49,6 @@ namespace Jannesen.Web.Core.Impl
 
         private                 HttpStatusCode          _processErrorCode()
         {
-            _code       = "GENERAL-ERROR";
-
             for (Exception err = _err ; err != null ; err = err.InnerException) {
                 if (err is HttpException) {
                     int statusCode = ((HttpException)err).GetHttpCode();
@@ -98,12 +96,13 @@ namespace Jannesen.Web.Core.Impl
                 }
 
                 {
-                    int httpCode = _handler.ProcessErrorCode(err, ref _code);
+                    int httpCode = _handler.ProcessErrorCode(err, out _code, out var _);
                     if (httpCode != 0)
                         return (HttpStatusCode)httpCode;
                 }
             }
 
+            _code       = "GENERAL-ERROR";
             return HttpStatusCode.InternalServerError;
         }
         private                 void                    _writeText(StreamWriter streamWriter)
@@ -112,12 +111,14 @@ namespace Jannesen.Web.Core.Impl
 
             streamWriter.WriteLine("ERROR PROCESSING REQUEST");
             streamWriter.WriteLine("ERROR-CODE: " + _code);
-            streamWriter.WriteLine();
-            streamWriter.WriteLine("============================================================");
-            streamWriter.WriteLine("DETAILS:");
-            for (Exception err = _err ; err != null ; err = err.InnerException)
-                streamWriter.WriteLine(err.Message);
-            streamWriter.WriteLine("============================================================");
+            if (_withDetails()) { 
+                streamWriter.WriteLine();
+                streamWriter.WriteLine("============================================================");
+                streamWriter.WriteLine("DETAILS:");
+                for (Exception err = _err ; err != null ; err = err.InnerException)
+                    streamWriter.WriteLine(err.Message);
+                streamWriter.WriteLine("============================================================");
+            }
         }
         private                 void                    _writeXml(StreamWriter streamWriter)
         {
@@ -127,11 +128,13 @@ namespace Jannesen.Web.Core.Impl
                 xmlWriter.WriteStartElement("error");
                 xmlWriter.WriteAttributeString("code", _code);
 
-                for (Exception err = _err ; err != null ; err = err.InnerException) {
-                    xmlWriter.WriteStartElement("error-detail");
-                    xmlWriter.WriteAttributeString("class",   err.GetType().FullName);
-                    xmlWriter.WriteAttributeString("message", err.Message);
-                    xmlWriter.WriteEndElement();
+                if (_withDetails()) { 
+                    for (Exception err = _err ; err != null ; err = err.InnerException) {
+                        xmlWriter.WriteStartElement("error-detail");
+                        xmlWriter.WriteAttributeString("class",   err.GetType().FullName);
+                        xmlWriter.WriteAttributeString("message", err.Message);
+                        xmlWriter.WriteEndElement();
+                    }
                 }
 
                 xmlWriter.WriteEndElement();
@@ -150,14 +153,29 @@ namespace Jannesen.Web.Core.Impl
 
                 jsonWriter.WriteNameValue("code", _code);
 
-                jsonWriter.WriteStartArray("detail");
+                if (_withDetails()) { 
+                    jsonWriter.WriteStartArray("detail");
 
-                for (Exception err = _err ; err != null ; err = err.InnerException) {
-                    jsonWriter.WriteStartObject();
-                    jsonWriter.WriteNameValue("class",   err.GetType().FullName);
-                    jsonWriter.WriteNameValue("message", err.Message);
-                    jsonWriter.WriteEndObject();
+                    for (Exception err = _err ; err != null ; err = err.InnerException) {
+                        jsonWriter.WriteStartObject();
+                        jsonWriter.WriteNameValue("class",   err.GetType().FullName);
+                        jsonWriter.WriteNameValue("message", err.Message);
+                        jsonWriter.WriteEndObject();
+                    }
                 }
+            }
+        }
+
+        private                 bool                    _withDetails()
+        {
+            switch(StatusCode) {
+            case HttpStatusCode.OK:
+            case HttpStatusCode.Created:
+            case HttpStatusCode.InternalServerError:
+                return true;
+
+            default:
+                return false;
             }
         }
     }

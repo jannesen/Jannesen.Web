@@ -97,6 +97,7 @@ namespace Jannesen.Web.MSSql.Sqx
                             switch(xmlReader.Name[1]) {
                             case 'a':       return _parseToJsonArray(xmlReader);
                             case 'o':       return _parseToJsonObject(xmlReader);
+                            case 'c':       return _parseToJsonChild(xmlReader);
                             default:        return _jsonConvertValue(xmlReader.Name[1], _parseElementValue(xmlReader));
                             }
                         }
@@ -109,6 +110,45 @@ namespace Jannesen.Web.MSSql.Sqx
                     return (Verb != "GET" ? "OK" : null);
                 }
             }
+        }
+        private                 object                      _parseToJsonChild(XmlTextReader xmlReader)
+        {
+            object  rtn = null;
+
+            if (!xmlReader.IsEmptyElement) {
+                _parseReadNode(xmlReader);
+
+                if (xmlReader.NodeType != XmlNodeType.Element) {
+                    throw new WebConversionException("Unexpected node '" + xmlReader.NodeType + "' in child.");
+                }
+
+                string  name = xmlReader.Name;
+
+                try {
+                    if (name.Length > 3 && name[0] == '_' && name[2] == '_') {
+                        switch(name[1]) {
+                        case 'a':   rtn = _parseToJsonArray(xmlReader);                                 break;
+                        case 'o':   rtn = _parseToJsonObject(xmlReader);                                break;
+                        case 'c':   rtn = _parseToJsonChild(xmlReader);                                 break;
+                        default:    rtn = _jsonConvertValue(name[1], _parseElementValue(xmlReader));    break;
+                        }
+                    }
+                    else {
+                        throw new WebConversionException("Missing type in child name.");
+                    }
+                }
+                catch(Exception err) {
+                    throw new WebConversionException("Conversie failed in element '" + name + "'.", err);
+                }
+
+                _parseReadNode(xmlReader);
+
+                if (xmlReader.NodeType != XmlNodeType.EndElement) {
+                    throw new WebConversionException("Unexpected node '" + xmlReader.NodeType + "' in child.");
+                }
+            }
+
+            return rtn;
         }
         private                 JsonObject                  _parseToJsonObject(XmlTextReader xmlReader)
         {
@@ -155,6 +195,7 @@ namespace Jannesen.Web.MSSql.Sqx
                                 switch(name[1]) {
                                 case 'a':       jsonObject.Add(name.Substring(3), _parseToJsonArray(xmlReader));                                    break;
                                 case 'o':       jsonObject.Add(name.Substring(3), _parseToJsonObject(xmlReader));                                   break;
+                                case 'c':       jsonObject.Add(name.Substring(3), _parseToJsonChild(xmlReader));                                    break;
                                 default:        jsonObject.Add(name.Substring(3), _jsonConvertValue(name[1], _parseElementValue(xmlReader)));       break;
                                 }
                             }

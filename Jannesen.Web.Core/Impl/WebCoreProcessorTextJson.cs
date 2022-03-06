@@ -45,12 +45,17 @@ namespace Jannesen.Web.Core.Impl
             object  obj = _document;
 
             foreach(string n in name.Split('.')) {
-                if (!(obj is JsonObject))
-                    throw new WebInvalidValueException("Invalid Json query.");
+                if (!(obj is JsonObject jsonObject))
+                    throw new WebRequestException("Invalid Json schema.");
 
-                if (!((JsonObject)obj).TryGetValue(n, out obj)) {
-                    rtn = null;
-                    return false;
+                if (n == "$") {
+                    obj = JsonWriter.Stringify(jsonObject);
+                }
+                else {
+                    if (!jsonObject.TryGetValue(n, out obj)) {
+                        rtn = null;
+                        return false;
+                    }
                 }
             }
 
