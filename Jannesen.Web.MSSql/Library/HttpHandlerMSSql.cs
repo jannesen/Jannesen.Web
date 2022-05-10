@@ -154,6 +154,10 @@ retry:      using (SqlConnection sqlConnection = GetConnection())
                                 webResponseBuffer.StatusCode = (HttpStatusCode)dataReader.GetInt32(i);
                                 break;
 
+                            case "opt.etag":
+                                webResponseBuffer.ETag = dataReader.GetString(i);
+                                break;
+
                             default:
                                 throw new InternalErrorException("Unknown option \'"+fieldname+"\' received from database.");
                             }
