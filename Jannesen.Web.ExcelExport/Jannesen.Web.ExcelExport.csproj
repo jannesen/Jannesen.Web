@@ -8,7 +8,7 @@
     <OutputType>Library</OutputType>
     <RootNamespace>Jannesen.Web.ExcelExport</RootNamespace>
     <AssemblyName>Jannesen.Web.ExcelExport</AssemblyName>
-    <TargetFrameworkVersion>v4.6</TargetFrameworkVersion>
+    <TargetFrameworkVersion>v4.8</TargetFrameworkVersion>
     <WarningLevel>4</WarningLevel>
     <TreatWarningsAsErrors>true</TreatWarningsAsErrors>
     <FileAlignment>512</FileAlignment>
@@ -18,6 +18,7 @@
     <UseVSHostingProcess>false</UseVSHostingProcess>
     <SignAssembly>true</SignAssembly>
     <AssemblyOriginatorKeyFile>Jannesen.Web.ExcelExport.snk</AssemblyOriginatorKeyFile>
+    <TargetFrameworkProfile />
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
     <DebugSymbols>true</DebugSymbols>
@@ -50,7 +51,7 @@
       <HintPath>..\packages\DocumentFormat.OpenXml.2.9.1\lib\net46\DocumentFormat.OpenXml.dll</HintPath>
       <Private>True</Private>
     </Reference>
-  </ItemGroup>  
+  </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\Jannesen.Web.Core\Jannesen.Web.Core.csproj">
       <Project>{9432a117-772b-443a-a6ba-1ef1826354c0}</Project>
