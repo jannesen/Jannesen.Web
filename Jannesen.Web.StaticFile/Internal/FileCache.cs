@@ -108,7 +108,7 @@ namespace Jannesen.Web.StaticFile.Internal
             return new ResponseStaticCache(contentType, publicCache, this);
         }
 
-        private                 void                        _decodeAndCopy(Stream inStream, Stream outStream)
+        private static          void                        _decodeAndCopy(Stream inStream, Stream outStream)
         {
             byte[] buf = new byte[81920];
 

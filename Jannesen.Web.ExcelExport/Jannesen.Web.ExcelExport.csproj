@@ -1,25 +1,22 @@
-﻿<?xml version="1.0" encoding="utf-8"?>
-<Project ToolsVersion="15.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
-  <Import Project="$(MSBuildExtensionsPath)\$(MSBuildToolsVersion)\Microsoft.Common.props" Condition="Exists('$(MSBuildExtensionsPath)\$(MSBuildToolsVersion)\Microsoft.Common.props')" />
+﻿<Project Sdk="Microsoft.NET.Sdk">
   <PropertyGroup>
-    <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
-    <Platform Condition=" '$(Platform)' == '' ">AnyCPU</Platform>
-    <ProjectGuid>{500756C1-94C2-4B56-86EE-2EFBE59EA839}</ProjectGuid>
-    <OutputType>Library</OutputType>
     <RootNamespace>Jannesen.Web.ExcelExport</RootNamespace>
     <AssemblyName>Jannesen.Web.ExcelExport</AssemblyName>
-    <TargetFrameworkVersion>v4.8</TargetFrameworkVersion>
+    <OutputType>Library</OutputType>
+    <TargetFrameworks>net48</TargetFrameworks>
+    <AutoGenerateBindingRedirects>False</AutoGenerateBindingRedirects>
+    <EnableNETAnalyzers>true</EnableNETAnalyzers>
+    <AnalysisLevel>latest</AnalysisLevel>
+    <AnalysisMode>AllEnabledByDefault</AnalysisMode>
     <WarningLevel>4</WarningLevel>
-    <TreatWarningsAsErrors>true</TreatWarningsAsErrors>
-    <FileAlignment>512</FileAlignment>
-    <ErrorReport>prompt</ErrorReport>
-    <Prefer32Bit>false</Prefer32Bit>
-    <AllowUnsafeBlocks>false</AllowUnsafeBlocks>
-    <UseVSHostingProcess>false</UseVSHostingProcess>
     <SignAssembly>true</SignAssembly>
     <AssemblyOriginatorKeyFile>Jannesen.Web.ExcelExport.snk</AssemblyOriginatorKeyFile>
-    <TargetFrameworkProfile />
+    <Company>Jannesen B.V.</Company>
+    <Version>1.10.00.001</Version>
+    <RepositoryUrl>https://github.com/jannesen/Jannesen.Web</RepositoryUrl>
+    <Authors>Peter Jannesen</Authors>
   </PropertyGroup>
+
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
     <DebugSymbols>true</DebugSymbols>
     <DebugType>full</DebugType>
@@ -27,55 +24,32 @@
     <OutputPath>..\bin\</OutputPath>
     <DefineConstants>DEBUG;TRACE</DefineConstants>
   </PropertyGroup>
+
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|AnyCPU' ">
+    <TreatWarningsAsErrors>true</TreatWarningsAsErrors>
     <DebugType>pdbonly</DebugType>
     <Optimize>true</Optimize>
     <OutputPath>..\bin\</OutputPath>
     <DefineConstants>TRACE</DefineConstants>
   </PropertyGroup>
-  <!-- Import CodeAnalysis if package exists in upper directory -->
-  <Import Condition="Exists($([MSBuild]::GetPathOfFileAbove('code-analysis-package.vsprops')))" Project="$([MSBuild]::GetPathOfFileAbove('code-analysis-package.vsprops'))" />
+
   <ItemGroup>
-    <Reference Include="System" />
     <Reference Include="System.Configuration" />
-    <Reference Include="System.Core" />
-    <Reference Include="System.Data" />
-    <Reference Include="System.Runtime.Serialization" />
-    <Reference Include="System.Web" />
-    <Reference Include="System.Xml" />
-    <Reference Include="System.Xml.Linq" />
-    <Reference Include="WindowsBase" />
   </ItemGroup>
+
   <ItemGroup>
-    <Reference Include="DocumentFormat.OpenXml">
-      <HintPath>..\packages\DocumentFormat.OpenXml.2.9.1\lib\net46\DocumentFormat.OpenXml.dll</HintPath>
-      <Private>True</Private>
-    </Reference>
+    <PackageReference Include="DocumentFormat.OpenXml" Version="2.17.1" />
   </ItemGroup>
+
   <ItemGroup>
     <ProjectReference Include="..\Jannesen.Web.Core\Jannesen.Web.Core.csproj">
-      <Project>{9432a117-772b-443a-a6ba-1ef1826354c0}</Project>
       <Name>Jannesen.Web.Core</Name>
       <Private>False</Private>
     </ProjectReference>
     <ProjectReference Include="..\Jannesen.Web.MSSql\Jannesen.Web.MSSql.csproj">
-      <Project>{03E24EDA-52FE-4192-ADD8-337253903E59}</Project>
       <Name>Jannesen.Web.MSSql</Name>
       <Private>False</Private>
     </ProjectReference>
   </ItemGroup>
-  <ItemGroup>
-    <Compile Include="AssemblyInfo.cs" />
-    <Compile Include="ExcelExport\ConfigColumn.cs" />
-    <Compile Include="ExcelExport\ConfigSheet.cs" />
-    <Compile Include="ExcelExport\ExcelStyleSheet.cs" />
-    <Compile Include="ExcelExport\ExportToExcel.cs" />
-    <Compile Include="GlobalSuppressions.cs" />
-    <Compile Include="HttpHandlerExcelExport.cs" />
-  </ItemGroup>
-  <ItemGroup>
-    <None Include="Jannesen.Web.ExcelExport.snk" />
-    <None Include="packages.config" />
-  </ItemGroup>
-  <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
+
 </Project>

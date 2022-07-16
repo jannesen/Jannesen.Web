@@ -63,7 +63,7 @@ namespace Jannesen.Web.MSSql.Sqx
             return webResponseBuffer;
         }
 
-        private                 void                        _fetchXmlIdent(StreamWriter textStream, SqlDataReader dataReader)
+        private     static      void                        _fetchXmlIdent(StreamWriter textStream, SqlDataReader dataReader)
         {
             using (MemoryStream xmlMemory = new MemoryStream()) {
                 using (StreamWriter xmlStream = new StreamWriter(xmlMemory, new System.Text.UTF8Encoding(false), 1024, true)) {

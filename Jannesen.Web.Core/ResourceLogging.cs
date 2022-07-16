@@ -43,6 +43,7 @@ namespace Jannesen.Web.Core
                     _filestream = null;
                 }
             }
+            base.Dispose(disposing);
         }
 
         public                  void                Logging(WebCoreCall call, WebCoreResponse response, HttpResponse httpResponse)

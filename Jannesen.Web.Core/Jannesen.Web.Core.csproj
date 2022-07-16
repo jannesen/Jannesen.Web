@@ -1,25 +1,22 @@
-﻿<?xml version="1.0" encoding="utf-8"?>
-<Project ToolsVersion="15.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
-  <Import Project="$(MSBuildExtensionsPath)\$(MSBuildToolsVersion)\Microsoft.Common.props" Condition="Exists('$(MSBuildExtensionsPath)\$(MSBuildToolsVersion)\Microsoft.Common.props')" />
+﻿<Project Sdk="Microsoft.NET.Sdk">
   <PropertyGroup>
-    <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
-    <Platform Condition=" '$(Platform)' == '' ">AnyCPU</Platform>
-    <ProjectGuid>{9432A117-772B-443A-A6BA-1EF1826354C0}</ProjectGuid>
-    <OutputType>Library</OutputType>
     <RootNamespace>Jannesen.Web.Core</RootNamespace>
     <AssemblyName>Jannesen.Web.Core</AssemblyName>
-    <TargetFrameworkVersion>v4.8</TargetFrameworkVersion>
+    <OutputType>Library</OutputType>
+    <TargetFrameworks>net48</TargetFrameworks>
+    <AutoGenerateBindingRedirects>False</AutoGenerateBindingRedirects>
+    <EnableNETAnalyzers>true</EnableNETAnalyzers>
+    <AnalysisLevel>latest</AnalysisLevel>
+    <AnalysisMode>AllEnabledByDefault</AnalysisMode>
     <WarningLevel>4</WarningLevel>
-    <TreatWarningsAsErrors>true</TreatWarningsAsErrors>
-    <FileAlignment>512</FileAlignment>
-    <ErrorReport>prompt</ErrorReport>
-    <Prefer32Bit>false</Prefer32Bit>
-    <AllowUnsafeBlocks>false</AllowUnsafeBlocks>
-    <UseVSHostingProcess>false</UseVSHostingProcess>
     <SignAssembly>true</SignAssembly>
     <AssemblyOriginatorKeyFile>Jannesen.Web.Core.snk</AssemblyOriginatorKeyFile>
-    <TargetFrameworkProfile />
+    <Company>Jannesen B.V.</Company>
+    <Version>1.10.00.001</Version>
+    <RepositoryUrl>https://github.com/jannesen/Jannesen.Web</RepositoryUrl>
+    <Authors>Peter Jannesen</Authors>
   </PropertyGroup>
+  
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
     <DebugSymbols>true</DebugSymbols>
     <DebugType>full</DebugType>
@@ -27,74 +24,24 @@
     <OutputPath>..\bin\</OutputPath>
     <DefineConstants>DEBUG;TRACE</DefineConstants>
   </PropertyGroup>
+  
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|AnyCPU' ">
+    <TreatWarningsAsErrors>true</TreatWarningsAsErrors>
     <DebugType>pdbonly</DebugType>
     <Optimize>true</Optimize>
     <OutputPath>..\bin</OutputPath>
     <DefineConstants>TRACE</DefineConstants>
   </PropertyGroup>
-  <PropertyGroup>
-    <AutoGenerateBindingRedirects>false</AutoGenerateBindingRedirects>
-  </PropertyGroup>
-  <!-- Import CodeAnalysis if package exists in upper directory -->
-  <Import Condition="Exists($([MSBuild]::GetPathOfFileAbove('code-analysis-package.vsprops')))" Project="$([MSBuild]::GetPathOfFileAbove('code-analysis-package.vsprops'))" />
-  <ItemGroup>
-    <Reference Include="System" />
-    <Reference Include="System.Configuration" />
-    <Reference Include="System.Core" />
-    <Reference Include="System.Data" />
-    <Reference Include="System.Web" />
-    <Reference Include="System.Xml" />
-  </ItemGroup>
-  <ItemGroup>
-    <Compile Include="ApplModule.cs" />
-    <Compile Include="AssemblyInfo.cs" />
-    <Compile Include="GlobalSuppressions.cs" />
-    <Compile Include="HandlerDenyAccess.cs" />
-    <Compile Include="HandlerFactory.cs" />
-    <Compile Include="Impl\IWebCoreErrorHandler.cs" />
-    <Compile Include="ResourceLogging.cs" />
-    <Compile Include="ResourceWebService.cs" />
-    <Compile Include="WebApplication.cs" />
-    <Compile Include="Impl\Exceptions.cs" />
-    <Compile Include="Impl\WebCoreResponseRedirect.cs" />
-    <Compile Include="Impl\Source\http_body.cs" />
-    <Compile Include="Impl\Source\http_cookie.cs" />
-    <Compile Include="Impl\Source\http_formdata.cs" />
-    <Compile Include="Impl\Source\http_header.cs" />
-    <Compile Include="Impl\Source\http_querystring.cs" />
-    <Compile Include="Impl\Source\http_textjson.cs" />
-    <Compile Include="Impl\Source\http_textxml.cs" />
-    <Compile Include="Impl\Source\http_urlpath.cs" />
-    <Compile Include="Impl\Source\multiple.cs" />
-    <Compile Include="Impl\SystemSection.cs" />
-    <Compile Include="Impl\WebCoreAttribureDynamicClass.cs" />
-    <Compile Include="Impl\WebCoreAttribureHttpHandler.cs" />
-    <Compile Include="Impl\WebCoreAttribureResource.cs" />
-    <Compile Include="Impl\WebCoreAttributeDataSource.cs" />
-    <Compile Include="Impl\WebCoreCall.cs" />
-    <Compile Include="Impl\WebCoreConfigReader.cs" />
-    <Compile Include="Impl\WebCoreDataSource.cs" />
-    <Compile Include="Impl\WebCoreDataValue.cs" />
-    <Compile Include="Impl\WebCoreHttpHandler.cs" />
-    <Compile Include="Impl\WebCoreProcessorBasicAutorization.cs" />
-    <Compile Include="Impl\WebCoreProcessorTextJson.cs" />
-    <Compile Include="Impl\WebCoreProcessorTextXml.cs" />
-    <Compile Include="Impl\WebCoreResource.cs" />
-    <Compile Include="Impl\WebCoreResponse.cs" />
-    <Compile Include="Impl\WebCoreResponseError.cs" />
-    <Compile Include="Impl\WebCoreResponseBuffer.cs" />
-    <Compile Include="Impl\WebCoreUrlPathData.cs" />
-    <Compile Include="Impl\WebCoreWildcardPathProcessor.cs" />
-  </ItemGroup>
-  <ItemGroup>
-    <None Include="Jannesen.Web.Core.snk" />
-  </ItemGroup>
+
   <ItemGroup>
     <ProjectReference Include="..\..\Jannesen.FileFormat.Json\Jannesen.FileFormat.Json.csproj">
-      <Project>{6c233f19-71d7-4a8a-97f6-c73790f37f8d}</Project>
       <Name>Jannesen.FileFormat.Json</Name>
     </ProjectReference>
   </ItemGroup>
-  <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
+
+  <ItemGroup>
+    <Reference Include="System.Configuration" />
+    <Reference Include="System.Web" />
+  </ItemGroup>
+
 </Project>

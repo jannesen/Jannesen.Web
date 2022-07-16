@@ -5,7 +5,7 @@ using System.Reflection;
 
 namespace Jannesen.Web.Core.Impl
 {
-    public class WebCoreAttribureHttpHandler: WebCoreAttribureDynamicClass
+    public sealed class WebCoreAttribureHttpHandler: WebCoreAttribureDynamicClass
     {
         public      override    string                          Type
         {

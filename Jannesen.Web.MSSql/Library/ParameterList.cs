@@ -11,11 +11,11 @@ namespace Jannesen.Web.MSSql.Library
     {
         public  readonly            string           Name;
 
-        public                                      Parameter(WebCoreConfigReader configReader)
+        protected                                    Parameter(WebCoreConfigReader configReader)
         {
             Name = configReader.GetValueString("name");
         }
-        public  abstract            void            AddToCommand(SqlCommand sqlCommand, WebCoreCall httpCall);
+        public  abstract            void             AddToCommand(SqlCommand sqlCommand, WebCoreCall httpCall);
     }
 
     public class ParameterList: List<Parameter>

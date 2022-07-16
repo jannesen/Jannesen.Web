@@ -65,7 +65,7 @@ namespace Jannesen.Web.Core.Impl
             }
         }
 
-        public                                                      WebCoreHttpHandler(WebCoreConfigReader configReader)
+        protected                                                   WebCoreHttpHandler(WebCoreConfigReader configReader)
         {
             _path   = configReader.GetValuePathName("path");
             _verb   = string.Intern(configReader.GetValueString("verb", "GET").ToUpperInvariant());

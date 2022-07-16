@@ -18,7 +18,7 @@ namespace Jannesen.Web.Core.Impl
             }
         }
 
-        public                                                  WebCoreAttribureDynamicClass(string name)
+        protected                                               WebCoreAttribureDynamicClass(string name)
         {
             _name  = name;
         }

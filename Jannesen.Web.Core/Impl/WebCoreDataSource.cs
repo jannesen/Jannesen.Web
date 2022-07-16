@@ -17,7 +17,7 @@ namespace Jannesen.Web.Core.Impl
             }
         }
 
-        public                                              WebCoreDataSource(string name)
+        protected                                           WebCoreDataSource(string name)
         {
             _name = name;
         }

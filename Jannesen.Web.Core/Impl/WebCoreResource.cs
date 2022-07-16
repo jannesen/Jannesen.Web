@@ -26,7 +26,7 @@ namespace Jannesen.Web.Core.Impl
             }
         }
 
-        public                                      WebCoreResource(WebCoreConfigReader configReader)
+        protected                                   WebCoreResource(WebCoreConfigReader configReader)
         {
             _name = configReader.GetValueString("name");
             _down = configReader.GetValueBool  ("down", false);

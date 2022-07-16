@@ -25,7 +25,7 @@ namespace Jannesen.Web.MSSql.Library
             }
         }
 
-        public                                              HttpHandlerMSSql(WebCoreConfigReader configReader): base(configReader)
+        protected                                           HttpHandlerMSSql(WebCoreConfigReader configReader): base(configReader)
         {
             _procedure       = configReader.GetValueString("procedure");
             _timeout         = configReader.GetValueInt("timeout", 30, 5, 300);

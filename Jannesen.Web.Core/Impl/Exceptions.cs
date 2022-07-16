@@ -15,10 +15,10 @@ namespace Jannesen.Web.Core.Impl
     {
         public  abstract    bool            logError        { get; }
 
-        public                              WebException(string message): base(message)
+        protected                           WebException(string message): base(message)
         {
         }
-        public                              WebException(string message, Exception innerException): base(message, innerException)
+        protected                           WebException(string message, Exception innerException): base(message, innerException)
         {
         }
         protected                           WebException(SerializationInfo info, StreamingContext context) : base(info, context)

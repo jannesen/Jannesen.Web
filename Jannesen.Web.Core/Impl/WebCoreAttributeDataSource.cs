@@ -5,7 +5,7 @@ using Jannesen.Web.Core.Impl;
 namespace Jannesen.Web.Core.Impl
 {
     [AttributeUsage(AttributeTargets.Class)]
-    public class WebCoreAttributeDataSource: WebCoreAttribureDynamicClass
+    public sealed class WebCoreAttributeDataSource: WebCoreAttribureDynamicClass
     {
         public      override    string                          Type
         {

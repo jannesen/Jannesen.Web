@@ -4,12 +4,10 @@ using System.Security.Principal;
 
 namespace Jannesen.Web.Core.Impl
 {
-#pragma warning disable CA1815 // Override equals and operator equals on value types
+#pragma warning disable CA1815 // CA1815: Override equals and operator equals on value types
     public struct SystemSection: IDisposable
     {
-#pragma warning disable IDE0069 // Not the owner
         private         WindowsIdentity         _currentIdentity;
-#pragma warning restore IDE0069
 
         public          void                    Dispose()
         {
