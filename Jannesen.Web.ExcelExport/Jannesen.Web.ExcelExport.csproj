@@ -34,10 +34,6 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <Reference Include="System.Configuration" />
-  </ItemGroup>
-
-  <ItemGroup>
     <PackageReference Include="DocumentFormat.OpenXml" Version="2.17.1" />
   </ItemGroup>
 

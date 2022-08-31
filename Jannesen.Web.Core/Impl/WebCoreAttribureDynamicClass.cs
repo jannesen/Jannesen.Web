@@ -1,6 +1,4 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.Configuration;
 using System.Reflection;
 
 namespace Jannesen.Web.Core.Impl
