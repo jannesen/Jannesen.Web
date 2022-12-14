@@ -9,7 +9,7 @@ using Jannesen.Web.Core.Impl;
 namespace Jannesen.Web.MSSql.Library.Source
 {
     [WebCoreAttributeDataSource("textjsonxml")]
-    class http_textjsonxml: WebCoreDataSource
+    internal sealed class http_textjsonxml: WebCoreDataSource
     {
         public                                              http_textjsonxml(string name_args): base(name_args)
         {

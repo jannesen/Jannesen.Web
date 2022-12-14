@@ -5,7 +5,7 @@ using Jannesen.Web.Core.Impl;
 namespace Jannesen.Web.Core.Impl.Source
 {
     [WebCoreAttributeDataSource("header")]
-    class http_header: WebCoreDataSource
+    sealed class http_header: WebCoreDataSource
     {
         private readonly            string                  _name;
 

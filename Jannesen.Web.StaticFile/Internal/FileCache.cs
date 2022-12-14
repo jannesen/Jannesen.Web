@@ -6,7 +6,7 @@ using Jannesen.Web.Core.Impl;
 
 namespace Jannesen.Web.StaticFile.Internal
 {
-    class FileCache
+    internal sealed class FileCache
     {
         private readonly        string                      _physicalPath;
         private readonly        string                      _contentEncoding;

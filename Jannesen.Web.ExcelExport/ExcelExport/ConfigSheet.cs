@@ -5,7 +5,7 @@ using Jannesen.Web.Core.Impl;
 
 namespace Jannesen.Web.ExcelExport.ExcelExport
 {
-    class ConfigSheet
+    internal sealed class ConfigSheet
     {
         private         string                      _name;
         private         double                      _fontSize;
@@ -143,7 +143,7 @@ namespace Jannesen.Web.ExcelExport.ExcelExport
         }
     }
 
-    class ConfigSheetList:  List<ConfigSheet>
+    internal sealed class ConfigSheetList:  List<ConfigSheet>
     {
     }
 }

@@ -7,7 +7,7 @@ using System.Globalization;
 namespace Jannesen.Web.MSSql.Library.BaseType
 {
     [ValueConvertorAttributeBaseType("float")]
-    class sql_float: ValueConvertor_SqlNativeWithLength
+    internal sealed class sql_float: ValueConvertor_SqlNativeWithLength
     {
         public          override            SqlDbType           DBType      { get { return System.Data.SqlDbType.Float;         } }
         public          override            Type                ClrType     { get { return typeof(double);                      } }

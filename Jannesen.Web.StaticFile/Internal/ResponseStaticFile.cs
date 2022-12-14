@@ -6,7 +6,7 @@ using System.Web;
 
 namespace Jannesen.Web.StaticFile.Internal
 {
-    class ResponseStaticFile: ResponseStatic
+    internal sealed class ResponseStaticFile: ResponseStatic
     {
         private readonly        string          _physicalPath;
         private readonly        long            _length;

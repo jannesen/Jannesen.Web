@@ -6,7 +6,7 @@ using System.Runtime.InteropServices;
 namespace Jannesen.Web.MSSql.Library.BaseType
 {
     [ValueConvertorAttributeBaseType("clr")]
-    class sql_clr: ValueConvertor_SqlNative
+    internal sealed class sql_clr: ValueConvertor_SqlNative
     {
         private                             Type                _type;
         private                             int                 _size;

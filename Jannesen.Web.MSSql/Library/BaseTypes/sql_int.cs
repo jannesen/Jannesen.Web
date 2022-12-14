@@ -7,7 +7,7 @@ using System.Globalization;
 namespace Jannesen.Web.MSSql.Library.BaseType
 {
     [ValueConvertorAttributeBaseType("int")]
-    class sql_int: ValueConvertor_SqlNative
+    internal sealed class sql_int: ValueConvertor_SqlNative
     {
         public          override            SqlDbType           DBType      { get { return System.Data.SqlDbType.Int;           } }
         public          override            Type                ClrType     { get { return typeof(Int32);                       } }

@@ -7,7 +7,7 @@ using System.Globalization;
 namespace Jannesen.Web.MSSql.Library.BaseType
 {
     [ValueConvertorAttributeBaseType("smallint")]
-    class sql_smallint: ValueConvertor_SqlNative
+    internal sealed class sql_smallint: ValueConvertor_SqlNative
     {
         public          override            SqlDbType           DBType      { get { return System.Data.SqlDbType.SmallInt;      } }
         public          override            Type                ClrType     { get { return typeof(Int16);                       } }

@@ -5,7 +5,7 @@ using Jannesen.Web.Core.Impl;
 namespace Jannesen.Web.Core.Impl.Source
 {
     [WebCoreAttributeDataSource("body")]
-    class http_body: WebCoreDataSource
+    sealed class http_body: WebCoreDataSource
     {
         enum ValueNameCode
         {

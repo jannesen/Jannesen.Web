@@ -5,7 +5,7 @@ using Jannesen.Web.Core.Impl;
 namespace Jannesen.Web.Core.Impl.Source
 {
     [WebCoreAttributeDataSource("textxml")]
-    class http_textxml: WebCoreDataSource
+    sealed class http_textxml: WebCoreDataSource
     {
         public                                              http_textxml(string name_args): base(name_args)
         {

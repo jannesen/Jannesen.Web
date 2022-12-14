@@ -16,7 +16,7 @@ namespace Jannesen.Web.MSSql.Sqx
     [WebCoreAttribureHttpHandler("sql-json2")]
     public class HttpHandlerSqlXmlJson2: HttpHandlerMSSql
     {
-        abstract class ResponseRoot
+        private abstract class ResponseRoot
         {
             public  static          ResponseRoot                ParseType(WebCoreConfigReader configReader, string type, bool root)
             {
@@ -39,7 +39,7 @@ namespace Jannesen.Web.MSSql.Sqx
                 throw new WebConversionException("Expect simple value.");
             }
         }
-        class ResponseValue: ResponseRoot
+        private sealed class ResponseValue: ResponseRoot
         {
             private readonly        ValueConvertor              _valueConvertor;
 
@@ -83,7 +83,7 @@ namespace Jannesen.Web.MSSql.Sqx
                 _valueConvertor.ConvertXmlValueToJson(value, jsonWriter);
             }
         }
-        class ResponseArray: ResponseRoot
+        private sealed class ResponseArray: ResponseRoot
         {
             public                  ResponseRoot                Response;
 
@@ -105,7 +105,7 @@ namespace Jannesen.Web.MSSql.Sqx
                 jsonWriter.WriteEndArray();
             }
         }
-        class ResponseObject: ResponseRoot
+        private sealed class ResponseObject: ResponseRoot
         {
             public struct ResponseObjectField
             {
@@ -224,7 +224,7 @@ next:               pos = p + 1;
                 return -1;
             }
         }
-        class ResponseMsg
+        private sealed class ResponseMsg
         {
             public string       Name;
             public ResponseRoot Format;

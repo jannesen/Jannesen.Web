@@ -8,7 +8,7 @@ namespace Jannesen.Web.Core.Impl
 {
     public class WebCoreWildcardPathProcessor
     {
-        private class Parser
+        private sealed class Parser
         {
             public      string                  expression;
             public      int                     length;

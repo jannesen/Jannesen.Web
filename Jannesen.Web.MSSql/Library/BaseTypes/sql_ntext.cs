@@ -6,7 +6,7 @@ using System.Data.SqlTypes;
 namespace Jannesen.Web.MSSql.Library.BaseType
 {
     [ValueConvertorAttributeBaseType("ntext")]
-    class sql_ntext: ValueConvertor_SqlNative
+    internal sealed class sql_ntext: ValueConvertor_SqlNative
     {
         public          override            SqlDbType           DBType      { get { return System.Data.SqlDbType.NText;         } }
         public          override            Type                ClrType     { get { return typeof(string);                      } }

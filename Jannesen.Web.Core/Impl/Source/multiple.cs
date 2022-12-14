@@ -4,7 +4,7 @@ using Jannesen.Web.Core.Impl;
 
 namespace Jannesen.Web.Core.Impl.Source
 {
-    class multiple: WebCoreDataSource
+    sealed class multiple: WebCoreDataSource
     {
         public      const           char                SplitChar = '|';
 

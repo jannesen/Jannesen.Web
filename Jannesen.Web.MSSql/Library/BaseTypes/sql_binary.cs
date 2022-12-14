@@ -7,7 +7,7 @@ using System.Globalization;
 namespace Jannesen.Web.MSSql.Library.BaseType
 {
     [ValueConvertorAttributeBaseType("binary")]
-    class sql_binary: ValueConvertor_SqlNativeWithLength
+    internal sealed class sql_binary: ValueConvertor_SqlNativeWithLength
     {
         public          override            SqlDbType           DBType      { get { return System.Data.SqlDbType.Binary;        } }
         public          override            Type                ClrType     { get { return typeof(byte[]);                      } }

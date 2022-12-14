@@ -7,7 +7,7 @@ using System.Globalization;
 namespace Jannesen.Web.MSSql.Library.BaseType
 {
     [ValueConvertorAttributeBaseType("datetime2")]
-    class sql_datetime2: ValueConvertor_SqlNative
+    internal sealed class sql_datetime2: ValueConvertor_SqlNative
     {
         private readonly                    int                 _precision;
 

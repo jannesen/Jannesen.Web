@@ -5,7 +5,7 @@ using Jannesen.Web.Core.Impl;
 namespace Jannesen.Web.Core.Impl.Source
 {
     [WebCoreAttributeDataSource("urlpath")]
-    class http_urlpath: WebCoreDataSource
+    sealed class http_urlpath: WebCoreDataSource
     {
         public                                              http_urlpath(string name_args): base(name_args)
         {

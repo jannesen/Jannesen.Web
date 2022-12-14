@@ -35,7 +35,7 @@ namespace Jannesen.Web.Core
 #else
         private     const               int                                                         DependanceCheckTime     = 5;
 #endif
-        private class DependanceFile
+        private sealed class DependanceFile
         {
             public      string      Filename;
             public      DateTime    LastModified;

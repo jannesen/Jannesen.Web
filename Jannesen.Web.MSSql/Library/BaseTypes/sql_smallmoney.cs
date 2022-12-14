@@ -7,7 +7,7 @@ using System.Globalization;
 namespace Jannesen.Web.MSSql.Library.BaseType
 {
     [ValueConvertorAttributeBaseType("smallmoney")]
-    class sql_smallmoney: ValueConvertor_SqlNative
+    internal sealed class sql_smallmoney: ValueConvertor_SqlNative
     {
         public          override            SqlDbType           DBType      { get { return System.Data.SqlDbType.SmallMoney;    } }
         public          override            Type                ClrType     { get { return typeof(decimal);                     } }

@@ -6,7 +6,7 @@ using System.Web;
 
 namespace Jannesen.Web.StaticFile.Internal
 {
-    class ResponseStaticCache: ResponseStatic
+    internal sealed class ResponseStaticCache: ResponseStatic
     {
         private readonly        FileCache       _fileCache;
 

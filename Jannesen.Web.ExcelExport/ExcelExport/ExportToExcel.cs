@@ -13,9 +13,9 @@ using DocumentFormat.OpenXml.Spreadsheet;
 
 namespace Jannesen.Web.ExcelExport.ExcelExport
 {
-    class ExportToExcel
+    internal sealed class ExportToExcel
     {
-        class ProcessConfigSheet
+        private sealed class ProcessConfigSheet
         {
             public      ConfigSheet                 Config;
             public      ProcessConfigColumn[]       Columns;
@@ -30,7 +30,7 @@ namespace Jannesen.Web.ExcelExport.ExcelExport
             }
         }
 
-        class ProcessConfigColumn
+        private sealed class ProcessConfigColumn
         {
             public      ConfigColumn                Config;
             public      string                      ExcelColumnName;

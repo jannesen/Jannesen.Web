@@ -159,7 +159,7 @@ namespace Jannesen.Web.Core.Impl
 
     public class CoreHttpHandlerDictionary
     {
-        private class VerbDictionary
+        private sealed class VerbDictionary
         {
             private readonly            Dictionary<string, WebCoreHttpHandler>      _exact;
             private readonly            List<WebCoreHttpHandler>                    _wildcard;

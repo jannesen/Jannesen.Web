@@ -7,7 +7,7 @@ using System.Globalization;
 namespace Jannesen.Web.MSSql.Library.BaseType
 {
     [ValueConvertorAttributeBaseType("varchar")]
-    class sql_varchar: ValueConvertor_SqlNativeWithLength
+    internal sealed class sql_varchar: ValueConvertor_SqlNativeWithLength
     {
         public          override            SqlDbType           DBType      { get { return System.Data.SqlDbType.VarChar;       } }
         public          override            Type                ClrType     { get { return typeof(string);                      } }

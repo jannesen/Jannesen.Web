@@ -6,7 +6,7 @@ using System.Data.SqlTypes;
 namespace Jannesen.Web.MSSql.Library.BaseType
 {
     [ValueConvertorAttributeBaseType("smalldatetime")]
-    class sql_smalldatetime: sql_datetime
+    internal sealed class sql_smalldatetime: sql_datetime
     {
         public          override            SqlDbType           DBType      { get { return System.Data.SqlDbType.SmallDateTime; } }
         public          override            Type                ClrType     { get { return typeof(DateTime);                    } }

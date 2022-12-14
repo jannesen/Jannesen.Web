@@ -7,7 +7,7 @@ using System.Globalization;
 namespace Jannesen.Web.MSSql.Library.BaseType
 {
     [ValueConvertorAttributeBaseType("bigint")]
-    class sql_bigint: ValueConvertor_SqlNative
+    internal sealed class sql_bigint: ValueConvertor_SqlNative
     {
         public          override            SqlDbType           DBType      { get { return System.Data.SqlDbType.BigInt;        } }
         public          override            Type                ClrType     { get { return typeof(Int64);                       } }

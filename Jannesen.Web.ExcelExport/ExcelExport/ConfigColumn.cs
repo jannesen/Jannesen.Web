@@ -4,7 +4,7 @@ using Jannesen.Web.Core.Impl;
 
 namespace Jannesen.Web.ExcelExport.ExcelExport
 {
-    class ConfigColumn
+    internal sealed class ConfigColumn
     {
         private readonly        int                         _col;
         private readonly        int                         _row;
@@ -92,7 +92,7 @@ namespace Jannesen.Web.ExcelExport.ExcelExport
         }
     }
 
-    class ConfigColumnList: List<ConfigColumn>
+    internal sealed class ConfigColumnList: List<ConfigColumn>
     {
     }
 }

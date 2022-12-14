@@ -5,7 +5,7 @@ using Jannesen.Web.Core.Impl;
 namespace Jannesen.Web.Core.Impl.Source
 {
     [WebCoreAttributeDataSource("formdata")]
-    class http_formdata: WebCoreDataSource
+    sealed class http_formdata: WebCoreDataSource
     {
         public                                          http_formdata(string name_args): base(name_args)
         {

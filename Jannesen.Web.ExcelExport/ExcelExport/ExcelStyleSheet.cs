@@ -1,14 +1,11 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
 using DocumentFormat.OpenXml;
 using DocumentFormat.OpenXml.Packaging;
 using DocumentFormat.OpenXml.Spreadsheet;
 
 namespace Jannesen.Web.ExcelExport.ExcelExport
 {
-    class ExcelStyleSheet
+    internal sealed class ExcelStyleSheet
     {
         private readonly        NumberingFormats            _numberingFormats;
         private readonly        Fonts                       _fonts;

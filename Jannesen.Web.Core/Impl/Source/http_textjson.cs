@@ -5,7 +5,7 @@ using Jannesen.Web.Core.Impl;
 namespace Jannesen.Web.Core.Impl.Source
 {
     [WebCoreAttributeDataSource("textjson")]
-    class http_textjson: WebCoreDataSource
+    sealed class http_textjson: WebCoreDataSource
     {
         public                                              http_textjson(string name_args): base(name_args)
         {

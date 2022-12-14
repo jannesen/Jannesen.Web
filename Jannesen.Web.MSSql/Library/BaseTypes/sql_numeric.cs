@@ -7,7 +7,7 @@ using System.Globalization;
 namespace Jannesen.Web.MSSql.Library.BaseType
 {
     [ValueConvertorAttributeBaseType("numeric")]
-    class sql_numeric: sql_decimal
+    internal sealed class sql_numeric: sql_decimal
     {
         public                                                  sql_numeric(string s): base(s)
         {

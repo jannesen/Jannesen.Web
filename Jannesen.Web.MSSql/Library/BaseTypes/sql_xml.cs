@@ -6,7 +6,7 @@ using System.Data.SqlTypes;
 namespace Jannesen.Web.MSSql.Library.BaseType
 {
     [ValueConvertorAttributeBaseType("xml")]
-    class sql_xml: ValueConvertor_SqlNative
+    internal sealed class sql_xml: ValueConvertor_SqlNative
     {
         public          override            SqlDbType           DBType      { get { return System.Data.SqlDbType.Xml;           } }
         public          override            Type                ClrType     { get { return typeof(string);                      } }

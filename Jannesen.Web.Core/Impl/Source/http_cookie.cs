@@ -5,7 +5,7 @@ using Jannesen.Web.Core.Impl;
 namespace Jannesen.Web.Core.Impl.Source
 {
     [WebCoreAttributeDataSource("cookie")]
-    class http_cookie: WebCoreDataSource
+    sealed class http_cookie: WebCoreDataSource
     {
         public                                          http_cookie(string name_args): base(name_args)
         {
