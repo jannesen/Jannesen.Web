@@ -10,20 +10,17 @@ namespace Jannesen.Web.Core.Impl
     {
         private sealed class Parser
         {
-            public      string                  expression;
-            public      int                     length;
-            public      int                     pos;
-            public      List<string>            names;
-            public      StringBuilder           regex;
+            public          string                  expression;
+            public          int                     length;
+            public          int                     pos;
+            public          List<string>            names;
+            public          StringBuilder           regex;
 
-            public                              Parser(string expression)
+            public                                  Parser(string expression)
             {
                 this.expression = expression;
                 this.length     = expression.Length;
-            }
 
-            public      void                    Process()
-            {
                 pos   = 0;
                 names = new List<string>();
                 regex = new StringBuilder();
@@ -31,111 +28,197 @@ namespace Jannesen.Web.Core.Impl
                 regex.Append("^");
 
                 while (pos < expression.Length) {
-                    _process_nonwildcard();
+                    while (pos < length && expression[pos] != '{') {
+                        _copyandescapechar();
+                    }
 
-                    _expectchar('{');
-                        regex.Append("(?<");
-                        string name = _process_get(c => ((c >= 'a' && c <= 'z') || (c >= 'A' && c <= 'Z') || (c >= '0' && c <= '9') || (c == '_')));
-                        names.Add(name);
-                        regex.Append(name);
-                        regex.Append(">");
-
-                    _expectchar(':');
-                    _process_wildcard();
-
-                    _expectchar('}');
-                    regex.Append("?)");
+                    _namedglob();
                 }
 
                 regex.Append("$");
             }
 
-            private     void                    _expectchar(char c)
+            private         void                    _namedglob()
+            {
+                _expectchar('{');
+                    regex.Append("(?<");
+                    string name = _getname();
+                    names.Add(name);
+                    regex.Append(name);
+                    regex.Append(">");
+
+                _expectchar(':');
+
+                while (pos < length && expression[pos] != '}') {
+                    switch(expression[pos]) {
+                    case '\\':
+                        ++pos;
+                        _copyandescapechar();
+                        break;
+
+                    case '[':
+                        _simple_range();
+                        break;
+
+                    case '(':
+                        _regex_copy(')');
+                        break;
+
+                    case '*':
+                        regex.Append(".*");
+                        ++pos;
+                        break;
+
+                    default:
+                        _copyandescapechar();
+                        break;
+                    }
+                }
+
+                _expectchar('}');
+                regex.Append("?)");
+            }
+            private         string                  _getname()
+            {
+                StringBuilder   rtn = new StringBuilder();
+
+                while (_char_name(expression[pos]))
+                    rtn.Append(expression[pos++]);
+
+                return rtn.ToString();
+            }
+            private         void                    _simple_range()
+            {
+                regex.Append('[');
+                    ++pos;
+
+                    while (pos < length) {
+                        char c = expression[pos];
+
+                        if (c == '\\') {
+                            ++pos;
+                            _copyandescapechar();
+                        }
+                        else
+                        if ((c >= 'a' && c <= 'z') || (c >= 'A' && c <= 'Z') || (c >= '0' && c <= '9') || c == '_' || c == '-' || c == ' ') {
+                            regex.Append(c);
+                            ++pos;
+                        }
+                        else
+                            break;
+                    }
+
+                    regex.Append(']');
+                _expectchar(']');
+
+                _expectchar('{');
+                    regex.Append('{');
+                    _copydigits();
+
+                    if (pos < length && expression[pos] == ',') {
+                        ++pos;
+                        regex.Append(',');
+                        _copydigits();
+                    }
+
+                    regex.Append('}');
+                _expectchar('}');
+            }
+            private         void                    _regex_copy(char closechar)
+            {
+                regex.Append(expression[pos++]);
+
+                while (pos < length && expression[pos] != closechar) {
+                    switch(expression[pos]) {
+                    case '\\':
+                        ++pos;
+                        _copyandescapechar();
+                        break;
+
+                    case '(':
+                        _regex_copy(')');
+                        break;
+
+                    case '{':
+                        _regex_copy('}');
+                        break;
+
+                    case '[':
+                        _regex_copyrange();
+                        break;
+
+                    default:
+                        regex.Append(expression[pos++]);
+                        break;
+                    }
+                }
+
+                _expectchar(closechar);
+                regex.Append(closechar);
+            }
+            private         void                    _regex_copyrange()
+            {
+                regex.Append(expression[pos++]);
+
+                while (pos < length && expression[pos] != ']') {
+                    switch(expression[pos]) {
+                    case '\\':
+                        ++pos;
+                        _copyandescapechar();
+                        break;
+
+                    default:
+                        _copyandescapechar();
+                        break;
+                    }
+                }
+
+                _expectchar(']');
+                regex.Append(']');
+            }
+            private         void                    _copydigits()
+            {
+                while (_char_digit(expression[pos]))
+                    regex.Append(expression[pos++]);
+            }
+            private         void                    _expectchar(char c)
             {
                 if (pos >= length || expression[pos] != c)
                     throw new FormatException("Invalid wildcard path expression.");
 
                 ++pos;
             }
-            private     void                    _process_nonwildcard()
-            {
-                while (pos < length && expression[pos] != '{')
-                    _regex_copyandescapechar();
-            }
-            private     string                  _process_get(Func<char,bool> filter)
-            {
-                StringBuilder   rtn = new StringBuilder();
-
-                while (filter(expression[pos]))
-                    rtn.Append(expression[pos++]);
-
-                return rtn.ToString();
-            }
-            private     void                    _process_copy(Func<char,bool> filter)
-            {
-                while (filter(expression[pos]))
-                    regex.Append(expression[pos++]);
-            }
-            private     void                    _process_wildcard()
-            {
-                while (pos < length && expression[pos] != '}') {
-                    if (expression[pos] == '\\') {
-                        ++pos;
-                        _regex_copyandescapechar();
-                    }
-                    else
-                    if (expression[pos] == '[') {
-                        regex.Append('[');
-                            ++pos;
-
-                            while (pos < length) {
-                                char c = expression[pos];
-
-                                if (c == '\\') {
-                                    ++pos;
-                                    _regex_copyandescapechar();
-                                }
-                                else
-                                if ((c >= 'a' && c <= 'z') || (c >= 'A' && c <= 'Z') || (c >= '0' && c <= '9') || c == '_' || c == '-' || c == ' ') {
-                                    regex.Append(c);
-                                    ++pos;
-                                }
-                                else
-                                    break;
-                            }
-
-                            regex.Append(']');
-                        _expectchar(']');
-
-                        _expectchar('{');
-                            regex.Append('{');
-                            _process_copy(c => (c >= '0' && c <= '9'));
-
-                            if (pos < length && expression[pos] == ',') {
-                                ++pos;
-                                regex.Append(',');
-                                _process_copy(c => (c >= '0' && c <= '9'));
-                            }
-
-                            regex.Append('}');
-                        _expectchar('}');
-                    }
-                    else
-                    if (expression[pos] == '*') {
-                        regex.Append(".*");
-                        ++pos;
-                    }
-                    else
-                        _regex_copyandescapechar();
-                }
-            }
-            private     void                    _regex_copyandescapechar()
+            private         void                    _copyandescapechar()
             {
                 if (pos >= length)
                     throw new FormatException("Invalid wildcard path expression.");
 
-                regex.Append(@"\u");
-                regex.Append(((Int16)expression[pos++]).ToString("X4", CultureInfo.InvariantCulture));
+                char c = expression[pos++];
+
+                if ((c >= '0' && c <= '9') ||
+                    (c >= 'A' && c <= 'Z') ||
+                    (c >= 'a' && c <= 'z') ||
+                    (c == '_') ||
+                    (c == '-') ||
+                    (c == '/')) {
+                    regex.Append(c);
+                }
+                else {
+                    regex.Append(@"\u");
+                    regex.Append(((Int16)c).ToString("X4", CultureInfo.InvariantCulture));
+                }
+            }
+
+            private static  bool                    _char_digit(char c)
+            {
+                return (c >= '0' && c <= '9');
+            }
+            private static  bool                    _char_name(char c)
+            {
+                return (c >= 'a' && c <= 'z') ||
+                       (c >= 'A' && c <= 'Z') ||
+                       (c >= '0' && c <= '9') ||
+                       (c == '_');
             }
         }
 
@@ -181,7 +264,6 @@ namespace Jannesen.Web.Core.Impl
 
             if (expression.Length >= 2 && expression[0] == '{' && expression[expression.Length - 1] == '}') {
                 Parser parser = new Parser(expression);
-                parser.Process();
                 _names = parser.names.ToArray();
                 _regex = new Regex(parser.regex.ToString(), RegexOptions.Compiled | RegexOptions.Singleline);
                 return ; // Complex wildcard
