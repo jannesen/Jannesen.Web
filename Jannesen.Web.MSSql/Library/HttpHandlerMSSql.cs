@@ -158,6 +158,10 @@ retry:      using (SqlConnection sqlConnection = GetConnection())
                                 webResponseBuffer.ETag = dataReader.GetString(i);
                                 break;
 
+                            case "opt.disposition":
+                                webResponseBuffer.Disposition = dataReader.GetString(i);
+                                break;
+
                             default:
                                 throw new InternalErrorException("Unknown option \'"+fieldname+"\' received from database.");
                             }

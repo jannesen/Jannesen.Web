@@ -15,6 +15,7 @@ namespace Jannesen.Web.Core.Impl
         private                 DateTime            _lastModified;
         private                 string              _eTag;
         private                 int                 _cacheMaxAge;
+        private                 string              _disposition;
         private                 HttpStatusCode      _statusCode;
         private                 byte[]              _data;
         private                 int                 _length;
@@ -56,6 +57,15 @@ namespace Jannesen.Web.Core.Impl
             }
             set {
                 _eTag = value;
+            }
+        }
+        public                  string              Disposition
+        {
+            get {
+                return _disposition;
+            }
+            set {
+                _disposition = value;
             }
         }
         public                  int                 CacheMaxAge
@@ -114,6 +124,10 @@ namespace Jannesen.Web.Core.Impl
             response.BufferOutput = false;
 
             if (_statusCode == HttpStatusCode.OK) {
+                if (_disposition != null) {
+                    response.AppendHeader("Content-Disposition", _disposition);
+                }
+
                 if (_lastModified < DateTime.MaxValue &&  _lastModified > DateTime.UtcNow)
                     _lastModified = DateTime.MaxValue;
 
