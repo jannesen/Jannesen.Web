@@ -1,12 +1,9 @@
 ﻿using System;
-using System.Collections.Generic;
 using System.IO;
 using System.Net;
-using System.Web;
-using System.Data;
 using System.Data.SqlClient;
-using System.Data.SqlTypes;
 using System.Xml;
+using System.Text;
 using Jannesen.Web.Core.Impl;
 using Jannesen.Web.MSSql.Library;
 
@@ -16,6 +13,7 @@ namespace Jannesen.Web.MSSql.Sqx
     public class HttpHandlerSqlXml: HttpHandlerMSSql
     {
         private readonly        bool                        _xmlIdent;
+        private readonly        Encoding                    _charset;
 
         public      override    string                      Mimetype
         {
@@ -27,6 +25,19 @@ namespace Jannesen.Web.MSSql.Sqx
         public                                              HttpHandlerSqlXml(WebCoreConfigReader configReader): base(configReader)
         {
             _xmlIdent       = configReader.GetValueBool("xml-ident", false);
+
+            var charset = configReader.GetValueString("charset", null);
+            if (charset != null) {
+                try {
+                    _charset =  Encoding.GetEncoding(charset);
+                }
+                catch(Exception) {
+                    throw new FormatException("Unknown charset '" + charset + "'.");
+                }
+            }
+            else {
+                _charset =  new UTF8Encoding(false);
+            }
 
             if (configReader.hasChildren) {
                 while (configReader.ReadNextElement()) {
@@ -45,7 +56,7 @@ namespace Jannesen.Web.MSSql.Sqx
             if (HandleResponseOptions(webResponseBuffer, dataReader) == HttpStatusCode.OK) {
                 try {
                     using (MemoryStream buffer = new MemoryStream(0x10000)) {
-                        using (StreamWriter textStream  = new StreamWriter(buffer, new System.Text.UTF8Encoding(false), 1024, true)) {
+                        using (StreamWriter textStream  = new StreamWriter(buffer, _charset, 1024, true)) {
                             if (_xmlIdent)
                                 _fetchXmlIdent(textStream, dataReader);
                             else
