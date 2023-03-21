@@ -191,7 +191,8 @@ namespace Jannesen.Web.Core
                     ex is System.NullReferenceException                 ||
                     ex is System.OperationCanceledException             ||
                     ex is System.OutOfMemoryException                   ||
-                    ex is System.UnauthorizedAccessException)
+                    ex is System.UnauthorizedAccessException            ||
+                    ex is System.Security.SecurityException)
                     message += "\r\nStacktrace:\r\n" + ex.StackTrace;
             }
 

@@ -10,6 +10,8 @@ using Jannesen.Web.Core;
 using Jannesen.Web.Core.Impl;
 using Jannesen.Web.MSSql.Library;
 using Jannesen.Web.ExcelExport.ExcelExport;
+using DocumentFormat.OpenXml.Packaging;
+using DocumentFormat.OpenXml;
 
 namespace Jannesen.Web.ExcelExport
 {
@@ -31,6 +33,10 @@ namespace Jannesen.Web.ExcelExport
                     default:                configReader.InvalidElement();                      break;
                     }
                 }
+            }
+
+            // Workaround a initalization problem
+            using (SpreadsheetDocument.Create(new MemoryStream(), SpreadsheetDocumentType.Workbook)) {
             }
         }
 
