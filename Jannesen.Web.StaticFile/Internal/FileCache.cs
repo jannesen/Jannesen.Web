@@ -71,7 +71,7 @@ namespace Jannesen.Web.StaticFile.Internal
             _decodeCharSet   = decodeCharSet;
 
             using (MemoryStream outBuffer = new MemoryStream((int)fileinfo.Length)) {
-                using (Stream inStream = new FileStream(physicalPath, FileMode.Open, FileAccess.Read, FileShare.Read)) {
+                using (FileStream inStream = new FileStream(physicalPath, FileMode.Open, FileAccess.Read, FileShare.Read)) {
                     using (System.Security.Cryptography.SHA1 sha = System.Security.Cryptography.SHA1.Create()) {
                         _eTag = Convert.ToBase64String(sha.ComputeHash(inStream)).Substring(0, 26).Replace('/','-');
 
@@ -108,7 +108,7 @@ namespace Jannesen.Web.StaticFile.Internal
             return new ResponseStaticCache(contentType, publicCache, this);
         }
 
-        private static          void                        _decodeAndCopy(Stream inStream, Stream outStream)
+        private static          void                        _decodeAndCopy(FileStream inStream, Stream outStream)
         {
             byte[] buf = new byte[81920];
 
