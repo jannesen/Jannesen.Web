@@ -172,6 +172,7 @@ namespace Jannesen.Web.Core.Impl
             case HttpStatusCode.OK:
             case HttpStatusCode.Created:
             case HttpStatusCode.InternalServerError:
+            case HttpStatusCode.BadRequest:
                 return true;
 
             default:
