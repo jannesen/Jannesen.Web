@@ -124,9 +124,16 @@ namespace Jannesen.Web.Core.Impl
             get {
                 string rtn = _request.Headers["X-Forwarded-For"];
 
-                if (string.IsNullOrEmpty(rtn))
+                if (!string.IsNullOrEmpty(rtn)) {
+                    int p = rtn.IndexOf(',');
+                    if (p > 0) {
+                        rtn = rtn.Substring(0, p);
+                    }
+                }
+                else {
                     rtn = _request.UserHostAddress;
-
+                }
+ 
                 return !string.IsNullOrEmpty(rtn) ? rtn : null;
             }
         }
