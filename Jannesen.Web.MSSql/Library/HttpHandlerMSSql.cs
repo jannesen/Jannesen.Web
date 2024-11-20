@@ -98,6 +98,7 @@ retry:      using (SqlConnection sqlConnection = GetConnection())
                 }
 
                 switch(code) {
+                case "REQUEST-ERROR":                       return 400;
                 case "INVALID-AUTHENTICATION":              return 401;
                 case "INVALID-BASIC-AUTHENTICATION":        return 401;
                 case "NOT-FOUND":                           return 404;
