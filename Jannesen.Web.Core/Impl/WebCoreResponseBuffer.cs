@@ -87,6 +87,9 @@ namespace Jannesen.Web.Core.Impl
             }
         }
 
+        public                                      WebCoreResponseBuffer(): this("", false, false)
+        {
+        }
         public                                      WebCoreResponseBuffer(string contentType, bool pub, bool compression)
         {
             _contentType     = contentType;
@@ -123,7 +126,7 @@ namespace Jannesen.Web.Core.Impl
         {
             response.BufferOutput = false;
 
-            if (_statusCode == HttpStatusCode.OK) {
+            if (_statusCode == HttpStatusCode.OK && _data != null) {
                 if (_disposition != null) {
                     response.AppendHeader("Content-Disposition", _disposition);
                 }
@@ -192,6 +195,9 @@ namespace Jannesen.Web.Core.Impl
                     response.AppendHeader("Content-Length", _length.ToString(CultureInfo.InvariantCulture));
                     response.OutputStream.Write(_data, 0, _length);
                 }
+            }
+            else {
+                response.AppendHeader("Content-Length", "0");
             }
         }
 
