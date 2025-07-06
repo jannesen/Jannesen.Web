@@ -133,7 +133,7 @@ namespace Jannesen.Web.Core.Impl
                 else {
                     rtn = _request.UserHostAddress;
                 }
- 
+
                 return !string.IsNullOrEmpty(rtn) ? rtn : null;
             }
         }
