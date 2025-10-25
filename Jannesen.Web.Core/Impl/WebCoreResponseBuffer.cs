@@ -87,6 +87,9 @@ namespace Jannesen.Web.Core.Impl
             }
         }
 
+        public                                      WebCoreResponseBuffer(): this("", false, false)
+        {
+        }
         public                                      WebCoreResponseBuffer(string contentType, bool pub, bool compression)
         {
             _contentType     = contentType;
@@ -123,7 +126,7 @@ namespace Jannesen.Web.Core.Impl
         {
             response.BufferOutput = false;
 
-            if (_statusCode == HttpStatusCode.OK) {
+            if (_statusCode == HttpStatusCode.OK && _data != null) {
                 if (_disposition != null) {
                     response.AppendHeader("Content-Disposition", _disposition);
                 }
@@ -193,18 +196,23 @@ namespace Jannesen.Web.Core.Impl
                     response.OutputStream.Write(_data, 0, _length);
                 }
             }
+            else {
+                response.AppendHeader("Content-Length", "0");
+            }
         }
 
         public      override    void                WriteLoggingData(StreamWriter writer)
         {
-            if (_contentType.IndexOf("charset=utf-8", StringComparison.Ordinal) > 0) {
-                writer.WriteLine();
-                writer.Flush();
-                writer.BaseStream.Write(_data, 0, _length);
-                writer.WriteLine();
+            if (_data != null) {
+                if (_contentType.IndexOf("charset=utf-8", StringComparison.Ordinal) > 0) {
+                    writer.WriteLine();
+                    writer.Flush();
+                    writer.BaseStream.Write(_data, 0, _length);
+                    writer.WriteLine();
+                }
+                else
+                    writer.WriteLine("[BINARY-DATA]");
             }
-            else
-                writer.WriteLine("[BINARY-DATA]");
         }
     }
 }

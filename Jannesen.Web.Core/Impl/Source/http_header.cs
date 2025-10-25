@@ -30,7 +30,7 @@ namespace Jannesen.Web.Core.Impl.Source
                 break;
 
             default:
-                if (Name.StartsWith("X-", StringComparison.Ordinal)) {
+                if (Name.StartsWith("x-", StringComparison.OrdinalIgnoreCase)) {
                     _name = Name;
                 }
                 else {

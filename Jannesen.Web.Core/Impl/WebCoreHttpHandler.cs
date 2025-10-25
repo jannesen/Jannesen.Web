@@ -123,6 +123,7 @@ namespace Jannesen.Web.Core.Impl
             }
             catch(HttpException err) {
                 switch(err.GetHttpCode()) {
+                case (int)HttpStatusCode.Unauthorized:
                 case (int)HttpStatusCode.BadRequest:
                 case (int)HttpStatusCode.RequestTimeout:
                 case (int)HttpStatusCode.RequestEntityTooLarge:
@@ -139,7 +140,6 @@ namespace Jannesen.Web.Core.Impl
                         _logging.Logging(httpCall, err);
                     throw;
                 }
-
             }
             catch(Exception err) {
                 if (!(err is WebException && ((WebException)err).logError == false))

@@ -111,7 +111,7 @@ namespace Jannesen.Web.Core.Impl
 
             streamWriter.WriteLine("ERROR PROCESSING REQUEST");
             streamWriter.WriteLine("ERROR-CODE: " + _code);
-            if (_withDetails()) { 
+            if (_withDetails()) {
                 streamWriter.WriteLine();
                 streamWriter.WriteLine("============================================================");
                 streamWriter.WriteLine("DETAILS:");
@@ -128,7 +128,7 @@ namespace Jannesen.Web.Core.Impl
                 xmlWriter.WriteStartElement("error");
                 xmlWriter.WriteAttributeString("code", _code);
 
-                if (_withDetails()) { 
+                if (_withDetails()) {
                     for (Exception err = _err ; err != null ; err = err.InnerException) {
                         xmlWriter.WriteStartElement("error-detail");
                         xmlWriter.WriteAttributeString("class",   err.GetType().FullName);
@@ -153,7 +153,7 @@ namespace Jannesen.Web.Core.Impl
 
                 jsonWriter.WriteNameValue("code", _code);
 
-                if (_withDetails()) { 
+                if (_withDetails()) {
                     jsonWriter.WriteStartArray("detail");
 
                     for (Exception err = _err ; err != null ; err = err.InnerException) {
