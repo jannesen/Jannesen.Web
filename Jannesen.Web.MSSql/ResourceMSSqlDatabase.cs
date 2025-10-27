@@ -1,6 +1,11 @@
 ﻿using System;
-using System.Data.SqlClient;
+using System.Net;
+using System.Security.Principal;
+using Microsoft.Data.SqlClient;
+using Jannesen.Web.Core;
 using Jannesen.Web.Core.Impl;
+
+#pragma warning disable CA1416 // Validate platform compatibility
 
 namespace Jannesen.Web.MSSql
 {
@@ -10,6 +15,7 @@ namespace Jannesen.Web.MSSql
         private readonly        string              _server;
         private readonly        string              _instance;
         private readonly        string              _database;
+        private readonly        bool                _iisUserIdentity;
         private readonly        string              _username;
         private readonly        string              _passwd;
         private readonly        string              _connectString;
@@ -39,6 +45,12 @@ namespace Jannesen.Web.MSSql
                 return _database;
             }
         }
+        public                  bool                IISUserIdentityswd
+        {
+            get {
+                return _iisUserIdentity;
+            }
+        }
         public                  string              Username
         {
             get {
@@ -52,32 +64,47 @@ namespace Jannesen.Web.MSSql
             }
         }
 
+
         public                                      ResourceMSSqlDatabase(WebCoreConfigReader configReader): base(configReader)
         {
-            _server   = configReader.GetValueString("server");
-            _instance = configReader.GetValueString("instance", null);
-            _database = configReader.GetValueString("database");
-            _username = configReader.GetValueString("username", null);
-            _passwd   = (_username != null) ? configReader.GetValueString("passwd") : null;
+            _server          = configReader.GetValueString("server");
+            _instance        = configReader.GetValueString("instance", null);
+            _database        = configReader.GetValueString("database");
+            _iisUserIdentity = configReader.GetValueBool("iis-user-identity", false);
+            _username        = (!_iisUserIdentity) ? configReader.GetValueString("username", null) : null;
+            _passwd          = (_username != null) ? configReader.GetValueString("passwd") : null;
 
             _connectString = "Server="                        + (!string.IsNullOrEmpty(_instance) ? _server+"\\"+_instance : _server) +
                              ";Database="                     + _database +
                              ";Current Language=us_english"   +
-                             ";Connection Reset=false"        +
                              ";Connect Timeout=15"            +
-                             ";Application Name=Jannesen.Web";
+                             ";Application Name=Jannesen.Web" +
+                             ";TrustServerCertificate=True";
 
             if (!string.IsNullOrEmpty(_username)) {
                 _connectString += ";User ID=" + _username +
                                   ";Pwd="     + _passwd;
             }
             else
-                _connectString += ";Trusted_Connection=true";
+                _connectString += ";Integrated Security=true";
         }
 
         public                  string              GetConnectString()
         {
             return _connectString;
+        }
+
+        public                  SqlConnection       GetConnection(WebCoreCall httpCall)
+        {
+            if (_iisUserIdentity) {
+                var windowsIdentity = httpCall.Context.User.Identity as WindowsIdentity
+                                        ?? throw new WebHttpException(HttpStatusCode.Unauthorized, "No windows Identity available.");
+
+                return WindowsIdentity.RunImpersonated<SqlConnection>(windowsIdentity.AccessToken, ()=> GetConnection());
+            }
+            else {
+                return GetConnection();
+            }
         }
         public                  SqlConnection       GetConnection()
         {

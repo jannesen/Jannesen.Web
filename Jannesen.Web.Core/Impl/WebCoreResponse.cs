@@ -1,7 +1,6 @@
 ﻿using System;
 using System.IO;
-using System.Net;
-using System.Web;
+using Microsoft.AspNetCore.Http;
 
 namespace Jannesen.Web.Core.Impl
 {
@@ -13,7 +12,7 @@ namespace Jannesen.Web.Core.Impl
         private static readonly string[]        _compressors = new string[] { "gzip", "deflate" };
         public      static      string          GetResponseCompressionEncoding(WebCoreCall httpCall)
         {
-            string s = httpCall.Request.Headers["Accept-Encoding"];
+            string s = httpCall.GetHeader("Accept-Encoding");
 
             if (!string.IsNullOrEmpty(s)) {
                 for(int c = 0 ; c < _compressors.Length ; ++c) {

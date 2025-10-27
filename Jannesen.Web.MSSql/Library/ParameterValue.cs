@@ -1,7 +1,5 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.Data.SqlClient;
-using System.Web;
+using Microsoft.Data.SqlClient;
 using Jannesen.Web.Core;
 using Jannesen.Web.Core.Impl;
 
@@ -26,7 +24,7 @@ namespace Jannesen.Web.MSSql.Library
             }
 
             try {
-                _source = WebApplication.GetDataSource(source, Name);
+                _source = WebLoader.Instance.GetDataSource(source, Name);
             }
             catch(Exception err) {
                 throw new WebConfigException("Invalid source '" + source + "'.", err, configReader);

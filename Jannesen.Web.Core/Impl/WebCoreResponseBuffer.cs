@@ -1,9 +1,9 @@
 ﻿using System;
-using System.Collections.Generic;
 using System.Globalization;
 using System.IO;
 using System.Net;
-using System.Web;
+using Microsoft.AspNetCore.Http;
+using Microsoft.AspNetCore.Http.Features;
 
 namespace Jannesen.Web.Core.Impl
 {
@@ -124,11 +124,11 @@ namespace Jannesen.Web.Core.Impl
 
         public      override    void                Send(WebCoreCall call, HttpResponse response)
         {
-            response.BufferOutput = false;
+            response.HttpContext.Features.Get<IHttpResponseBodyFeature>()?.DisableBuffering();
 
             if (_statusCode == HttpStatusCode.OK && _data != null) {
                 if (_disposition != null) {
-                    response.AppendHeader("Content-Disposition", _disposition);
+                    response.Headers["Content-Disposition"] = _disposition;
                 }
 
                 if (_lastModified < DateTime.MaxValue &&  _lastModified > DateTime.UtcNow)
@@ -139,18 +139,18 @@ namespace Jannesen.Web.Core.Impl
                     DateTime?   req_ifModifiedSince = null;
 
                     if (_lastModified < DateTime.MaxValue) {
-                        response.AppendHeader("Last-Modified", LastModified.ToString("R", System.Globalization.DateTimeFormatInfo.InvariantInfo));
+                        response.Headers["Last-Modified"] = LastModified.ToString("R", System.Globalization.DateTimeFormatInfo.InvariantInfo);
                         req_ifModifiedSince = call.RequestIfModifiedSince;
                     }
 
                     if (_eTag != null) {
-                        response.AppendHeader("ETag",          _eTag);
+                        response.Headers["ETag"] = _eTag;
                         req_etag = call.RequestIfNoneMatch;
                     }
 
-                    response.AddHeader("Cache-Control", _cacheMaxAge >= 0
+                    response.Headers["Cache-Control"] = _cacheMaxAge >= 0
                                                         ? ((_cachepublic ? "public, max-age=" : "private, max-age=") + _cacheMaxAge.ToString(CultureInfo.InvariantCulture) + ", must-revalidate")
-                                                        : ((_cachepublic ? "public"           : "private"          )                                                ));
+                                                        : ((_cachepublic ? "public"           : "private"          ));
 
                     if ((req_etag != null             && _eTag == req_etag                   ) ||
                         (req_ifModifiedSince.HasValue && _lastModified == req_ifModifiedSince))
@@ -161,9 +161,9 @@ namespace Jannesen.Web.Core.Impl
                 }
                 else
                 if (_cacheMaxAge > 0)
-                    response.AddHeader("Cache-Control", (_cachepublic ? "public, max-age=" : "private, max-age=") + _cacheMaxAge.ToString(CultureInfo.InvariantCulture));
+                    response.Headers["Cache-Control"] = (_cachepublic ? "public, max-age=" : "private, max-age=") + _cacheMaxAge.ToString(CultureInfo.InvariantCulture);
                 else
-                    response.AddHeader("Cache-Control", "no-cache, no-store");
+                    response.Headers["Cache-Control"] = "no-cache, no-store";
             }
             else
                 response.StatusCode = (int)_statusCode;
@@ -171,33 +171,33 @@ namespace Jannesen.Web.Core.Impl
             response.ContentType = null;
 
             if (_data != null) {
-                response.AppendHeader("Content-Type", _contentType);
+                response.Headers["Content-Type"] = _contentType;
 
                 if (call.HttpMethod != "HEAD") {
                     if (_compression && _length > 512) {
                         string contentEncoding = GetResponseCompressionEncoding(call);
 
                         if (contentEncoding != null) {
-                            response.AddHeader("Content-Encoding", contentEncoding);
+                            response.Headers["Content-Encoding"] = contentEncoding;
 
                             using (MemoryStream buffer = new MemoryStream(_length > 0x4000 ? _length / 4 : 0x1000)) {
                                 using (Stream stream = GetCompressor(contentEncoding, buffer))
                                     stream.Write(_data, 0, _length);
 
-                                response.AppendHeader("Content-Length", buffer.Length.ToString(CultureInfo.InvariantCulture));
-                                response.OutputStream.Write(buffer.GetBuffer(), 0, (int)buffer.Length);
+                                response.Headers["Content-Length"] = buffer.Length.ToString(CultureInfo.InvariantCulture);
+                                response.Body.Write(buffer.GetBuffer(), 0, (int)buffer.Length);
                             }
 
                             return;
                         }
                     }
 
-                    response.AppendHeader("Content-Length", _length.ToString(CultureInfo.InvariantCulture));
-                    response.OutputStream.Write(_data, 0, _length);
+                    response.Headers["Content-Length"] = _length.ToString(CultureInfo.InvariantCulture);
+                    response.Body.Write(_data, 0, _length);
                 }
             }
             else {
-                response.AppendHeader("Content-Length", "0");
+                response.Headers["Content-Length"] = "0";
             }
         }
 

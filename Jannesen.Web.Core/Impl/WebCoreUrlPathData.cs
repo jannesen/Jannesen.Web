@@ -1,17 +1,14 @@
 ﻿using System;
 using System.Collections.Specialized;
-using System.Runtime.Serialization;
 using System.Text.RegularExpressions;
+
+#pragma warning disable CA1010 // Collections should implement generic interface. Fault in NameValueCollection.
 
 namespace Jannesen.Web.Core.Impl
 {
-    [Serializable]
     public class WebCoreUrlPathData: NameValueCollection, IWebCoreCallProcessor
     {
         public                      WebCoreUrlPathData()
-        {
-        }
-        protected                   WebCoreUrlPathData(SerializationInfo info, StreamingContext context): base(info, context)
         {
         }
 
@@ -23,10 +20,11 @@ namespace Jannesen.Web.Core.Impl
             string[]    names = httpCall.Handler.WildcardPathProcessor.Names;
 
             if (names != null) {
-                Match   match = httpCall.Handler.WildcardPathProcessor.RegexMatch(WebApplication.GetRelPath(httpCall.Request.Path));
+                Match   match = httpCall.Handler.WildcardPathProcessor.RegexMatch(httpCall.Request.Path);
 
-                foreach(string name in names)
+                foreach(string name in names) {
                     base.Add(name, match.Groups[name].Value);
+                }
             }
         }
     }

@@ -1,6 +1,4 @@
 ﻿using System;
-using System.Web;
-using Jannesen.Web.Core.Impl;
 
 namespace Jannesen.Web.Core.Impl.Source
 {
@@ -13,18 +11,7 @@ namespace Jannesen.Web.Core.Impl.Source
 
         public      override        WebCoreDataValue        GetValue(WebCoreCall httpCall)
         {
-            HttpCookieCollection    cookies = httpCall.Request.Cookies;
-            string[]                keys    = cookies.AllKeys;
-            string                  value   = null;
-
-            for (int i = 0 ; i < keys.Length ; ++i ) {
-                if (keys[i] == Name) {
-                    value = cookies[i].Value;
-                    break;
-                }
-            }
-
-            return new WebCoreDataValue(value);
+            return new WebCoreDataValue(httpCall.Request.Cookies[Name]);
         }
 
         public      override        string              ToString()

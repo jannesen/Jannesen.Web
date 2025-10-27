@@ -1,12 +1,11 @@
 ﻿using System;
 using System.IO;
-using System.Data.SqlClient;
 using System.Globalization;
 using System.Net;
-using System.Web;
 using System.Xml;
 using System.Text;
 using Jannesen.FileFormat.Json;
+using Microsoft.AspNetCore.Http;
 
 namespace Jannesen.Web.Core.Impl
 {
@@ -23,7 +22,7 @@ namespace Jannesen.Web.Core.Impl
 
             StatusCode = _processErrorCode();
 
-            if ((!(err is HttpException)) && _handler.MapTo200 && (StatusCode != HttpStatusCode.Unauthorized))
+            if ((!(err is WebHttpException)) && _handler.MapTo200 && (StatusCode != HttpStatusCode.Unauthorized))
                 StatusCode = HttpStatusCode.OK;
 
             using (MemoryStream buffer = new MemoryStream()) {
@@ -41,8 +40,9 @@ namespace Jannesen.Web.Core.Impl
 
         public      override    void                    Send(WebCoreCall call, HttpResponse response)
         {
-            if (StatusCode == HttpStatusCode.Unauthorized)
-                response.AppendHeader("WWW-Authenticate", "Basic realm=\"" + WebApplication.Name + "\"");
+            if (StatusCode == HttpStatusCode.Unauthorized) {
+                response.Headers.Append("WWW-Authenticate", "Basic realm=\"" + call.ApplicationConfig.Application.Realm + "\"");
+            }
 
             base.Send(call, response);
         }
@@ -50,23 +50,14 @@ namespace Jannesen.Web.Core.Impl
         private                 HttpStatusCode          _processErrorCode()
         {
             for (Exception err = _err ; err != null ; err = err.InnerException) {
-                if (err is HttpException) {
-                    int statusCode = ((HttpException)err).GetHttpCode();
+                if (err is WebHttpException httpException) {
+                    var statusCode = httpException.StatusCode;
 
-                    switch(((HttpException)err).WebEventCode) {
-                    case System.Web.Management.WebEventCodes.RuntimeErrorRequestAbort:  statusCode = 408;   break;
-                    case System.Web.Management.WebEventCodes.RuntimeErrorPostTooLarge:  statusCode = 413;   break;
-                    default:
-                        switch(err.Message) {
-                        case "Request timed out.":  statusCode = 408;   break;
-                        }
-                        break;
+                    if (statusCode == HttpStatusCode.InternalServerError) { // HttpException are not used for server error
+                        statusCode = HttpStatusCode.BadRequest;
                     }
 
-                    if (statusCode == 500) { // HttpException are not used for server error
-                        statusCode = 400;
-                    }
-                    _code = "HTTP-ERROR-CODE-" + statusCode.ToString(CultureInfo.InvariantCulture);
+                    _code = "HTTP-ERROR-CODE-" + ((int)statusCode).ToString(CultureInfo.InvariantCulture);
                     return (HttpStatusCode)statusCode;
                 }
 

@@ -1,8 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Data.SqlClient;
-using System.Web;
-using Jannesen.Web.Core;
+using Microsoft.Data.SqlClient;
 using Jannesen.Web.Core.Impl;
 
 namespace Jannesen.Web.MSSql.Library

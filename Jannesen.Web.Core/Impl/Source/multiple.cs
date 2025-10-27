@@ -1,6 +1,4 @@
 ﻿using System;
-using System.Web;
-using Jannesen.Web.Core.Impl;
 
 namespace Jannesen.Web.Core.Impl.Source
 {
@@ -16,8 +14,9 @@ namespace Jannesen.Web.Core.Impl.Source
 
             _list = new WebCoreDataSource[sources.Length];
 
-            for (int i = 0 ; i < sources.Length ; ++i)
-                _list[i] = WebApplication.GetDataSource(sources[i], name_args);
+            for (int i = 0 ; i < sources.Length ; ++i) {
+                _list[i] = WebLoader.Instance.GetDataSource(sources[i], name_args);
+            }
         }
 
         public      override        WebCoreDataValue    GetValue(WebCoreCall httpCall)

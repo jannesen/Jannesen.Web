@@ -1,9 +1,9 @@
 ﻿using System;
 using System.IO;
 using System.Net;
-using System.Data.SqlClient;
 using System.Xml;
 using System.Text;
+using Microsoft.Data.SqlClient;
 using Jannesen.Web.Core.Impl;
 using Jannesen.Web.MSSql.Library;
 

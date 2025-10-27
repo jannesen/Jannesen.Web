@@ -2,11 +2,9 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.IO;
-using System.Data;
-using System.Data.SqlClient;
-using System.Data.SqlTypes;
 using System.Globalization;
 using System.Text;
+using Microsoft.Data.SqlClient;
 using DocumentFormat.OpenXml;
 using DocumentFormat.OpenXml.Packaging;
 using DocumentFormat.OpenXml.Spreadsheet;

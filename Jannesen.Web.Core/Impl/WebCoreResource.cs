@@ -1,17 +1,23 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Web;
 
 namespace Jannesen.Web.Core.Impl
 {
     public abstract class WebCoreResource: IDisposable
     {
+        private readonly        WebApplication      _application;
         private readonly        string              _name;
         private readonly        bool                _down;
 
         public      abstract    string              Type
         {
             get ;
+        }
+        public                  WebApplication      Application
+        {
+            get {
+                return _application;
+            }
         }
         public                  string              Name
         {
@@ -28,8 +34,9 @@ namespace Jannesen.Web.Core.Impl
 
         protected                                   WebCoreResource(WebCoreConfigReader configReader)
         {
-            _name = configReader.GetValueString("name");
-            _down = configReader.GetValueBool  ("down", false);
+            _application = configReader.ApplicationConfig.Application;
+            _name        = configReader.GetValueString("name");
+            _down        = configReader.GetValueBool  ("down", false);
         }
                                                     ~WebCoreResource()
         {
@@ -70,7 +77,7 @@ namespace Jannesen.Web.Core.Impl
                     resource.Dispose();
                 }
                 catch(Exception err) {
-                    WebApplication.LogError("Unloading resource '" + resource.Name + "' failed.", err);
+                    resource.Application.LogError("Unloading resource '" + resource.Name + "' failed.", err);
                 }
             }
         }

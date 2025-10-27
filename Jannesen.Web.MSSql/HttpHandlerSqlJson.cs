@@ -1,13 +1,9 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.Data;
-using System.Data.SqlClient;
-using System.Data.SqlTypes;
 using System.Globalization;
 using System.IO;
 using System.Net;
-using System.Web;
 using System.Xml;
+using Microsoft.Data.SqlClient;
 using Jannesen.FileFormat.Json;
 using Jannesen.Web.Core.Impl;
 using Jannesen.Web.MSSql.Library;

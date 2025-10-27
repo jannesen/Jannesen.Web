@@ -1,12 +1,12 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Globalization;
 using System.Net;
-using System.Web;
+using Microsoft.AspNetCore.Http;
+using Microsoft.AspNetCore.Http.Extensions;
 
 namespace Jannesen.Web.Core.Impl
 {
-    public abstract class WebCoreHttpHandler: IHttpHandler
+    public abstract class WebCoreHttpHandler
     {
         private readonly        string                              _path;
         private readonly        string                              _verb;
@@ -58,13 +58,6 @@ namespace Jannesen.Web.Core.Impl
             }
         }
 
-        public                  bool                                IsReusable
-        {
-            get {
-                return true;
-            }
-        }
-
         protected                                                   WebCoreHttpHandler(WebCoreConfigReader configReader)
         {
             _path   = configReader.GetValuePathName("path");
@@ -73,36 +66,21 @@ namespace Jannesen.Web.Core.Impl
 
             string errorHandler = configReader.GetValueString("error-handler", null);
 
-            if (errorHandler != null)
-                _errorHandler = configReader.Application.waGetErrorHandler(errorHandler);
+            if (errorHandler != null) {
+                _errorHandler = WebLoader.Instance.GetErrorHandler(errorHandler);
+            }
 
             string logging = configReader.GetValueString("logging", null);
 
             if (logging != null)
-                _logging = configReader.Application.waGetResource<ResourceLogging>(logging);
+                _logging = configReader.ApplicationConfig.GetResource<ResourceLogging>(logging);
 
             _wildcardPathProcessor = WebCoreWildcardPathProcessor.GetProcessor(_path);
         }
 
-        public      virtual     IHttpHandler                        GetHttpHandler()
+        public      virtual     void                                ProcessRequest(WebApplicationConfig applicationConfig, HttpContext context)
         {
-            return (IHttpHandler)this;
-        }
-
-        public      virtual     void                                ProcessRequest(HttpContext context)
-        {
-            System.Threading.Thread.CurrentThread.CurrentCulture = CultureInfo.InvariantCulture;
-
-            if (Public) {
-                using (SystemSection systemSection = new SystemSection()) {
-                    systemSection.ToSystem();
-
-                    _processRequest(context);
-                }
-            }
-            else {
-                _processRequest(context);
-            }
+            _processRequest(applicationConfig, context);
         }
 
         public      abstract    WebCoreResponse                     Process(WebCoreCall httpCall);
@@ -113,37 +91,39 @@ namespace Jannesen.Web.Core.Impl
             return 0;
         }
 
-        private                 void                                _processRequest(HttpContext context)
+        private                 void                                _processRequest(WebApplicationConfig applicationConfig, HttpContext context)
         {
             WebCoreResponse     webResponse;
-            WebCoreCall         httpCall    = new WebCoreCall(context, this);
+            WebCoreCall         httpCall    = new WebCoreCall(applicationConfig, context, this);
 
             try {
                 webResponse = Process(httpCall);
             }
-            catch(HttpException err) {
-                switch(err.GetHttpCode()) {
-                case (int)HttpStatusCode.Unauthorized:
-                case (int)HttpStatusCode.BadRequest:
-                case (int)HttpStatusCode.RequestTimeout:
-                case (int)HttpStatusCode.RequestEntityTooLarge:
-                case (int)HttpStatusCode.InternalServerError:
-                case (int)HttpStatusCode.NotImplemented:
-                case (int)HttpStatusCode.BadGateway:
-                case (int)HttpStatusCode.ServiceUnavailable:
-                case (int)HttpStatusCode.GatewayTimeout:
+            catch(WebHttpException err) {
+                switch(err.StatusCode) {
+                case HttpStatusCode.Unauthorized:
+                case HttpStatusCode.BadRequest:
+                case HttpStatusCode.RequestTimeout:
+                case HttpStatusCode.RequestEntityTooLarge:
+                case HttpStatusCode.InternalServerError:
+                case HttpStatusCode.NotImplemented:
+                case HttpStatusCode.BadGateway:
+                case HttpStatusCode.ServiceUnavailable:
+                case HttpStatusCode.GatewayTimeout:
                     webResponse = _errorHandler != null ? _errorHandler.GetErrorResponse(this, err) : new WebCoreResponseError(this, err, Mimetype);
                     break;
 
                 default:
-                    if (_logging != null)
+                    if (_logging != null) {
                         _logging.Logging(httpCall, err);
+                    }
                     throw;
                 }
             }
             catch(Exception err) {
-                if (!(err is WebException && ((WebException)err).logError == false))
-                    WebApplication.LogError(this, httpCall, err);
+                if (!(err is WebException && ((WebException)err).logError == false)) {
+                    applicationConfig.Application.LogError("Error in handler: " + Path + " Url: " + httpCall.Request.GetDisplayUrl(), err);
+                }
 
                 webResponse = _errorHandler != null ? _errorHandler.GetErrorResponse(this, err) : new WebCoreResponseError(this, err, Mimetype);
             }
@@ -151,8 +131,9 @@ namespace Jannesen.Web.Core.Impl
             if (webResponse != null) {
                 webResponse.Send(httpCall, context.Response);
 
-                if (_logging != null)
+                if (_logging != null) {
                     _logging.Logging(httpCall, webResponse, context.Response);
+                }
             }
         }
     }

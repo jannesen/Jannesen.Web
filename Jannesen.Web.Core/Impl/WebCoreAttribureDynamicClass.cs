@@ -25,6 +25,10 @@ namespace Jannesen.Web.Core.Impl
 
         protected   static      ConstructorInfo                 GetConstructorFor(Type type, Type baseClass, params Type[] argTypes)
         {
+            ArgumentNullException.ThrowIfNull(type);
+            ArgumentNullException.ThrowIfNull(baseClass);
+            ArgumentNullException.ThrowIfNull(argTypes);
+
             if (baseClass != null && !type.IsSubclassOf(baseClass))
                 throw new InternalErrorException("Internal error, " + type.FullName + " is not a subclass of " + baseClass.FullName + ".");
 
@@ -50,7 +54,7 @@ namespace Jannesen.Web.Core.Impl
 
         public      override    int                             GetHashCode()
         {
-            return Type.GetHashCode() ^ _name.GetHashCode();
+            return Type.GetHashCode(StringComparison.Ordinal) ^ _name.GetHashCode();
         }
         public      override    bool                            Equals(object obj)
         {

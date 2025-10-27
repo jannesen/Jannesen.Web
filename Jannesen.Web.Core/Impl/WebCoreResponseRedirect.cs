@@ -1,15 +1,12 @@
 ﻿using System;
-using System.Collections.Generic;
 using System.IO;
-using System.Net;
-using System.Web;
-using System.Text;
+using Microsoft.AspNetCore.Http;
 
 namespace Jannesen.Web.Core.Impl
 {
     public class WebCoreResponseRedirect: WebCoreResponse
     {
-        public  readonly        string              Target;
+        public                  string              Target          { get; init; }
 
         public                                      WebCoreResponseRedirect(string target)
         {

@@ -1,8 +1,7 @@
 ﻿using System;
 using System.Globalization;
 using System.IO;
-using System.Net;
-using System.Web;
+using Microsoft.AspNetCore.Http;
 
 namespace Jannesen.Web.StaticFile.Internal
 {
@@ -17,9 +16,9 @@ namespace Jannesen.Web.StaticFile.Internal
 
         protected   override    void            SendBodyData(HttpResponse response)
         {
-            response.AppendHeader("Content-Encoding", _fileCache.ContentEncoding);
-            response.AppendHeader("Content-Length",   _fileCache.Data.Length.ToString(CultureInfo.InvariantCulture));
-            response.OutputStream.Write(_fileCache.Data, 0, _fileCache.Data.Length);
+            response.Headers["Content-Encoding"] = _fileCache.ContentEncoding;
+            response.Headers["Content-Length"]   = _fileCache.Data.Length.ToString(CultureInfo.InvariantCulture);
+            response.Body.Write(_fileCache.Data, 0, _fileCache.Data.Length);
         }
 
         public      override    void            WriteLoggingData(StreamWriter writer)

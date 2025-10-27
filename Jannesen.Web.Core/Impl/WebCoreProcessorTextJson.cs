@@ -1,6 +1,4 @@
 ﻿using System;
-using System.Xml;
-using System.Web;
 using Jannesen.FileFormat.Json;
 
 namespace Jannesen.Web.Core.Impl

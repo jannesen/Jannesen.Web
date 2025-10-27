@@ -1,7 +1,5 @@
 ﻿using System;
 using System.Globalization;
-using System.Web;
-using Jannesen.Web.Core.Impl;
 
 namespace Jannesen.Web.Core.Impl
 {

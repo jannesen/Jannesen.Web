@@ -1,6 +1,4 @@
 ﻿using System;
-using System.Web;
-using Jannesen.Web.Core.Impl;
 
 namespace Jannesen.Web.Core.Impl.Source
 {
@@ -13,7 +11,7 @@ namespace Jannesen.Web.Core.Impl.Source
 
         public      override        WebCoreDataValue        GetValue(WebCoreCall httpCall)
         {
-            return new WebCoreDataValue(httpCall.Request.QueryString[Name]);
+            return new WebCoreDataValue(httpCall.Request.Query[Name]);
         }
 
         public      override        string              ToString()

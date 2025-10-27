@@ -1,5 +1,4 @@
 ﻿using System;
-using System.Web;
 using System.Net;
 
 namespace Jannesen.Web.Core.Impl
@@ -24,7 +23,7 @@ namespace Jannesen.Web.Core.Impl
 
         public                  void                Proces(WebCoreCall httpCall)
         {
-            string          authorization   = httpCall.Request.Headers["Authorization"];
+            string          authorization   = httpCall.GetHeader("Authorization");
 
             if (authorization != null && authorization.StartsWith("Basic ", StringComparison.Ordinal)) {
                 string  AuthStr     = System.Text.Encoding.ASCII.GetString(System.Convert.FromBase64String(authorization.Substring(6)));

@@ -1,7 +1,8 @@
 ﻿using System;
 using System.Globalization;
 using System.IO;
-using System.Web;
+using Microsoft.AspNetCore.Http;
+using Microsoft.AspNetCore.Http.Extensions;
 using Jannesen.Web.Core.Impl;
 
 namespace Jannesen.Web.Core
@@ -30,9 +31,9 @@ namespace Jannesen.Web.Core
 
         public                                      ResourceLogging(WebCoreConfigReader configReader): base(configReader)
         {
-            _directory = configReader.GetValueString("directory");
-            _logLock   = new object();
-            _nextFile  = DateTime.MinValue;
+            _directory   = configReader.GetValueString("directory");
+            _logLock     = new object();
+            _nextFile    = DateTime.MinValue;
         }
 
         protected   override    void                Dispose(bool disposing)
@@ -57,7 +58,7 @@ namespace Jannesen.Web.Core
                     }
                 }
                 catch(Exception logerr) {
-                    WebApplication.LogError("Logging failed", logerr);
+                    Application.LogError("Logging failed", logerr);
                 }
             }
         }
@@ -72,7 +73,7 @@ namespace Jannesen.Web.Core
                     }
                 }
                 catch(Exception logerr) {
-                    WebApplication.LogError("Logging failed", logerr);
+                    Application.LogError("Logging failed", logerr);
                 }
             }
         }
@@ -88,7 +89,7 @@ namespace Jannesen.Web.Core
                 }
 
                 string fileName = _directory + "\\weblog-" + now.ToString("yyyy-MM-dd", CultureInfo.InvariantCulture) + ".log";
-                WebApplication.LogEvent(WebApplication.EventID.NewLogfile, "New logfile: " + fileName);
+                Application.LogInfo("New logfile: " + fileName);
                 _filestream = new FileStream(fileName, FileMode.Append, FileAccess.Write, FileShare.ReadWrite, 1);
                 _nextFile   = new DateTime(now.Ticks - (now.Ticks % TimeSpan.TicksPerDay) + TimeSpan.TicksPerDay);
             }
@@ -100,29 +101,34 @@ namespace Jannesen.Web.Core
             writer.Write("### REQUEST ### @");
             writer.WriteLine(call.Timestamp.ToString("yyyy-dd-MM HH:mm:ss", CultureInfo.InvariantCulture));
 
-            writer.Write(call.Request.HttpMethod);
+            writer.Write(call.Request.Method);
             writer.Write(" ");
-            writer.WriteLine(call.Request.Url.ToString());
+            writer.WriteLine(call.Request.GetEncodedPathAndQuery());
 
             bool    textbody = false;
 
-            for(int i = 0 ; i < call.Request.Headers.Count ; ++i) {
-                string  key   = call.Request.Headers.GetKey(i);
-                string  value = call.Request.Headers[i];
+            foreach(var h in call.Request.Headers) {
+                var key = h.Key;
 
-                switch(key) {
-                case "Authorization":
-                    value = "*****";
-                    break;
+                for(int i = 0 ; i < h.Value.Count ; i++) {
+                    var value = h.Value[i];
 
-                case "Content-Type":
-                    if (value.IndexOf("charset=utf-8", StringComparison.Ordinal) > 0 || value.IndexOf("charset=UTF-8", StringComparison.Ordinal) > 0)
-                        textbody = true;
-                    break;
+                    switch(h.Key) {
+                    case "Authorization":
+                        value = "*****";
+                        break;
+
+                    case "Content-Type":
+                        if (value.IndexOf("charset=utf-8", StringComparison.Ordinal) > 0 ||
+                            value.IndexOf("charset=UTF-8", StringComparison.Ordinal) > 0)
+                            textbody = true;
+                        break;
+                    }
+
+                    writer.Write(h.Key);
+                    writer.Write(": ");
+                    writer.WriteLine(value);
                 }
-                writer.Write(key);
-                writer.Write(": ");
-                writer.WriteLine(value);
             }
 
             if (call.RequestBodyData != null) {
@@ -144,15 +150,19 @@ namespace Jannesen.Web.Core
 
             bool    hasContentLength = false;
 
-            for(int i = 0 ; i < httpResponse.Headers.Count ; ++i) {
-                string  key = httpResponse.Headers.GetKey(i);
+            foreach(var h in httpResponse.Headers) {
+                var key = h.Key;
 
-                if (key == "Content-Length")
-                    hasContentLength = true;
+                for(int i = 0 ; i < h.Value.Count; ++i) {
+                    var value = h.Value[i];
 
-                writer.Write(key);
-                writer.Write(": ");
-                writer.WriteLine(httpResponse.Headers[i]);
+                    if (key == "Content-Length")
+                        hasContentLength = true;
+
+                    writer.Write(key);
+                    writer.Write(": ");
+                    writer.WriteLine(value);
+                }
             }
 
             if (hasContentLength)

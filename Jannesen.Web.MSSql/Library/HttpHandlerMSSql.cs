@@ -1,11 +1,7 @@
 ﻿using System;
-using System.Collections.Generic;
 using System.Net;
-using System.Web;
 using System.Data;
-using System.Data.SqlClient;
-using System.Data.SqlTypes;
-using Jannesen.Web.Core;
+using Microsoft.Data.SqlClient;
 using Jannesen.Web.Core.Impl;
 
 namespace Jannesen.Web.MSSql.Library
@@ -49,7 +45,7 @@ namespace Jannesen.Web.MSSql.Library
         {
             int retry_count = 0;
 
-retry:      using (SqlConnection sqlConnection = GetConnection())
+retry:      using (SqlConnection sqlConnection = GetConnection(httpCall))
             {
                 using (SqlCommand sqlCommand = new SqlCommand(_procedure, sqlConnection) {CommandType = CommandType.StoredProcedure, CommandTimeout = _timeout } ) {
                     _parameters.AddParametersToCommand(sqlCommand, httpCall);
@@ -59,7 +55,7 @@ retry:      using (SqlConnection sqlConnection = GetConnection())
                     }
                     catch(Exception err) {
                         if (retry_count <= 3 && _deadlockError(err)) {
-                            Jannesen.Web.Core.WebApplication.LogEvent(WebApplication.EventID.DeadLockWarning, "Deadlock on "+ sqlCommand.CommandText);
+                            httpCall.ApplicationConfig.Application.LogWarning("Deadlock on "+ sqlCommand.CommandText);
                             ++retry_count;
                             System.Threading.Thread.Sleep(150);
                             goto retry;
@@ -130,9 +126,9 @@ retry:      using (SqlConnection sqlConnection = GetConnection())
             throw new NotImplementedException("Not implemented HttpHandlerMSSql.Process");
         }
 
-        protected               SqlConnection               GetConnection()
+        protected               SqlConnection               GetConnection(WebCoreCall httpCall)
         {
-            return WebApplication.GetResource<ResourceMSSqlDatabase>(_database).GetConnection();
+            return httpCall.ApplicationConfig.GetResource<ResourceMSSqlDatabase>(_database).GetConnection(httpCall);
         }
         protected   static      HttpStatusCode              HandleResponseOptions(WebCoreResponseBuffer webResponseBuffer, SqlDataReader dataReader)
         {

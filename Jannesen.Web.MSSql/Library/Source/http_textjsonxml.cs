@@ -17,7 +17,7 @@ namespace Jannesen.Web.MSSql.Library.Source
 
         public      override        WebCoreDataValue        GetValue(WebCoreCall httpCall)
         {
-            if (httpCall.Request.HttpMethod == "GET" || httpCall.Request.HttpMethod == "HEAD")
+            if (httpCall.Request.Method == "GET" || httpCall.Request.Method == "HEAD")
                 throw new WebHandlerConfigException("TEXTXML-BODY not available for HTTP/GET.");
 
             object      jsondoc = httpCall.RequestTextJson.Document;

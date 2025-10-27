@@ -2,7 +2,8 @@
 using System.Collections.Generic;
 using System.IO;
 using System.Net;
-using System.Web;
+using Microsoft.AspNetCore.Http;
+using Microsoft.Extensions.Caching.Memory;
 
 namespace Jannesen.Web.Core.Impl
 {
@@ -13,6 +14,7 @@ namespace Jannesen.Web.Core.Impl
 
     public class WebCoreCall
     {
+        private readonly        WebApplicationConfig                _applicationConfig;
         private readonly        DateTime                            _timestamp;
         private readonly        HttpContext                         _context;
         private readonly        HttpRequest                         _request;
@@ -20,6 +22,12 @@ namespace Jannesen.Web.Core.Impl
         private                 byte[]                              _requestBodyData;
         private                 List<object>                        _requestProcessors;
 
+        public                  WebApplicationConfig                ApplicationConfig
+        {
+            get {
+                return _applicationConfig;
+            }
+        }
         public                  DateTime                            Timestamp
         {
             get {
@@ -38,6 +46,13 @@ namespace Jannesen.Web.Core.Impl
                 return _request;
             }
         }
+        public                  IMemoryCache                        Cache
+        {
+            get {
+                return _applicationConfig.Application.Cache;
+
+            }
+        }
         public                  WebCoreHttpHandler                  Handler
         {
             get {
@@ -50,17 +65,11 @@ namespace Jannesen.Web.Core.Impl
                 return _requestBodyData;
             }
         }
-        public                  System.Web.Caching.Cache            Cache
-        {
-            get {
-                return _context.Cache;
-            }
-        }
 
         public                  string                              HttpMethod
         {
             get {
-                return _request.HttpMethod;
+                return _request.Method;
             }
         }
         public                  string                              RequestContentType
@@ -72,7 +81,7 @@ namespace Jannesen.Web.Core.Impl
         public                  int?                                RequestContentLength
         {
             get {
-                string s = _request.Headers["Content-Length"];
+                string s = GetHeader("Content-Length");
 
                 if (!string.IsNullOrEmpty(s)) {
                     if (int.TryParse(s, out var rtn))
@@ -85,7 +94,7 @@ namespace Jannesen.Web.Core.Impl
         public                  DateTime?                           RequestIfModifiedSince
         {
             get {
-                string s = _request.Headers["If-Modified-Since"];
+                string s = GetHeader("If-Modified-Since");
 
                 if (!string.IsNullOrEmpty(s)) {
                     if (DateTime.TryParseExact(s, "R", System.Globalization.DateTimeFormatInfo.InvariantInfo, System.Globalization.DateTimeStyles.AdjustToUniversal, out var rtn))
@@ -98,7 +107,7 @@ namespace Jannesen.Web.Core.Impl
         public                  string                              RequestIfNoneMatch
         {
             get {
-                string s = _request.Headers["If-None-Match"];
+                string s = GetHeader("If-None-Match");
 
                 return !string.IsNullOrEmpty(s) ? s : null;
             }
@@ -106,7 +115,7 @@ namespace Jannesen.Web.Core.Impl
         public                  string                              RequestReferer
         {
             get {
-                string s = _request.Headers["Referer"];
+                string s = GetHeader("Referer");
 
                 return !string.IsNullOrEmpty(s) ? s : null;
             }
@@ -114,7 +123,7 @@ namespace Jannesen.Web.Core.Impl
         public                  string                              RequestUserAgent
         {
             get {
-                string s = _request.UserAgent;
+                string s = GetHeader("User-Agent");
 
                 return !string.IsNullOrEmpty(s) ? s : null;
             }
@@ -122,7 +131,7 @@ namespace Jannesen.Web.Core.Impl
         public                  string                              RequestRemoteAddr
         {
             get {
-                string rtn = _request.Headers["X-Forwarded-For"];
+                string rtn = GetHeader("X-Forwarded-For");
 
                 if (!string.IsNullOrEmpty(rtn)) {
                     int p = rtn.IndexOf(',');
@@ -131,7 +140,7 @@ namespace Jannesen.Web.Core.Impl
                     }
                 }
                 else {
-                    rtn = _request.UserHostAddress;
+                    rtn = _context.Connection.RemoteIpAddress?.ToString();
                 }
 
                 return !string.IsNullOrEmpty(rtn) ? rtn : null;
@@ -162,17 +171,23 @@ namespace Jannesen.Web.Core.Impl
             }
         }
 
-        public                                                      WebCoreCall(HttpContext httpCall, WebCoreHttpHandler handler)
+        public                                                      WebCoreCall(WebApplicationConfig applicationConfig, HttpContext httpCall, WebCoreHttpHandler handler)
         {
-            _timestamp   = DateTime.UtcNow;
-            _context     = httpCall;
-            _request     = httpCall.Request;
-            _handler     = handler;
+            _applicationConfig = applicationConfig;
+            _timestamp         = DateTime.UtcNow;
+            _context           = httpCall;
+            _request           = httpCall.Request;
+            _handler           = handler;
         }
 
         public                  string                              GetHeader(string name)
         {
-            return _request.Headers[name];
+            var h = _request.Headers[name];
+            switch(h.Count) {
+            case 0: return null;
+            case 1: return h[0];
+            default: throw new WebHttpException(HttpStatusCode.BadRequest, "Multiple '" + name + "' headers.");
+            }
         }
         public                  T                                   GetRequestProcessor<T>() where T: IWebCoreCallProcessor, new()
         {
@@ -208,7 +223,7 @@ namespace Jannesen.Web.Core.Impl
 
                 byte[]  buf = new byte[length.Value];
 
-                using (System.IO.Stream inputStream = _request.InputStream) {
+                using (Stream inputStream = _request.Body) {
                     int     size = 0;
                     int     rs;
 
@@ -263,8 +278,9 @@ namespace Jannesen.Web.Core.Impl
         }
         public                  string                              GetBodyString(string contenttype)
         {
-            using(var reader = GetBodyText(contenttype))
+            using(var reader = GetBodyText(contenttype)) {
                 return reader?.ReadToEnd();
+            }
         }
     }
 }

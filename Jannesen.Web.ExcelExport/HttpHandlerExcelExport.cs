@@ -1,12 +1,6 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.Net;
-using System.Web;
-using System.Data;
-using System.Data.SqlClient;
-using System.Data.SqlTypes;
 using System.IO;
-using Jannesen.Web.Core;
+using Microsoft.Data.SqlClient;
 using Jannesen.Web.Core.Impl;
 using Jannesen.Web.MSSql.Library;
 using Jannesen.Web.ExcelExport.ExcelExport;

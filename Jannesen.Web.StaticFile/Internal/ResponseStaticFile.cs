@@ -1,8 +1,7 @@
 ﻿using System;
 using System.Globalization;
 using System.IO;
-using System.Net;
-using System.Web;
+using Microsoft.AspNetCore.Http;
 
 namespace Jannesen.Web.StaticFile.Internal
 {
@@ -19,7 +18,9 @@ namespace Jannesen.Web.StaticFile.Internal
 
         protected   override    void            SendBodyData(HttpResponse response)
         {
-            response.TransmitFile(_physicalPath, 0, _length);
+            using(var stream = File.Open(_physicalPath, FileMode.Open, FileAccess.Read, FileShare.Read)) {
+                stream.CopyTo(response.Body);
+            }
         }
 
         public      override    void            WriteLoggingData(StreamWriter writer)

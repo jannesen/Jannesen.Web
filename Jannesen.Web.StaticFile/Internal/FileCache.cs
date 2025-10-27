@@ -1,7 +1,6 @@
 ﻿using System;
 using System.IO;
 using System.Text;
-using System.Web;
 using Jannesen.Web.Core.Impl;
 
 namespace Jannesen.Web.StaticFile.Internal

@@ -39,7 +39,7 @@ namespace Jannesen.Web.MSSql.Library
                         parm = null;
                     }
 
-                    valueType = (ValueConvertor)WebApplication.ConstructDynamicClass(new ValueConvertorAttributeBaseType(name), parm);
+                    valueType = (ValueConvertor)WebLoader.Instance.ConstructDynamicClass(new ValueConvertorAttributeBaseType(name), parm);
                     _cache.Add(nameparameter, valueType);
                 }
             }
