@@ -44,6 +44,8 @@ namespace Jannesen.Web.Core.Impl
         }
         public                              WebConfigException(string message, Exception innerException, WebCoreConfigReader configReader): base(message, innerException)
         {
+            ArgumentNullException.ThrowIfNull(configReader);
+
             Filename   = configReader.Filename;
             LineNumber = configReader.LineNumber;
         }

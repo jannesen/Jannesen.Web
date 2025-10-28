@@ -134,7 +134,7 @@ namespace Jannesen.Web.Core.Impl
                 string rtn = GetHeader("X-Forwarded-For");
 
                 if (!string.IsNullOrEmpty(rtn)) {
-                    int p = rtn.IndexOf(',');
+                    int p = rtn.IndexOf(',', StringComparison.Ordinal);
                     if (p > 0) {
                         rtn = rtn.Substring(0, p);
                     }
@@ -173,6 +173,8 @@ namespace Jannesen.Web.Core.Impl
 
         public                                                      WebCoreCall(WebApplicationConfig applicationConfig, HttpContext httpCall, WebCoreHttpHandler handler)
         {
+            ArgumentNullException.ThrowIfNull(httpCall);
+
             _applicationConfig = applicationConfig;
             _timestamp         = DateTime.UtcNow;
             _context           = httpCall;

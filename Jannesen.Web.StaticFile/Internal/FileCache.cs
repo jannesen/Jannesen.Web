@@ -3,6 +3,8 @@ using System.IO;
 using System.Text;
 using Jannesen.Web.Core.Impl;
 
+#pragma warning disable CA5350 // Do Not Use Weak Cryptographic Algorithms (SHA1 used for etag)
+
 namespace Jannesen.Web.StaticFile.Internal
 {
     internal sealed class FileCache
@@ -125,10 +127,10 @@ namespace Jannesen.Web.StaticFile.Internal
                 Decoder decoder;
                 Encoder encoder = Encoding.UTF8.GetEncoder();
 
-                if (buf[0] == 0xFF && buf[0] == 0xFE)
+                if (buf[0] == 0xFF && buf[1] == 0xFE)
                     throw new NotSupportedException("UTF-16 LE not supported.");
 
-                if (buf[0] == 0xFE && buf[0] == 0xFF) {
+                if (buf[0] == 0xFE && buf[1] == 0xFF) {
                     off = 2;
                     decoder = Encoding.BigEndianUnicode.GetDecoder();
                 }

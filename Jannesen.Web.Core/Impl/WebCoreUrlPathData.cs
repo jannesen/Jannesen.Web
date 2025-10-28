@@ -14,10 +14,12 @@ namespace Jannesen.Web.Core.Impl
 
         public          void        Proces(WebCoreCall httpCall)
         {
+            ArgumentNullException.ThrowIfNull(httpCall);
+
             if (httpCall.Handler.WildcardPathProcessor == null)
                 throw new WebHandlerConfigException("URL-PATH parameters not available, because not a wildcard handler.");
 
-            string[]    names = httpCall.Handler.WildcardPathProcessor.Names;
+            var names = httpCall.Handler.WildcardPathProcessor.Names;
 
             if (names != null) {
                 Match   match = httpCall.Handler.WildcardPathProcessor.RegexMatch(httpCall.Request.Path);

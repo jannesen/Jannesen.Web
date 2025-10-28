@@ -60,6 +60,8 @@ namespace Jannesen.Web.Core.Impl
 
         protected                                                   WebCoreHttpHandler(WebCoreConfigReader configReader)
         {
+            ArgumentNullException.ThrowIfNull(configReader);
+
             _path   = configReader.GetValuePathName("path");
             _verb   = string.Intern(configReader.GetValueString("verb", "GET").ToUpperInvariant());
             _public = configReader.GetValueBool("public", false);
@@ -80,6 +82,9 @@ namespace Jannesen.Web.Core.Impl
 
         public      virtual     void                                ProcessRequest(WebApplicationConfig applicationConfig, HttpContext context)
         {
+            ArgumentNullException.ThrowIfNull(applicationConfig);
+            ArgumentNullException.ThrowIfNull(context);
+
             _processRequest(applicationConfig, context);
         }
 
@@ -191,6 +196,8 @@ namespace Jannesen.Web.Core.Impl
 
         public                  void                                        Add(WebCoreHttpHandler httpHandler)
         {
+            ArgumentNullException.ThrowIfNull(httpHandler);
+
             if (!_dictionary.TryGetValue(httpHandler.Verb, out var verbDictionary))
                 _dictionary.Add(httpHandler.Verb, verbDictionary = new VerbDictionary());
 

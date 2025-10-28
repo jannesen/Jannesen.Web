@@ -9,6 +9,8 @@ namespace Jannesen.Web.Core.Impl
 
         public                  void                Proces(WebCoreCall httpCall)
         {
+            ArgumentNullException.ThrowIfNull(httpCall);
+
             try {
 
                 using(var reader = httpCall.GetBodyText("text/xml")) {

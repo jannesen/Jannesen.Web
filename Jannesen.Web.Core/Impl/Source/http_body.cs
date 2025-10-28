@@ -1,8 +1,10 @@
 ﻿using System;
 
+#pragma warning disable CA1812 // Avoid uninstantiated internal classes (created using reflection)
+
 namespace Jannesen.Web.Core.Impl.Source
 {
-    [WebCoreAttributeDataSource("body")]
+    [WebCoreDataSourceAttribute("body")]
     sealed class http_body: WebCoreDataSource
     {
         enum ValueNameCode

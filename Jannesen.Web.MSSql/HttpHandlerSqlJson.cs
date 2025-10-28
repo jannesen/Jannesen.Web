@@ -10,7 +10,7 @@ using Jannesen.Web.MSSql.Library;
 
 namespace Jannesen.Web.MSSql.Sqx
 {
-    [WebCoreAttribureHttpHandler("sql-json")]
+    [WebCoreHttpHandlerAttribute("sql-json")]
     public class HttpHandlerSqlXmlJson: HttpHandlerMSSql
     {
         public      override    string                      Mimetype
@@ -22,6 +22,8 @@ namespace Jannesen.Web.MSSql.Sqx
 
         public                                              HttpHandlerSqlXmlJson(WebCoreConfigReader configReader): base(configReader)
         {
+            ArgumentNullException.ThrowIfNull(configReader);
+
             if (configReader.hasChildren) {
                 while (configReader.ReadNextElement()) {
                     switch(configReader.ElementName) {

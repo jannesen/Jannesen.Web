@@ -1,8 +1,10 @@
 ﻿using System;
 
+#pragma warning disable CA1812 // Avoid uninstantiated internal classes (created using reflection)
+
 namespace Jannesen.Web.Core.Impl.Source
 {
-    [WebCoreAttributeDataSource("textjson")]
+    [WebCoreDataSourceAttribute("textjson")]
     sealed class http_textjson: WebCoreDataSource
     {
         public                                              http_textjson(string name_args): base(name_args)

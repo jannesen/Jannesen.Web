@@ -6,6 +6,7 @@ using Microsoft.AspNetCore.Http;
 using Microsoft.Extensions.Caching.Memory;
 using Microsoft.Extensions.DependencyInjection;
 
+//!!TODO Use refcount on _applicationConfig
 
 namespace Jannesen.Web.Core
 {
@@ -43,12 +44,18 @@ namespace Jannesen.Web.Core
         public      void                Dispose()
         {
             lock(_configLock) {
+                _applicationConfig?.Dispose();
                 _applicationConfig = null;
+                _cache?.Dispose();
+                _cache = null;
             }
         }
 
         public                          Task                                HttpHandler(HttpContext context, RequestDelegate next)
         {
+            ArgumentNullException.ThrowIfNull(context);
+            ArgumentNullException.ThrowIfNull(next);
+
             var applConfig = _getApplicationConfig();
 
             var h = applConfig.GetHttpHandler(context.Request.Path, context.Request.Method);

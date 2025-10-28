@@ -6,9 +6,11 @@ using System.Xml;
 using Jannesen.FileFormat.Json;
 using Jannesen.Web.Core.Impl;
 
+#pragma warning disable CA1812 // Avoid uninstantiated internal classes (created using reflection)
+
 namespace Jannesen.Web.MSSql.Library.Source
 {
-    [WebCoreAttributeDataSource("textjsonxml")]
+    [WebCoreDataSourceAttribute("textjsonxml")]
     internal sealed class http_textjsonxml: WebCoreDataSource
     {
         public                                              http_textjsonxml(string name_args): base(name_args)

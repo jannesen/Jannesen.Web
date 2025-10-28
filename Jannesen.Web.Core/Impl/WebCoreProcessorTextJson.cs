@@ -16,6 +16,8 @@ namespace Jannesen.Web.Core.Impl
 
         public                  void                Proces(WebCoreCall httpCall)
         {
+            ArgumentNullException.ThrowIfNull(httpCall);
+
             try {
                 var stream = httpCall.GetBodyText("application/json");
                 if (stream != null) {
@@ -31,13 +33,15 @@ namespace Jannesen.Web.Core.Impl
 
         public                  bool                GetValue(string name, out object rtn)
         {
+            ArgumentNullException.ThrowIfNull(name);
+
             if (_document == null)
                 throw new WebRequestException("Empty body or null.");
 
             if (!(_document is JsonObject))
                 throw new WebRequestException("JSON root must by a object");
 
-            if (name.IndexOf(".", StringComparison.Ordinal) < 0)
+            if (name.IndexOf('.', StringComparison.Ordinal) < 0)
                 return ((JsonObject)_document).TryGetValue(name, out rtn);
 
             object  obj = _document;

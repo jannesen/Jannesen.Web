@@ -40,6 +40,9 @@ namespace Jannesen.Web.Core.Impl
 
         public      override    void                    Send(WebCoreCall call, HttpResponse response)
         {
+            ArgumentNullException.ThrowIfNull(call);
+            ArgumentNullException.ThrowIfNull(response);
+
             if (StatusCode == HttpStatusCode.Unauthorized) {
                 response.Headers.Append("WWW-Authenticate", "Basic realm=\"" + call.ApplicationConfig.Application.Realm + "\"");
             }

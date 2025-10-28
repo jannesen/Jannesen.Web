@@ -103,20 +103,21 @@ namespace Jannesen.Web.Core.Impl
 
         public                  void                SetData(MemoryStream stream)
         {
+            ArgumentNullException.ThrowIfNull(stream);
+
             _data   = stream.GetBuffer();
             _length = (int)stream.Length;
         }
         public                  void                SetData(byte[] data)
         {
-            if (data == null)
-                throw new ArgumentNullException(nameof(data));
+            ArgumentNullException.ThrowIfNull(data);
+
             _data   = data;
             _length = data.Length;
         }
         public                  void                SetData(byte[] data, int length)
         {
-            if (data == null)
-                throw new ArgumentNullException(nameof(data));
+            ArgumentNullException.ThrowIfNull(data);
 
             _data   = data;
             _length = length;
@@ -124,6 +125,9 @@ namespace Jannesen.Web.Core.Impl
 
         public      override    void                Send(WebCoreCall call, HttpResponse response)
         {
+            ArgumentNullException.ThrowIfNull(call);
+            ArgumentNullException.ThrowIfNull(response);
+
             response.HttpContext.Features.Get<IHttpResponseBodyFeature>()?.DisableBuffering();
 
             if (_statusCode == HttpStatusCode.OK && _data != null) {
@@ -203,6 +207,8 @@ namespace Jannesen.Web.Core.Impl
 
         public      override    void                WriteLoggingData(StreamWriter writer)
         {
+            ArgumentNullException.ThrowIfNull(writer);
+
             if (_data != null) {
                 if (_contentType.IndexOf("charset=utf-8", StringComparison.Ordinal) > 0) {
                     writer.WriteLine();

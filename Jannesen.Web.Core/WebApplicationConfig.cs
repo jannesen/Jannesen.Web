@@ -125,22 +125,22 @@ namespace Jannesen.Web.Core
                                 break;
 
                             case "http-handler":
-                                _addHttpHandler((WebCoreHttpHandler)WebLoader.Instance.ConstructDynamicClass(new WebCoreAttribureHttpHandler(configReader.GetValueString("type")), configReader));
+                                _addHttpHandler((WebCoreHttpHandler)WebLoader.Instance.ConstructDynamicClass(new WebCoreHttpHandlerAttribute(configReader.GetValueString("type")), configReader));
                                 break;
 
                             case "resource":
-                                _addResource((WebCoreResource)WebLoader.Instance.ConstructDynamicClass(new WebCoreAttribureResource(configReader.GetValueString("type")), configReader));
+                                _addResource((WebCoreResource)WebLoader.Instance.ConstructDynamicClass(new WebCoreResourceAttribute(configReader.GetValueString("type")), configReader));
                                 break;
 
                             case "include": {
-                                    string  file    = configReader.GetValueString("file").Replace("\\", "/");
+                                    string  file    = configReader.GetValueString("file").Replace("\\", "/", StringComparison.Ordinal);
                                     string  incpath = (string)null;
 
                                     configReader.NoChildElements();
 
                                     if (file.IndexOf("./", StringComparison.Ordinal) < 0 && path != null) {
                                         int  i = file.LastIndexOf('/');
-                                        incpath = (i >= 0) ? path + file.Substring(0, i + 1) : path;
+                                        incpath = (i >= 0) ? string.Concat(path, file.AsSpan(0, i + 1)) : path;
                                     }
 
                                     if (_loadConfig(serviceProvider, incpath, configReader.CombinePhysicalPath(file)) < 0) {

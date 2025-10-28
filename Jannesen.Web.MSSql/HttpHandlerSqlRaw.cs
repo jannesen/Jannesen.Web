@@ -7,11 +7,13 @@ using Jannesen.Web.MSSql.Library;
 
 namespace Jannesen.Web.MSSql.Sqx
 {
-    [WebCoreAttribureHttpHandler("sql-raw")]
+    [WebCoreHttpHandlerAttribute("sql-raw")]
     public class HttpHandlerSqlRaw: HttpHandlerMSSql
     {
         public                                              HttpHandlerSqlRaw(WebCoreConfigReader configReader): base(configReader)
         {
+            ArgumentNullException.ThrowIfNull(configReader);
+
             if (configReader.hasChildren) {
                 while (configReader.ReadNextElement()) {
                     switch(configReader.ElementName) {

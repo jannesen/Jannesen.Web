@@ -1,8 +1,9 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Reflection;
+using System.Threading;
 using Jannesen.Web.Core.Impl;
-using Microsoft.AspNetCore.Http;
+
 
 namespace Jannesen.Web.Core
 {
@@ -11,14 +12,16 @@ namespace Jannesen.Web.Core
         public  static  readonly        WebLoader          Instance = new WebLoader();
 
         private     readonly            List<Assembly>                                              _loadedModules;
-        private     readonly            Dictionary<WebCoreAttribureDynamicClass, ConstructorInfo>   _dynamicClasses;
+        private     readonly            Dictionary<WebCoreDynamicClassAttribute, ConstructorInfo>   _dynamicClasses;
         private     readonly            Dictionary<string, IWebCoreErrorHandler>                    _errorHandlers;
+        private     readonly            Lock                                                        _lock;
 
         public                          WebLoader()
         {
-            _loadedModules     = new List<Assembly>();
-            _dynamicClasses    = new Dictionary<WebCoreAttribureDynamicClass, ConstructorInfo>(256);
-            _errorHandlers     = new Dictionary<string, IWebCoreErrorHandler>(16);
+            _loadedModules  = new List<Assembly>();
+            _dynamicClasses = new Dictionary<WebCoreDynamicClassAttribute, ConstructorInfo>(256);
+            _errorHandlers  = new Dictionary<string, IWebCoreErrorHandler>(16);
+            _lock           = new Lock();
 
             _loadModule(typeof(WebLoader).Assembly);
         }
@@ -30,11 +33,13 @@ namespace Jannesen.Web.Core
 
         public                          WebCoreDataSource                   GetDataSource(string source, string name)
         {
-            if (source.IndexOf(Impl.Source.multiple.SplitChar) >= 0) {
+            ArgumentNullException.ThrowIfNull(source);
+
+            if (source.Contains(Impl.Source.multiple.SplitChar, StringComparison.Ordinal)) {
                 return new Impl.Source.multiple(source, name);
             }
 
-            var sep = source.IndexOf(":", StringComparison.Ordinal);
+            var sep = source.IndexOf(':', StringComparison.Ordinal);
             if (sep > 0) {
                 name   = source.Substring(sep + 1);
                 source = source.Substring(0, sep);
@@ -44,19 +49,22 @@ namespace Jannesen.Web.Core
                     throw new WebSourceException("Invalid source '" + source + "', name missing.");
             }
 
-            return (WebCoreDataSource)ConstructDynamicClass(new WebCoreAttributeDataSource(source), name);
+            return (WebCoreDataSource)ConstructDynamicClass(new WebCoreDataSourceAttribute(source), name);
         }
-        public                          object                              ConstructDynamicClass(WebCoreAttribureDynamicClass className, params object[] args)
+        public                          object                              ConstructDynamicClass(WebCoreDynamicClassAttribute className, params object[] args)
         {
             return ConstructDynamicClassArgs(className, args);
         }
-        public                          object                              ConstructDynamicClassArgs(WebCoreAttribureDynamicClass className, object[] args)
+        public                          object                              ConstructDynamicClassArgs(WebCoreDynamicClassAttribute className, object[] args)
         {
+            ArgumentNullException.ThrowIfNull(className);
+            ArgumentNullException.ThrowIfNull(args);
+
             ConstructorInfo constructorInfo = null;
 
-            lock(this) {
+            lock(_lock) {
                 if (!_dynamicClasses.TryGetValue(className, out constructorInfo)) {
-                    if (className.Name.IndexOf('.') > 0) {
+                    if (className.Name.IndexOf('.', StringComparison.Ordinal) > 0) {
                         for (int i = 0 ; i < _loadedModules.Count ; ++i) {
                             Type        classType = _loadedModules[i].GetType(className.Name);
 
@@ -84,7 +92,7 @@ namespace Jannesen.Web.Core
         {
             IWebCoreErrorHandler    errorHandler;
 
-            lock(this) {
+            lock(_lock) {
                 if (!_errorHandlers.TryGetValue(className, out errorHandler)) {
                     throw new KeyNotFoundException("Unknown error handler " + className + ".");
                 }
@@ -95,13 +103,13 @@ namespace Jannesen.Web.Core
 
         private                         void                                _loadModule(Assembly assembly)
         {
-            lock(this) {
+            lock(_lock) {
                 if (!_loadedModules.Contains(assembly)) {
                     _loadedModules.Add(assembly);
 
                     foreach(Type type in assembly.GetTypes()) {
                         try {
-                            foreach(WebCoreAttribureDynamicClass attr in type.GetCustomAttributes(typeof(WebCoreAttribureDynamicClass), false)) {
+                            foreach(WebCoreDynamicClassAttribute attr in type.GetCustomAttributes(typeof(WebCoreDynamicClassAttribute), false)) {
                                 _dynamicClasses.Add(attr, attr.GetConstructor(type));
                             }
 

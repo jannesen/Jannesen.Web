@@ -1,8 +1,10 @@
 ﻿using System;
 
+#pragma warning disable CA1812 // Avoid uninstantiated internal classes (created using reflection)
+
 namespace Jannesen.Web.Core.Impl.Source
 {
-    [WebCoreAttributeDataSource("urlpath")]
+    [WebCoreDataSourceAttribute("urlpath")]
     sealed class http_urlpath: WebCoreDataSource
     {
         public                                              http_urlpath(string name_args): base(name_args)

@@ -4,7 +4,7 @@ using System.Reflection;
 namespace Jannesen.Web.Core.Impl
 {
     [AttributeUsage(AttributeTargets.Class)]
-    public sealed class WebCoreAttributeDataSource: WebCoreAttribureDynamicClass
+    public sealed class WebCoreDataSourceAttribute: WebCoreDynamicClassAttribute
     {
         public      override    string                          Type
         {
@@ -13,7 +13,7 @@ namespace Jannesen.Web.Core.Impl
             }
         }
 
-        public                                                  WebCoreAttributeDataSource(string name): base(name)
+        public                                                  WebCoreDataSourceAttribute(string name): base(name)
         {
         }
 

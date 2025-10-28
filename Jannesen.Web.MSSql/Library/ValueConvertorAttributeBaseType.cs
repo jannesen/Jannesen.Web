@@ -4,7 +4,7 @@ using Jannesen.Web.Core.Impl;
 
 namespace Jannesen.Web.MSSql.Library
 {
-    public sealed class ValueConvertorAttributeBaseType: WebCoreAttribureDynamicClass
+    public sealed class ValueConvertorAttributeBaseType: WebCoreDynamicClassAttribute
     {
         public      override    string                          Type
         {

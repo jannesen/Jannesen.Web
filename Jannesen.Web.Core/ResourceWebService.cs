@@ -5,7 +5,7 @@ using Jannesen.Web.Core.Impl;
 
 namespace Jannesen.Web.Core
 {
-    [WebCoreAttribureResource("webservice")]
+    [WebCoreResourceAttribute("webservice")]
     public class ResourceWebService: WebCoreResource
     {
         private readonly        string                          _baseUrl;
@@ -62,6 +62,8 @@ namespace Jannesen.Web.Core
 
         public                                                  ResourceWebService(WebCoreConfigReader configReader): base(configReader)
         {
+            ArgumentNullException.ThrowIfNull(configReader);
+
             _baseUrl  = configReader.GetValueString("baseurl");
             _key      = configReader.GetValueString("key", null);
             _username = configReader.GetValueString("username", null);

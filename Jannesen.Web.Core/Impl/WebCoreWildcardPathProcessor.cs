@@ -25,7 +25,7 @@ namespace Jannesen.Web.Core.Impl
                 names = new List<string>();
                 regex = new StringBuilder();
 
-                regex.Append("^");
+                regex.Append('^');
 
                 while (pos < expression.Length) {
                     while (pos < length && expression[pos] != '{') {
@@ -35,7 +35,7 @@ namespace Jannesen.Web.Core.Impl
                     _namedglob();
                 }
 
-                regex.Append("$");
+                regex.Append('$');
             }
 
             private         void                    _namedglob()
@@ -45,7 +45,7 @@ namespace Jannesen.Web.Core.Impl
                     string name = _getname();
                     names.Add(name);
                     regex.Append(name);
-                    regex.Append(">");
+                    regex.Append('>');
 
                 _expectchar(':');
 
@@ -246,7 +246,7 @@ namespace Jannesen.Web.Core.Impl
                 return _expression;
             }
         }
-        public                  string[]                            Names
+        public                  IReadOnlyList<string>               Names
         {
             get {
                 return _names;
@@ -255,6 +255,10 @@ namespace Jannesen.Web.Core.Impl
 
         public                                                      WebCoreWildcardPathProcessor(string prefix, string suffix, string expression)
         {
+            ArgumentNullException.ThrowIfNull(prefix);
+            ArgumentNullException.ThrowIfNull(suffix);
+            ArgumentNullException.ThrowIfNull(expression);
+
             _prefix     = prefix;
             _suffix     = suffix;
             _expression = expression;
@@ -274,9 +278,11 @@ namespace Jannesen.Web.Core.Impl
 
         public      static      WebCoreWildcardPathProcessor        GetProcessor(string path)
         {
-            int     asteriskBegin   = path.IndexOf('*');
+            ArgumentNullException.ThrowIfNull(path);
+
+            int     asteriskBegin   = path.IndexOf('*', StringComparison.Ordinal);
             int     asteriskEnd     = path.LastIndexOf('*');
-            int     braceBegin      = path.IndexOf('{');
+            int     braceBegin      = path.IndexOf('{', StringComparison.Ordinal);
             int     braceEnd        = path.LastIndexOf('}');
 
             if ((asteriskBegin >= 0 || braceBegin >= 0) && (asteriskEnd >= 0 || braceEnd >= 0)) {
@@ -294,13 +300,15 @@ namespace Jannesen.Web.Core.Impl
 
         public                  bool                                IsMatch(string path)
         {
+            ArgumentNullException.ThrowIfNull(path);
+
             if (path.Length - _prefix.Length - _suffix.Length >= 0 &&
                 path.StartsWith(_prefix, StringComparison.Ordinal) && path.EndsWith(_suffix, StringComparison.Ordinal))
             {
                 if (_regex == null)
                     return true;
 
-                if (_regex.IsMatch(path.Substring(_prefix.Length, path.Length - _prefix.Length - _suffix.Length)))
+                if (_regex.IsMatch(path.AsSpan(_prefix.Length, path.Length - _prefix.Length - _suffix.Length)))
                     return true;
             }
 
@@ -309,6 +317,8 @@ namespace Jannesen.Web.Core.Impl
 
         public                  Match                               RegexMatch(string path)
         {
+            ArgumentNullException.ThrowIfNull(path);
+
             if (_regex != null)
                 return _regex.Match(path, _prefix.Length, path.Length - _prefix.Length - _suffix.Length);
 

@@ -9,7 +9,7 @@ using Jannesen.Web.MSSql.Library;
 
 namespace Jannesen.Web.MSSql.Sqx
 {
-    [WebCoreAttribureHttpHandler("sql-xml")]
+    [WebCoreHttpHandlerAttribute("sql-xml")]
     public class HttpHandlerSqlXml: HttpHandlerMSSql
     {
         private readonly        bool                        _xmlIdent;
@@ -24,6 +24,8 @@ namespace Jannesen.Web.MSSql.Sqx
 
         public                                              HttpHandlerSqlXml(WebCoreConfigReader configReader): base(configReader)
         {
+            ArgumentNullException.ThrowIfNull(configReader);
+
             _xmlIdent       = configReader.GetValueBool("xml-ident", false);
 
             var charset = configReader.GetValueString("charset", null);

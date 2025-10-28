@@ -5,9 +5,11 @@ using Microsoft.Extensions.Caching.Memory;
 using Jannesen.Web.Core;
 using Jannesen.Web.Core.Impl;
 
+#pragma warning disable CA3003 // Potential file path injection vulnerability was found where (_mapPhysicalPath has a path validator);
+
 namespace Jannesen.Web.StaticFile
 {
-    [WebCoreAttribureHttpHandler("staticfile")]
+    [WebCoreHttpHandlerAttribute("staticfile")]
     public class HttpHandlerStaticFile: WebCoreHttpHandler
     {
         private readonly        string              _directory;
@@ -26,6 +28,8 @@ namespace Jannesen.Web.StaticFile
 
         public                                      HttpHandlerStaticFile(WebCoreConfigReader configReader): base(configReader)
         {
+            ArgumentNullException.ThrowIfNull(configReader);
+
             _directory           = System.IO.Path.GetDirectoryName(configReader.Filename);
             _mimetype            = configReader.GetValueString("mimetype");
             _compress            = configReader.GetValueBool("compress", false);
@@ -38,9 +42,11 @@ namespace Jannesen.Web.StaticFile
 
         public  override        WebCoreResponse     Process(WebCoreCall httpCall)
         {
+            ArgumentNullException.ThrowIfNull(httpCall);
+
             Internal.ResponseStatic     response     = null;
-            string                      physicalPath = _directory + httpCall.Request.Path.Value.Replace("/", "\\");
-            FileInfo                    fileinfo     = GetFileInfo(physicalPath);
+            string                      physicalPath = _mapPhysicalPath(httpCall);
+            FileInfo                    fileinfo     = _getFileInfo(physicalPath);
 
             if ((_compress || _decodeCharSet) && fileinfo.Length < 10000000) // Only public and <10 M files are compressed
             {
@@ -85,7 +91,34 @@ namespace Jannesen.Web.StaticFile
             return response;
         }
 
-        protected   static      FileInfo            GetFileInfo(string physicalPath)
+        private                 string              _mapPhysicalPath(WebCoreCall httpCall)
+        {
+            var path = httpCall.Request.Path.Value;
+
+            for (var i = 0; i < path.Length ; ++i) {
+                var c = path[i];
+
+                if ((c >= 'a' && c <= 'z') ||
+                    (c >= 'A' && c <= 'Z') ||
+                    (c >= '0' && c <= '9') ||
+                    (c == '-' || c == '_' || c == '~')) {
+                    continue;
+                }
+
+                if (c == '/' && (i == 0 || path[i-1] != '/')) {
+                    continue;
+                }
+
+                if (c == '.' && i > 0 && path[i-1] != '/') {
+                    continue;
+                }
+
+                throw new WebHttpException(HttpStatusCode.BadRequest, "Invalid character in url.");
+            }
+
+            return _directory + path.Replace("/", "\\", StringComparison.Ordinal);
+        }
+        private     static      FileInfo            _getFileInfo(string physicalPath)
         {
             FileInfo    fileinfo;
 

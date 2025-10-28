@@ -1,8 +1,10 @@
 ﻿using System;
 
+#pragma warning disable CA1812 // Avoid uninstantiated internal classes (created using reflection)
+
 namespace Jannesen.Web.Core.Impl.Source
 {
-    [WebCoreAttributeDataSource("textxml")]
+    [WebCoreDataSourceAttribute("textxml")]
     sealed class http_textxml: WebCoreDataSource
     {
         public                                              http_textxml(string name_args): base(name_args)

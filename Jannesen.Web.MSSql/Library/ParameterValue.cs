@@ -13,6 +13,8 @@ namespace Jannesen.Web.MSSql.Library
 
         public                                      ParameterValue(string type, WebCoreConfigReader configReader): base(configReader)
         {
+            ArgumentNullException.ThrowIfNull(configReader);
+
             string  source   = configReader.GetValueString  ("source");
             _optional        = configReader.GetValueBool    ("optional", false);
 
@@ -35,6 +37,9 @@ namespace Jannesen.Web.MSSql.Library
 
         public  override        void                AddToCommand(SqlCommand sqlCommand, WebCoreCall httpCall)
         {
+            ArgumentNullException.ThrowIfNull(sqlCommand);
+            ArgumentNullException.ThrowIfNull(httpCall);
+
             WebCoreDataValue    value = _source.GetValue(httpCall);
 
             switch (value.Type) {

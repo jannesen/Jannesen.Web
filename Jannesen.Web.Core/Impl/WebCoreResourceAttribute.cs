@@ -3,22 +3,22 @@ using System.Reflection;
 
 namespace Jannesen.Web.Core.Impl
 {
-    public sealed class WebCoreAttribureHttpHandler: WebCoreAttribureDynamicClass
+    public sealed class WebCoreResourceAttribute: WebCoreDynamicClassAttribute
     {
         public      override    string                          Type
         {
             get {
-                return "http-handler";
+                return "resource";
             }
         }
 
-        public                                                  WebCoreAttribureHttpHandler(string name): base(name)
+        public                                                  WebCoreResourceAttribute(string name): base(name)
         {
         }
 
         public      override    ConstructorInfo                 GetConstructor(Type classType)
         {
-            return GetConstructorFor(classType, typeof(WebCoreHttpHandler), typeof(WebCoreConfigReader));
+            return GetConstructorFor(classType, typeof(WebCoreResource), typeof(WebCoreConfigReader));
         }
     }
 }

@@ -11,7 +11,7 @@ using Jannesen.Web.MSSql.Library;
 
 namespace Jannesen.Web.MSSql.Sqx
 {
-    [WebCoreAttribureHttpHandler("sql-json2")]
+    [WebCoreHttpHandlerAttribute("sql-json2")]
     public class HttpHandlerSqlXmlJson2: HttpHandlerMSSql
     {
         private abstract class ResponseRoot
@@ -209,7 +209,7 @@ namespace Jannesen.Web.MSSql.Sqx
                         var d3 = _ishexdigit(name[p + 4]);  if (d3 < 0) goto next;
                         var d4 = _ishexdigit(name[p + 5]);  if (d4 < 0) goto next;
                         var v = (d1 << 12) | (d2 << 8) | (d3 << 4) | (d4);
-                        name = name.Substring(0, p) + new string((char)v, 1) + name.Substring(p + 7);
+                        name = string.Concat(name.AsSpan(0, p), new string((char)v, 1), name.AsSpan(p + 7));
                     }
 next:               pos = p + 1;
                 }
@@ -240,6 +240,8 @@ next:               pos = p + 1;
 
         public                                              HttpHandlerSqlXmlJson2(WebCoreConfigReader configReader): base(configReader)
         {
+            ArgumentNullException.ThrowIfNull(configReader);
+
             if (configReader.hasChildren) {
                 var responses = new List<ResponseMsg>();
 
@@ -276,6 +278,9 @@ next:               pos = p + 1;
 
         protected   override    WebCoreResponse             Process(WebCoreCall httpCall, SqlCommand sqlCommand)
         {
+            ArgumentNullException.ThrowIfNull(httpCall);
+            ArgumentNullException.ThrowIfNull(sqlCommand);
+
             var responseBuffer = new WebCoreResponseBuffer(Mimetype + "; charset=utf-8", this.Public, true);
 
             if (_responses == null) {
@@ -342,6 +347,8 @@ next:               pos = p + 1;
 
         protected   static      bool                        ReadNextElement(XmlReader xmlReader)
         {
+            ArgumentNullException.ThrowIfNull(xmlReader);
+
             for (;;) {
                 if (!xmlReader.Read())
                     throw new WebConversionException("Unexpected EOF in xml.");

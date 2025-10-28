@@ -1,8 +1,10 @@
 ﻿using System;
 
+#pragma warning disable CA1812 // Avoid uninstantiated internal classes (created using reflection)
+
 namespace Jannesen.Web.Core.Impl.Source
 {
-    [WebCoreAttributeDataSource("querystring")]
+    [WebCoreDataSourceAttribute("querystring")]
     sealed class http_querystring: WebCoreDataSource
     {
         public                                          http_querystring(string name_args): base(name_args)

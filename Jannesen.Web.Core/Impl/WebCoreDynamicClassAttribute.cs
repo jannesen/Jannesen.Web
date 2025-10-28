@@ -4,7 +4,7 @@ using System.Reflection;
 namespace Jannesen.Web.Core.Impl
 {
     [AttributeUsage(AttributeTargets.Class)]
-    public abstract class WebCoreAttribureDynamicClass: Attribute
+    public abstract class WebCoreDynamicClassAttribute: Attribute
     {
         private readonly        string                          _name;
 
@@ -16,7 +16,7 @@ namespace Jannesen.Web.Core.Impl
             }
         }
 
-        protected                                               WebCoreAttribureDynamicClass(string name)
+        protected                                               WebCoreDynamicClassAttribute(string name)
         {
             _name  = name;
         }
@@ -54,12 +54,12 @@ namespace Jannesen.Web.Core.Impl
 
         public      override    int                             GetHashCode()
         {
-            return Type.GetHashCode(StringComparison.Ordinal) ^ _name.GetHashCode();
+            return Type.GetHashCode(StringComparison.Ordinal) ^ _name.GetHashCode(StringComparison.Ordinal);
         }
         public      override    bool                            Equals(object obj)
         {
             if (obj != null && obj.GetType() == this.GetType()) {
-                if (((WebCoreAttribureDynamicClass)obj)._name == _name)
+                if (((WebCoreDynamicClassAttribute)obj)._name == _name)
                     return true;
             }
 

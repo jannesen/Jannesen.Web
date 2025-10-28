@@ -12,6 +12,8 @@ namespace Jannesen.Web.Core.Impl
         private static readonly string[]        _compressors = new string[] { "gzip", "deflate" };
         public      static      string          GetResponseCompressionEncoding(WebCoreCall httpCall)
         {
+            ArgumentNullException.ThrowIfNull(httpCall);
+
             string s = httpCall.GetHeader("Accept-Encoding");
 
             if (!string.IsNullOrEmpty(s)) {

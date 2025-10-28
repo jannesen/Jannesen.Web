@@ -1,8 +1,8 @@
 ﻿using System;
 using System.Data;
-using System.Data.SqlClient;
-using System.Data.SqlTypes;
 using System.Globalization;
+
+#pragma warning disable CA1812 // Avoid uninstantiated internal classes (created using reflection)
 
 namespace Jannesen.Web.MSSql.Library.BaseType
 {
@@ -34,15 +34,15 @@ namespace Jannesen.Web.MSSql.Library.BaseType
                 throw new FormatException("Syntax error sql-type.");
 
             try {
-                int     i = s.IndexOf(',');
+                int     i = s.IndexOf(',', StringComparison.Ordinal);
 
                 if (i < 0) {
                     _precision = int.Parse(s, System.Globalization.NumberStyles.Integer, CultureInfo.InvariantCulture);
                     _scale     = 0;
                 }
                 else {
-                    _precision = int.Parse(s.Substring(0, i), System.Globalization.NumberStyles.Integer, CultureInfo.InvariantCulture);
-                    _scale     = int.Parse(s.Substring(i + 1), System.Globalization.NumberStyles.Integer, CultureInfo.InvariantCulture);
+                    _precision = int.Parse(s.AsSpan(0, i),  NumberStyles.Integer, CultureInfo.InvariantCulture);
+                    _scale     = int.Parse(s.AsSpan(i + 1), NumberStyles.Integer, CultureInfo.InvariantCulture);
                 }
             }
             catch

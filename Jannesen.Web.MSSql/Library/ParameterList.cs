@@ -7,10 +7,12 @@ namespace Jannesen.Web.MSSql.Library
 {
     public abstract class Parameter
     {
-        public  readonly            string           Name;
+        public                      string           Name       { get; private init; }
 
         protected                                    Parameter(WebCoreConfigReader configReader)
         {
+            ArgumentNullException.ThrowIfNull(configReader);
+
             Name = configReader.GetValueString("name");
         }
         public  abstract            void             AddToCommand(SqlCommand sqlCommand, WebCoreCall httpCall);

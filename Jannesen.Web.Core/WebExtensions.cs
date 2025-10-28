@@ -5,10 +5,12 @@ using Microsoft.Extensions.DependencyInjection;
 
 namespace Jannesen.Web.Core
 {
-    public static class Extensions
+    public static class WebExtensions
     {
         public  static      void                AddJannesenWeb(this IWebHostBuilder webHostBuilder, Func<WebApplication> createAppl)
         {
+            ArgumentNullException.ThrowIfNull(webHostBuilder);
+
             webHostBuilder.ConfigureServices((services) => {
                 services.AddSingleton(createAppl());
                 services.AddMemoryCache();

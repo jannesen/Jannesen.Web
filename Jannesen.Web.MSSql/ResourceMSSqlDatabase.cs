@@ -9,7 +9,7 @@ using Jannesen.Web.Core.Impl;
 
 namespace Jannesen.Web.MSSql
 {
-    [WebCoreAttribureResource("mssql")]
+    [WebCoreResourceAttribute("mssql")]
     public class ResourceMSSqlDatabase: WebCoreResource
     {
         private readonly        string              _server;
@@ -67,6 +67,8 @@ namespace Jannesen.Web.MSSql
 
         public                                      ResourceMSSqlDatabase(WebCoreConfigReader configReader): base(configReader)
         {
+            ArgumentNullException.ThrowIfNull(configReader);
+
             _server          = configReader.GetValueString("server");
             _instance        = configReader.GetValueString("instance", null);
             _database        = configReader.GetValueString("database");
@@ -89,13 +91,11 @@ namespace Jannesen.Web.MSSql
                 _connectString += ";Integrated Security=true";
         }
 
-        public                  string              GetConnectString()
-        {
-            return _connectString;
-        }
 
         public                  SqlConnection       GetConnection(WebCoreCall httpCall)
         {
+            ArgumentNullException.ThrowIfNull(httpCall);
+
             if (_iisUserIdentity) {
                 var windowsIdentity = httpCall.Context.User.Identity as WindowsIdentity
                                         ?? throw new WebHttpException(HttpStatusCode.Unauthorized, "No windows Identity available.");
@@ -108,7 +108,7 @@ namespace Jannesen.Web.MSSql
         }
         public                  SqlConnection       GetConnection()
         {
-            SqlConnection   sqlConnection = new SqlConnection(GetConnectString());
+            SqlConnection   sqlConnection = new SqlConnection(_connectString);
 
             try {
                 sqlConnection.Open();

@@ -158,18 +158,18 @@ namespace Jannesen.Web.Core.Impl
             List<string>    parts;
 
             if (_filename.Length > 2 && _filename[1] == ':' && _filename[2] == '\\') {
-                rtn.Append(_filename.Substring(0,2));
+                rtn.Append(_filename.AsSpan(0,2));
                 parts = new List<string>(_filename.Substring(3).Split('\\'));
                 parts.RemoveAt(parts.Count - 1);
             }
             else
-            if (_filename.StartsWith("\\", StringComparison.Ordinal)) {
+            if (_filename.StartsWith('\\')) {
                 throw new WebConfigException("Relative to UNC not supported.", this);
             }
             else
                 throw new WebConfigException("Current file is not absolute", this);
 
-            foreach(string p in path.Replace("\\", "/").Split('/')) {
+            foreach(string p in path.Replace("\\", "/", StringComparison.Ordinal).Split('/')) {
                 switch(p) {
                 case ".":
                     break;
@@ -188,7 +188,7 @@ namespace Jannesen.Web.Core.Impl
             }
 
             foreach(string p in parts) {
-                rtn.Append("\\");
+                rtn.Append('\\');
                 rtn.Append(p);
             }
 
@@ -375,8 +375,9 @@ namespace Jannesen.Web.Core.Impl
 //          if (pathname == "/" || pathname.IndexOf('\\') >= 0 || pathname.IndexOf("/./") >= 0 || pathname.IndexOf("/../") >= 0)
 //              throw new WebConfigException("Invalid pathname in attribute '" + name + "'.", this);
 
-            if (pathname.StartsWith("/", StringComparison.Ordinal))
+            if (pathname.StartsWith('/')) {
                 return pathname;
+            }
 
             return _path + pathname;
         }

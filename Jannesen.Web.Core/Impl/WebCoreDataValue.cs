@@ -13,8 +13,8 @@ namespace Jannesen.Web.Core.Impl
 #pragma warning disable CA1815 // CA1815: Override equals and operator equals on value types
     public struct WebCoreDataValue
     {
-        public          WebCoreDataValueType    Type;
-        public          object                  Value;
+        public          WebCoreDataValueType    Type        { get; private init; }
+        public          object                  Value       { get; private init; }
 
         public          bool                    hasValue
         {

@@ -1,8 +1,10 @@
 ﻿using System;
 
+#pragma warning disable CA1812 // Avoid uninstantiated internal classes (created using reflection)
+
 namespace Jannesen.Web.Core.Impl.Source
 {
-    [WebCoreAttributeDataSource("cookie")]
+    [WebCoreDataSourceAttribute("cookie")]
     sealed class http_cookie: WebCoreDataSource
     {
         public                                          http_cookie(string name_args): base(name_args)

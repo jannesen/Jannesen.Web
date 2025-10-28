@@ -23,6 +23,8 @@ namespace Jannesen.Web.MSSql.Library
 
         protected                                           HttpHandlerMSSql(WebCoreConfigReader configReader): base(configReader)
         {
+            ArgumentNullException.ThrowIfNull(configReader);
+
             _procedure       = configReader.GetValueString("procedure");
             _timeout         = configReader.GetValueInt("timeout", 30, 5, 300);
             _database        = configReader.GetValueString("database");
@@ -32,6 +34,8 @@ namespace Jannesen.Web.MSSql.Library
 
         protected               void                        ParseParameter(WebCoreConfigReader configReader)
         {
+            ArgumentNullException.ThrowIfNull(configReader);
+
             string  type     = configReader.GetValueString  ("type");
 
             Parameter parameter;
@@ -117,6 +121,9 @@ retry:      using (SqlConnection sqlConnection = GetConnection(httpCall))
 
         protected   virtual     WebCoreResponse             Process(WebCoreCall httpCall, SqlCommand sqlCommand)
         {
+            ArgumentNullException.ThrowIfNull(httpCall);
+            ArgumentNullException.ThrowIfNull(sqlCommand);
+
             using (SqlDataReader dataReader = sqlCommand.ExecuteReader()) {
                 return Process(httpCall, dataReader);
             }
@@ -128,10 +135,15 @@ retry:      using (SqlConnection sqlConnection = GetConnection(httpCall))
 
         protected               SqlConnection               GetConnection(WebCoreCall httpCall)
         {
+            ArgumentNullException.ThrowIfNull(httpCall);
+
             return httpCall.ApplicationConfig.GetResource<ResourceMSSqlDatabase>(_database).GetConnection(httpCall);
         }
         protected   static      HttpStatusCode              HandleResponseOptions(WebCoreResponseBuffer webResponseBuffer, SqlDataReader dataReader)
         {
+            ArgumentNullException.ThrowIfNull(webResponseBuffer);
+            ArgumentNullException.ThrowIfNull(dataReader);
+
             try {
                 if (dataReader.FieldCount>0 && dataReader.GetName(0).StartsWith("opt.", StringComparison.Ordinal)) {
                     if (dataReader.Read()) {

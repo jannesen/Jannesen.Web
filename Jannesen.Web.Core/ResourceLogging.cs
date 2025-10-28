@@ -7,7 +7,7 @@ using Jannesen.Web.Core.Impl;
 
 namespace Jannesen.Web.Core
 {
-    [WebCoreAttribureResource("logging")]
+    [WebCoreResourceAttribute("logging")]
     public class ResourceLogging: WebCoreResource
     {
         private readonly        string              _directory;
@@ -31,6 +31,8 @@ namespace Jannesen.Web.Core
 
         public                                      ResourceLogging(WebCoreConfigReader configReader): base(configReader)
         {
+            ArgumentNullException.ThrowIfNull(configReader);
+
             _directory   = configReader.GetValueString("directory");
             _logLock     = new object();
             _nextFile    = DateTime.MinValue;
@@ -49,6 +51,8 @@ namespace Jannesen.Web.Core
 
         public                  void                Logging(WebCoreCall call, WebCoreResponse response, HttpResponse httpResponse)
         {
+            ArgumentNullException.ThrowIfNull(call);
+
             lock(_logLock) {
                 try {
                     using (StreamWriter writer = _getLogStream()) {
@@ -64,6 +68,8 @@ namespace Jannesen.Web.Core
         }
         public                  void                Logging(WebCoreCall call, Exception err)
         {
+            ArgumentNullException.ThrowIfNull(call);
+
             lock(_logLock) {
                 try {
                     using (StreamWriter writer = _getLogStream()) {
@@ -78,7 +84,7 @@ namespace Jannesen.Web.Core
             }
         }
 
-        public                  StreamWriter        _getLogStream()
+        private                 StreamWriter        _getLogStream()
         {
             DateTime now = DateTime.Now;
 
@@ -96,7 +102,7 @@ namespace Jannesen.Web.Core
 
             return new StreamWriter(_filestream, System.Text.Encoding.UTF8, 0x10000, true);
         }
-        public      static      void                _logRequest(StreamWriter writer, WebCoreCall call)
+        private     static      void                _logRequest(StreamWriter writer, WebCoreCall call)
         {
             writer.Write("### REQUEST ### @");
             writer.WriteLine(call.Timestamp.ToString("yyyy-dd-MM HH:mm:ss", CultureInfo.InvariantCulture));
@@ -142,8 +148,12 @@ namespace Jannesen.Web.Core
                     writer.WriteLine("[BINARY-DATA]");
             }
         }
-        public      static      void                _logResponse(StreamWriter writer, WebCoreResponse response, HttpResponse httpResponse)
+        private     static      void                _logResponse(StreamWriter writer, WebCoreResponse response, HttpResponse httpResponse)
         {
+            ArgumentNullException.ThrowIfNull(writer);
+            ArgumentNullException.ThrowIfNull(response);
+            ArgumentNullException.ThrowIfNull(httpResponse);
+
             writer.WriteLine("### RESPONSE ");
 
             writer.WriteLine(httpResponse.StatusCode);
@@ -165,11 +175,14 @@ namespace Jannesen.Web.Core
                 }
             }
 
-            if (hasContentLength)
+            if (hasContentLength) {
                 response.WriteLoggingData(writer);
+            }
         }
-        public      static      void                _logError(StreamWriter writer, Exception err)
+        private     static      void                _logError(StreamWriter writer, Exception err)
         {
+            ArgumentNullException.ThrowIfNull(writer);
+
             writer.WriteLine("### ERROR");
 
             while (err != null) {
@@ -177,8 +190,10 @@ namespace Jannesen.Web.Core
                 err = err.InnerException;
             }
         }
-        public      static      void                _logEnd(StreamWriter writer)
+        private     static      void                _logEnd(StreamWriter writer)
         {
+            ArgumentNullException.ThrowIfNull(writer);
+
             writer.WriteLine("###");
             writer.WriteLine();
             writer.WriteLine();

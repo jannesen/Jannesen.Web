@@ -3,6 +3,8 @@ using System.Data;
 using System.Reflection;
 using System.Runtime.InteropServices;
 
+#pragma warning disable CA1812 // Avoid uninstantiated internal classes (created using reflection)
+
 namespace Jannesen.Web.MSSql.Library.BaseType
 {
     [ValueConvertorAttributeBaseType("clr")]

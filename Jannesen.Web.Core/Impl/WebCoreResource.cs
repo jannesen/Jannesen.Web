@@ -34,6 +34,8 @@ namespace Jannesen.Web.Core.Impl
 
         protected                                   WebCoreResource(WebCoreConfigReader configReader)
         {
+            ArgumentNullException.ThrowIfNull(configReader);
+
             _application = configReader.ApplicationConfig.Application;
             _name        = configReader.GetValueString("name");
             _down        = configReader.GetValueBool  ("down", false);
@@ -63,6 +65,9 @@ namespace Jannesen.Web.Core.Impl
 
         public                  WebCoreResource                         GetWebResource(Type type, string name)
         {
+            ArgumentNullException.ThrowIfNull(type);
+            ArgumentNullException.ThrowIfNull(name);
+
             if (_dictionary.TryGetValue(type.Name + "/" + name, out var rtn)) {
                 if (rtn.GetType() == type && rtn.Name == name)
                     return rtn;
@@ -84,6 +89,8 @@ namespace Jannesen.Web.Core.Impl
 
         public                  void                                    Add(WebCoreResource resource)
         {
+            ArgumentNullException.ThrowIfNull(resource);
+
             _dictionary.Add(resource.GetType().Name + "/" + resource.Name, resource);
         }
     }

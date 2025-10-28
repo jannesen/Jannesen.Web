@@ -1,8 +1,10 @@
 ﻿using System;
 
+#pragma warning disable CA1812 // Avoid uninstantiated internal classes (created using reflection)
+
 namespace Jannesen.Web.Core.Impl.Source
 {
-    [WebCoreAttributeDataSource("header")]
+    [WebCoreDataSourceAttribute("header")]
     sealed class http_header: WebCoreDataSource
     {
         private readonly            string                  _name;
@@ -24,7 +26,7 @@ namespace Jannesen.Web.Core.Impl.Source
             case "basic-passwd":
             case "basic_passwd":
             case "referer":
-                _name = Name.Replace("_", "-");
+                _name = Name.Replace("_", "-", StringComparison.Ordinal);
                 break;
 
             default:

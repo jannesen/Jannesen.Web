@@ -17,13 +17,15 @@ namespace Jannesen.Web.MSSql.Library
 
         public      static              ValueConvertor      GetType(string nameparameter)
         {
+            ArgumentNullException.ThrowIfNull(nameparameter);
+
             ValueConvertor   valueType;
 
             lock(_cache) {
                 if (!_cache.TryGetValue(nameparameter, out valueType)) {
                     string  name;
                     string  parm;
-                    int     b = nameparameter.IndexOf('(');
+                    int     b = nameparameter.IndexOf('(', StringComparison.Ordinal);
 
                     if (b > 0) {
                         int     e = nameparameter.IndexOf(')', b + 1);
@@ -60,11 +62,15 @@ namespace Jannesen.Web.MSSql.Library
         public      abstract            object              ConvertStringToValue(string sValue);
         public      virtual             void                ConvertXmlValueToJson(string sValue, Jannesen.FileFormat.Json.JsonWriter jsonWriter)
         {
+            ArgumentNullException.ThrowIfNull(jsonWriter);
+
             jsonWriter.WriteValue(sValue);
         }
 
         protected                       object              NoConversion(object value)
         {
+            ArgumentNullException.ThrowIfNull(value);
+
             throw new WebConversionException("No convertion from " + value.GetType().FullName + " sql-datatype " + ToString() + ".");
         }
     }
@@ -82,6 +88,8 @@ namespace Jannesen.Web.MSSql.Library
 
         protected   static              void                ConvertIntValueToJson(string sint, Jannesen.FileFormat.Json.JsonWriter jsonWriter)
         {
+            ArgumentNullException.ThrowIfNull(jsonWriter);
+
             if (string.IsNullOrEmpty(sint))
                 jsonWriter.WriteNull();
             else
@@ -89,6 +97,8 @@ namespace Jannesen.Web.MSSql.Library
         }
         protected   static              void                ConvertNumberValueToJson(string snumber, Jannesen.FileFormat.Json.JsonWriter jsonWriter)
         {
+            ArgumentNullException.ThrowIfNull(jsonWriter);
+
             if (string.IsNullOrEmpty(snumber))
                 jsonWriter.WriteNull();
             else

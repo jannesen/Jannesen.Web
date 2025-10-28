@@ -9,7 +9,7 @@ using DocumentFormat.OpenXml;
 
 namespace Jannesen.Web.ExcelExport
 {
-    [WebCoreAttribureHttpHandler("sql-excelexport")]
+    [WebCoreHttpHandlerAttribute("sql-excelexport")]
     public class HttpHandlerExcelExport: HttpHandlerMSSql
     {
         private     readonly    ConfigSheetList             _sheets;
@@ -17,6 +17,8 @@ namespace Jannesen.Web.ExcelExport
 
         public                                              HttpHandlerExcelExport(WebCoreConfigReader configReader): base(configReader)
         {
+            ArgumentNullException.ThrowIfNull(configReader);
+
             _sheets = new ConfigSheetList();
 
             if (configReader.hasChildren) {
