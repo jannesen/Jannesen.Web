@@ -12,9 +12,6 @@ namespace Jannesen.Web.MSSql.Library
         private readonly        string                      _database;
         private readonly        int                         _timeout;
         private readonly        ParameterList               _parameters;
-        private readonly        bool                        _mapTo200;
-
-        public      override    bool                        MapTo200            => _mapTo200;
 
         protected                                           HttpHandlerMSSql(WebCoreConfigReader configReader): base(configReader)
         {
@@ -23,7 +20,6 @@ namespace Jannesen.Web.MSSql.Library
             _procedure       = configReader.GetValueString("procedure");
             _timeout         = configReader.GetValueInt("timeout", 30, 5, 300);
             _database        = configReader.GetValueString("database");
-            _mapTo200        = configReader.GetValueBool("mapto200", false);
             _parameters      = new ParameterList();
         }
 

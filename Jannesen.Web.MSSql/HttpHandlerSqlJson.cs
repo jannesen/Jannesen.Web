@@ -38,18 +38,15 @@ namespace Jannesen.Web.MSSql
 
                 try {
                     json = _xmlToJson(dataReader);
-
-                    if (MapTo200) {
-                        json = new JsonObject() { {"data", json } };
-                    }
                 }
                 catch(Exception err) {
                     throw new WebResponseException("Convertion from XML to JSON failed.", err);
                 }
 
                 using (var buffer = new MemoryStream(0x10000)) {
-                    using (var jsonWriter = new JsonWriter(new StreamWriter(buffer, new System.Text.UTF8Encoding(false), 1024, true), true))
+                    using (var jsonWriter = new JsonWriter(new StreamWriter(buffer, new System.Text.UTF8Encoding(false), 1024, true), true)) {
                         jsonWriter.WriteValue(json);
+                    }
 
                     webResponseBuffer.SetData(buffer);
                 }

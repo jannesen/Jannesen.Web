@@ -19,7 +19,6 @@ namespace Jannesen.Web.Core.Impl
         public                  string                              Verb                    => _verb;
         public      virtual     bool                                Public                  => _public;
         public                  WebCoreWildcardPathProcessor        WildcardPathProcessor   => _wildcardPathProcessor;
-        public      virtual     bool                                MapTo200                => false;
         public                  ResourceLogging                     Logging                 => _logging;
         public      virtual     string                              Mimetype                => null;
 

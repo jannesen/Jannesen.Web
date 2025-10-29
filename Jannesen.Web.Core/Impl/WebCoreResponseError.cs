@@ -22,9 +22,6 @@ namespace Jannesen.Web.Core.Impl
 
             StatusCode = _processErrorCode();
 
-            if ((!(err is WebHttpException)) && _handler.MapTo200 && (StatusCode != HttpStatusCode.Unauthorized))
-                StatusCode = HttpStatusCode.OK;
-
             using (var buffer = new MemoryStream()) {
                 using (var streamWriter = new StreamWriter(buffer, new UTF8Encoding(false, false), 0x1000, true)) {
                     switch (ContentType) {
@@ -143,22 +140,22 @@ namespace Jannesen.Web.Core.Impl
             using (var jsonWriter = new JsonWriter(streamWriter, false)) {
                 jsonWriter.WriteStartObject();
 
-                if (_handler.MapTo200) {
-                    jsonWriter.WriteStartObject("error");
-                }
+                    jsonWriter.WriteNameValue("code", _code);
 
-                jsonWriter.WriteNameValue("code", _code);
+                    if (_withDetails()) {
+                        jsonWriter.WriteStartArray("detail");
 
-                if (_withDetails()) {
-                    jsonWriter.WriteStartArray("detail");
+                        for (var err = _err ; err != null ; err = err.InnerException) {
+                            jsonWriter.WriteStartObject();
+                            jsonWriter.WriteNameValue("class",   err.GetType().FullName);
+                            jsonWriter.WriteNameValue("message", err.Message);
+                            jsonWriter.WriteEndObject();
+                        }
 
-                    for (var err = _err ; err != null ; err = err.InnerException) {
-                        jsonWriter.WriteStartObject();
-                        jsonWriter.WriteNameValue("class",   err.GetType().FullName);
-                        jsonWriter.WriteNameValue("message", err.Message);
-                        jsonWriter.WriteEndObject();
+                        jsonWriter.WriteEndArray();
                     }
-                }
+
+                jsonWriter.WriteEndObject();
             }
         }
 
