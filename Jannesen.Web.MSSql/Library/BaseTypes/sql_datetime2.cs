@@ -18,8 +18,8 @@ namespace Jannesen.Web.MSSql.Library.BaseTypes
             }
         }
 
-        public          override            SqlDbType           DBType      { get { return System.Data.SqlDbType.DateTime2;     } }
-        public          override            Type                ClrType     { get { return typeof(DateTime);                    } }
+        public          override            SqlDbType           DBType      => SqlDbType.DateTime2;
+        public          override            Type                ClrType     => typeof(DateTime);
 
         public                                                  sql_datetime2(string s)
         {

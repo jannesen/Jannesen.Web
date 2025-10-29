@@ -9,8 +9,8 @@ namespace Jannesen.Web.MSSql.Library.BaseTypes
     [ValueConvertorAttributeBaseType("smallint")]
     internal sealed class sql_smallint: ValueConvertor_SqlNative
     {
-        public          override            SqlDbType           DBType      { get { return System.Data.SqlDbType.SmallInt;      } }
-        public          override            Type                ClrType     { get { return typeof(Int16);                       } }
+        public          override            SqlDbType           DBType      => SqlDbType.SmallInt;
+        public          override            Type                ClrType     => typeof(Int16);
 
         public                                                  sql_smallint(string s): base(s)
         {

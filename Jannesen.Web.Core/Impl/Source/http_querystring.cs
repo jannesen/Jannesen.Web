@@ -11,7 +11,7 @@ namespace Jannesen.Web.Core.Impl.Source
         {
         }
 
-        public      override        WebCoreDataValue        GetValue(WebCoreCall httpCall)
+        public      override        WebCoreDataValue    GetValue(WebCoreCall httpCall)
         {
             return new WebCoreDataValue(httpCall.Request.Query[Name]);
         }

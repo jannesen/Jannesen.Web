@@ -8,11 +8,6 @@ namespace Jannesen.Web.MSSql
         {
         }
 
-        public  override    string          Source
-        {
-            get {
-                return "Jannesen.Web.MSSql";
-            }
-        }
+        public  override    string          Source          => "Jannesen.Web.MSSql";
     }
 }

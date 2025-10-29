@@ -8,8 +8,8 @@ namespace Jannesen.Web.MSSql.Library.BaseTypes
     [ValueConvertorAttributeBaseType("bit")]
     internal sealed class sql_bit: ValueConvertor_SqlNative
     {
-        public          override            SqlDbType           DBType      { get { return System.Data.SqlDbType.Bit;           } }
-        public          override            Type                ClrType     { get { return typeof(bool);                        } }
+        public          override            SqlDbType           DBType      => SqlDbType.Bit;
+        public          override            Type                ClrType     => typeof(bool);
 
         public                                                  sql_bit(string s): base(s)
         {

@@ -13,12 +13,7 @@ namespace Jannesen.Web.MSSql
     [WebCoreHttpHandlerAttribute("sql-json")]
     public class HttpHandlerSqlXmlJson: HttpHandlerMSSql
     {
-        public      override    string                      Mimetype
-        {
-            get {
-                return "application/json";
-            }
-        }
+        public      override    string                      Mimetype            => "application/json";
 
         public                                              HttpHandlerSqlXmlJson(WebCoreConfigReader configReader): base(configReader)
         {
@@ -36,7 +31,7 @@ namespace Jannesen.Web.MSSql
 
         protected   override    WebCoreResponse             Process(WebCoreCall httpCall, SqlDataReader dataReader)
         {
-            WebCoreResponseBuffer   webResponseBuffer = new WebCoreResponseBuffer("application/json; charset=utf-8", this.Public, true);
+            var   webResponseBuffer = new WebCoreResponseBuffer("application/json; charset=utf-8", this.Public, true);
 
             if (HandleResponseOptions(webResponseBuffer, dataReader) == HttpStatusCode.OK) {
                 object  json;
@@ -52,8 +47,8 @@ namespace Jannesen.Web.MSSql
                     throw new WebResponseException("Convertion from XML to JSON failed.", err);
                 }
 
-                using (MemoryStream buffer = new MemoryStream(0x10000)) {
-                    using (JsonWriter jsonWriter = new JsonWriter(new StreamWriter(buffer, new System.Text.UTF8Encoding(false), 1024, true), true))
+                using (var buffer = new MemoryStream(0x10000)) {
+                    using (var jsonWriter = new JsonWriter(new StreamWriter(buffer, new System.Text.UTF8Encoding(false), 1024, true), true))
                         jsonWriter.WriteValue(json);
 
                     webResponseBuffer.SetData(buffer);
@@ -65,10 +60,10 @@ namespace Jannesen.Web.MSSql
 
         private                 object                      _xmlToJson(SqlDataReader dataReader)
         {
-            using (MemoryStream     memoryStream = new MemoryStream()) {
-                bool        fempty = true;
+            using (var memoryStream = new MemoryStream()) {
+                var fempty = true;
 
-                using (StreamWriter textStream  = new StreamWriter(memoryStream, new System.Text.UTF8Encoding(false), 1024, true)) {
+                using (var textStream  = new StreamWriter(memoryStream, new System.Text.UTF8Encoding(false), 1024, true)) {
                     do {
                         while(dataReader.Read()) {
                             if (!dataReader.IsDBNull(0)) {
@@ -120,7 +115,7 @@ namespace Jannesen.Web.MSSql
                     throw new WebConversionException("Unexpected node '" + xmlReader.NodeType + "' in child.");
                 }
 
-                string  name = xmlReader.Name;
+                var name = xmlReader.Name;
 
                 try {
                     if (name.Length > 3 && name[0] == '_' && name[2] == '_') {
@@ -150,13 +145,13 @@ namespace Jannesen.Web.MSSql
         }
         private                 JsonObject                  _parseToJsonObject(XmlTextReader xmlReader)
         {
-            JsonObject  jsonObject = new JsonObject();
+            var jsonObject = new JsonObject();
 
             if (xmlReader.MoveToFirstAttribute()) {
                 do {
                     if (string.IsNullOrEmpty(xmlReader.NamespaceURI)) {
-                        string name   = xmlReader.Name;
-                        string svalue = xmlReader.Value;
+                        var name   = xmlReader.Name;
+                        var svalue = xmlReader.Value;
 
                         if (name.Length > 3 && name[0] == '_' && name[2] == '_') {
                             try {
@@ -186,7 +181,7 @@ namespace Jannesen.Web.MSSql
                     return jsonObject;
 
                 case XmlNodeType.Element: {
-                        string  name = xmlReader.Name;
+                        var name = xmlReader.Name;
 
                         try {
                             if (name.Length > 3 && name[0] == '_' && name[2] == '_') {
@@ -218,7 +213,7 @@ namespace Jannesen.Web.MSSql
         }
         private                 JsonArray                   _parseToJsonArray(XmlTextReader xmlReader)
         {
-            JsonArray   rtn = new JsonArray();
+            var rtn = new JsonArray();
 
             if (!xmlReader.IsEmptyElement) {
                 for (;;) {
@@ -243,7 +238,7 @@ namespace Jannesen.Web.MSSql
         private     static      string                      _parseElementValue(XmlTextReader xmlReader)
         {
             if (!xmlReader.IsEmptyElement) {
-                string  rtn = "";
+                var rtn = "";
 
                 for (;;) {
                     _parseReadNode(xmlReader);

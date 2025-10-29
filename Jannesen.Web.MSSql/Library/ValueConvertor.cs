@@ -10,8 +10,8 @@ namespace Jannesen.Web.MSSql.Library
 {
     public abstract class ValueConvertor
     {
-        public      abstract            SqlDbType           DBType                      { get; }
-        public      abstract            Type                ClrType                     { get; }
+        public      abstract            SqlDbType           DBType               { get; }
+        public      abstract            Type                ClrType              { get; }
 
         private     static readonly     Dictionary<string, ValueConvertor>       _cache = new Dictionary<string, ValueConvertor>(256);
 

@@ -14,12 +14,7 @@ namespace Jannesen.Web.MSSql.Library
         private readonly        ParameterList               _parameters;
         private readonly        bool                        _mapTo200;
 
-        public      override    bool                        MapTo200
-        {
-            get {
-                return _mapTo200;
-            }
-        }
+        public      override    bool                        MapTo200            => _mapTo200;
 
         protected                                           HttpHandlerMSSql(WebCoreConfigReader configReader): base(configReader)
         {

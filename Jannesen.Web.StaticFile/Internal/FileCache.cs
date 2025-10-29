@@ -16,54 +16,14 @@ namespace Jannesen.Web.StaticFile.Internal
         private readonly        string                      _eTag;
         private readonly        bool                        _decodeCharSet;
 
-        public                  string                      PhysicalPath
-        {
-            get {
-                return _physicalPath;
-            }
-        }
-        public                  string                      ContentEncoding
-        {
-            get {
-                return _contentEncoding;
-            }
-        }
-        public                  bool                        DecodeCharSet
-        {
-            get {
-                return _decodeCharSet;
-            }
-        }
-        public                  bool                        HasData
-        {
-            get {
-                return _data != null;
-            }
-        }
-        public                  byte[]                      Data
-        {
-            get {
-                return _data;
-            }
-        }
-        public                  int                         FileLength
-        {
-            get {
-                return _data.Length;
-            }
-        }
-        public                  DateTime                    LastWriteTimeUtc
-        {
-            get {
-                return _lastWriteTimeUtc;
-            }
-        }
-        public                  string                      ETag
-        {
-            get {
-                return _eTag;
-            }
-        }
+        public                  string                      PhysicalPath            => _physicalPath;
+        public                  string                      ContentEncoding         => _contentEncoding;
+        public                  bool                        DecodeCharSet           => _decodeCharSet;
+        public                  bool                        HasData                 => _data != null;
+        public                  byte[]                      Data                    => _data;
+        public                  int                         FileLength              => _data.Length;
+        public                  DateTime                    LastWriteTimeUtc        => _lastWriteTimeUtc;
+        public                  string                      ETag                    => _eTag;
 
         public                                              FileCache(string physicalPath, string contentEncoding, FileInfo fileinfo, bool decodeCharSet)
         {

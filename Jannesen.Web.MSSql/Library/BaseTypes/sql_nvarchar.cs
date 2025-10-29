@@ -9,8 +9,8 @@ namespace Jannesen.Web.MSSql.Library.BaseTypes
     [ValueConvertorAttributeBaseType("nvarchar")]
     internal sealed class sql_nvarchar: ValueConvertor_SqlNativeWithLength
     {
-        public          override            SqlDbType           DBType      { get { return System.Data.SqlDbType.NVarChar;      } }
-        public          override            Type                ClrType     { get { return typeof(string);                      } }
+        public          override            SqlDbType           DBType      => SqlDbType.NVarChar;
+        public          override            Type                ClrType     => typeof(string);
 
         public                                                  sql_nvarchar(string s): base(s)
         {

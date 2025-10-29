@@ -8,8 +8,8 @@ namespace Jannesen.Web.MSSql.Library.BaseTypes
     [ValueConvertorAttributeBaseType("ntext")]
     internal sealed class sql_ntext: ValueConvertor_SqlNative
     {
-        public          override            SqlDbType           DBType      { get { return System.Data.SqlDbType.NText;         } }
-        public          override            Type                ClrType     { get { return typeof(string);                      } }
+        public          override            SqlDbType           DBType      => SqlDbType.NText;
+        public          override            Type                ClrType     => typeof(string);
 
         public                                                  sql_ntext(string s): base(s)
         {

@@ -15,48 +15,13 @@ namespace Jannesen.Web.Core.Impl
         private readonly        IWebCoreErrorHandler                _errorHandler;
         private readonly        ResourceLogging                     _logging;
 
-        public                  string                              Path
-        {
-            get {
-                return _path;
-            }
-        }
-        public                  string                              Verb
-        {
-            get {
-                return _verb;
-            }
-        }
-        public      virtual     bool                                Public
-        {
-            get {
-                return _public;
-            }
-        }
-        public                  WebCoreWildcardPathProcessor        WildcardPathProcessor
-        {
-            get {
-                return _wildcardPathProcessor;
-            }
-        }
-        public      virtual     bool                                MapTo200
-        {
-            get {
-                return false;
-            }
-        }
-        public                  ResourceLogging                     Logging
-        {
-            get {
-                return _logging;
-            }
-        }
-        public      virtual     string                              Mimetype
-        {
-            get {
-                return null;
-            }
-        }
+        public                  string                              Path                    => _path;
+        public                  string                              Verb                    => _verb;
+        public      virtual     bool                                Public                  => _public;
+        public                  WebCoreWildcardPathProcessor        WildcardPathProcessor   => _wildcardPathProcessor;
+        public      virtual     bool                                MapTo200                => false;
+        public                  ResourceLogging                     Logging                 => _logging;
+        public      virtual     string                              Mimetype                => null;
 
         protected                                                   WebCoreHttpHandler(WebCoreConfigReader configReader)
         {

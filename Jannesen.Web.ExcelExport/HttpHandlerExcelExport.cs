@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.IO;
 using System.Threading;
 using Microsoft.Data.SqlClient;
@@ -13,14 +14,14 @@ namespace Jannesen.Web.ExcelExport
     [WebCoreHttpHandlerAttribute("sql-excelexport")]
     public class HttpHandlerExcelExport: HttpHandlerMSSql
     {
-        private     readonly    ConfigSheetList             _sheets;
+        private        readonly List<ConfigSheet>           _sheets;
         private static readonly Lock                        _singleLock = new Lock();
 
         public                                              HttpHandlerExcelExport(WebCoreConfigReader configReader): base(configReader)
         {
             ArgumentNullException.ThrowIfNull(configReader);
 
-            _sheets = new ConfigSheetList();
+            _sheets = new List<ConfigSheet>();
 
             if (configReader.hasChildren) {
                 while (configReader.ReadNextElement()) {

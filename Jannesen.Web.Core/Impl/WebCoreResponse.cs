@@ -10,6 +10,7 @@ namespace Jannesen.Web.Core.Impl
         public      abstract    void            WriteLoggingData(StreamWriter writer);
 
         private static readonly string[]        _compressors = [ "gzip", "deflate" ];
+
         public      static      string          GetResponseCompressionEncoding(WebCoreCall httpCall)
         {
             ArgumentNullException.ThrowIfNull(httpCall);

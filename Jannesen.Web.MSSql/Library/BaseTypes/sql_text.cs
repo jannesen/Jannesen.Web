@@ -8,8 +8,8 @@ namespace Jannesen.Web.MSSql.Library.BaseTypes
     [ValueConvertorAttributeBaseType("text")]
     internal sealed class sql_text: ValueConvertor_SqlNative
     {
-        public          override            SqlDbType           DBType      { get { return System.Data.SqlDbType.Text;          } }
-        public          override            Type                ClrType     { get { return typeof(string);                      } }
+        public          override            SqlDbType           DBType      => SqlDbType.Text;
+        public          override            Type                ClrType     => typeof(string);
 
         public                                                  sql_text(string s): base(s)
         {

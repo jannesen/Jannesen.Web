@@ -15,12 +15,7 @@ namespace Jannesen.Web.MSSql
         private readonly        bool                        _xmlIdent;
         private readonly        Encoding                    _charset;
 
-        public      override    string                      Mimetype
-        {
-            get {
-                return "text/xml";
-            }
-        }
+        public      override    string                      Mimetype            => "text/xml";
 
         public                                              HttpHandlerSqlXml(WebCoreConfigReader configReader): base(configReader)
         {

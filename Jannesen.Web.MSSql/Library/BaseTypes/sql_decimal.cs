@@ -25,8 +25,8 @@ namespace Jannesen.Web.MSSql.Library.BaseTypes
             }
         }
 
-        public          override            SqlDbType           DBType      { get { return System.Data.SqlDbType.Decimal;       } }
-        public          override            Type                ClrType     { get { return typeof(decimal);                     } }
+        public          override            SqlDbType           DBType      => SqlDbType.Decimal;
+        public          override            Type                ClrType     => typeof(decimal);
 
         public                                                  sql_decimal(string s)
         {

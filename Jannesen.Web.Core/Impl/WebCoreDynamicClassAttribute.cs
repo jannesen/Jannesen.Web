@@ -9,12 +9,7 @@ namespace Jannesen.Web.Core.Impl
         private readonly        string                          _name;
 
         public      abstract    string                          Type            { get ; }
-        public                  string                          Name
-        {
-            get {
-                return _name;
-            }
-        }
+        public                  string                          Name            => _name;
 
         protected                                               WebCoreDynamicClassAttribute(string name)
         {

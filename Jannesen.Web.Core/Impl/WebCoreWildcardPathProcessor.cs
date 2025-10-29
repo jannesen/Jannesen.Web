@@ -228,30 +228,10 @@ namespace Jannesen.Web.Core.Impl
         private readonly        string[]                            _names;
         private readonly        Regex                               _regex;
 
-        public                  string                              Prefix
-        {
-            get {
-                return _prefix;
-            }
-        }
-        public                  string                              Suffix
-        {
-            get {
-                return _suffix;
-            }
-        }
-        public                  string                              Expression
-        {
-            get {
-                return _expression;
-            }
-        }
-        public                  IReadOnlyList<string>               Names
-        {
-            get {
-                return _names;
-            }
-        }
+        public                  string                              Prefix          => _prefix;
+        public                  string                              Suffix          => _suffix;
+        public                  string                              Expression      => _expression;
+        public                  IReadOnlyList<string>               Names           => _names;
 
         public                                                      WebCoreWildcardPathProcessor(string prefix, string suffix, string expression)
         {

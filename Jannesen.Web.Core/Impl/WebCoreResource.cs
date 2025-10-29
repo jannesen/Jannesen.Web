@@ -9,28 +9,10 @@ namespace Jannesen.Web.Core.Impl
         private readonly        string              _name;
         private readonly        bool                _down;
 
-        public      abstract    string              Type
-        {
-            get ;
-        }
-        public                  WebApplication      Application
-        {
-            get {
-                return _application;
-            }
-        }
-        public                  string              Name
-        {
-            get {
-                return _name;
-            }
-        }
-        public                  bool                Down
-        {
-            get {
-                return _down;
-            }
-        }
+        public      abstract    string              Type            {  get; }
+        public                  WebApplication      Application     => _application;
+        public                  string              Name            => _name;
+        public                  bool                Down            => _down;
 
         protected                                   WebCoreResource(WebCoreConfigReader configReader)
         {

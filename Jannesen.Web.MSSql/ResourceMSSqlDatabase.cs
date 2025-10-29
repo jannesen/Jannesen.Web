@@ -20,49 +20,13 @@ namespace Jannesen.Web.MSSql
         private readonly        string              _passwd;
         private readonly        string              _connectString;
 
-        public      override    string              Type
-        {
-            get {
-                return "mssql";
-            }
-        }
-
-        public                  string              Server
-        {
-            get {
-                return _server;
-            }
-        }
-        public                  string              Instance
-        {
-            get {
-                return _instance;
-            }
-        }
-        public                  string              Database
-        {
-            get {
-                return _database;
-            }
-        }
-        public                  bool                IISUserIdentityswd
-        {
-            get {
-                return _iisUserIdentity;
-            }
-        }
-        public                  string              Username
-        {
-            get {
-                return _username;
-            }
-        }
-        public                  string              Passwd
-        {
-            get {
-                return _passwd;
-            }
-        }
+        public      override    string              Type                => "mssql";
+        public                  string              Server              => _server;
+        public                  string              Instance            => _instance;
+        public                  string              Database            => _database;
+        public                  bool                IISUserIdentityswd  => _iisUserIdentity;
+        public                  string              Username            => _username;
+        public                  string              Passwd              => _passwd;
 
 
         public                                      ResourceMSSqlDatabase(WebCoreConfigReader configReader): base(configReader)

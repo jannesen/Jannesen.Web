@@ -19,25 +19,15 @@ namespace Jannesen.Web.Core.Impl
         {
         }
 
-        public  override    string          Source
-        {
-            get {
-                return "Jannesen.Web.Core";
-            }
-        }
+        public  override    string          Source          => "Jannesen.Web.Core";
     }
 
     public class WebConfigException: WebException, IFileLocation
     {
-        public  override    bool            logError
-        {
-            get {
-                return true;
-            }
-        }
+        public  override    bool            logError        => true;
 
-        public              string          Filename                { get ; }
-        public              int             LineNumber              { get ; }
+        public              string          Filename        { get ; }
+        public              int             LineNumber      { get ; }
 
         public                              WebConfigException(string message, WebCoreConfigReader configReader): this(message, null, configReader)
         {
@@ -50,12 +40,7 @@ namespace Jannesen.Web.Core.Impl
             LineNumber = configReader.LineNumber;
         }
 
-        public  override    string          Source
-        {
-            get {
-                return "Jannesen.Web.Core";
-            }
-        }
+        public  override    string          Source          => "Jannesen.Web.Core";
     }
 
     public class WebSourceException: Exception
@@ -67,12 +52,7 @@ namespace Jannesen.Web.Core.Impl
         {
         }
 
-        public  override    string          Source
-        {
-            get {
-                return "Jannesen.Web.Core";
-            }
-        }
+        public  override    string          Source          => "Jannesen.Web.Core";
     }
 
     public class WebConversionException: Exception
@@ -84,12 +64,7 @@ namespace Jannesen.Web.Core.Impl
         {
         }
 
-        public  override    string          Source
-        {
-            get {
-                return "Jannesen.Web.Core";
-            }
-        }
+        public  override    string          Source          => "Jannesen.Web.Core";
     }
 
     public class WebInvalidValueException: Exception
@@ -101,12 +76,7 @@ namespace Jannesen.Web.Core.Impl
         {
         }
 
-        public  override    string          Source
-        {
-            get {
-                return "Jannesen.Web.Core";
-            }
-        }
+        public  override    string          Source          => "Jannesen.Web.Core";
     }
 
     public class WebHandlerConfigException: Exception
@@ -118,43 +88,23 @@ namespace Jannesen.Web.Core.Impl
         {
         }
 
-        public  override    string          Source
-        {
-            get {
-                return "Jannesen.Web.Core";
-            }
-        }
+        public  override    string          Source          => "Jannesen.Web.Core";
     }
 
     public class WebResourceNotFoundException: WebException
     {
-        public  override    bool            logError
-        {
-            get {
-                return true;
-            }
-        }
+        public  override    bool            logError        => true;
 
         public                              WebResourceNotFoundException(string message): base(message)
         {
         }
 
-        public  override    string          Source
-        {
-            get {
-                return "Jannesen.Web.Core";
-            }
-        }
+        public  override    string          Source          => "Jannesen.Web.Core";
     }
 
     public  class WebInitializationException: WebException
     {
-        public  override    bool            logError
-        {
-            get {
-                return true;
-            }
-        }
+        public  override    bool            logError        => true;
 
         public                              WebInitializationException(string message): base(message)
         {
@@ -166,12 +116,7 @@ namespace Jannesen.Web.Core.Impl
 
     public  class WebAppNotInitialized: WebException
     {
-        public  override    bool            logError
-        {
-            get {
-                return true;
-            }
-        }
+        public  override    bool            logError        => true;
 
         public                              WebAppNotInitialized(): base("WebApplication not initialized")
         {
@@ -180,12 +125,7 @@ namespace Jannesen.Web.Core.Impl
 
     public  class WebResourceDownException: WebException
     {
-        public  override    bool            logError
-        {
-            get {
-                return false;
-            }
-        }
+        public  override    bool            logError        => false;
 
         public                              WebResourceDownException(string message): base(message)
         {
@@ -194,12 +134,7 @@ namespace Jannesen.Web.Core.Impl
 
     public  class WebRequestException: WebException
     {
-        public  override    bool            logError
-        {
-            get {
-                return false;
-            }
-        }
+        public  override    bool            logError        => false;
 
         public                              WebRequestException(string message): base(message)
         {
@@ -211,12 +146,7 @@ namespace Jannesen.Web.Core.Impl
 
     public  class WebResponseException: WebException
     {
-        public  override    bool            logError
-        {
-            get {
-                return true;
-            }
-        }
+        public  override    bool            logError        => true;
 
         public                              WebResponseException(string message): base(message)
         {
@@ -228,12 +158,7 @@ namespace Jannesen.Web.Core.Impl
 
     public  class WebBasicAutorizationException: WebException
     {
-        public  override    bool            logError
-        {
-            get {
-                return false;
-            }
-        }
+        public  override    bool            logError        => false;
 
         public                              WebBasicAutorizationException(string message): base(message)
         {
@@ -245,12 +170,7 @@ namespace Jannesen.Web.Core.Impl
 
     public class InternalErrorException: WebException
     {
-        public  override    bool            logError
-        {
-            get {
-                return true;
-            }
-        }
+        public  override    bool            logError        => true;
 
         public                              InternalErrorException(string message): base(message)
         {

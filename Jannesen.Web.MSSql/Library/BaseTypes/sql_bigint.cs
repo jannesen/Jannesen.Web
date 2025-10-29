@@ -9,8 +9,8 @@ namespace Jannesen.Web.MSSql.Library.BaseTypes
     [ValueConvertorAttributeBaseType("bigint")]
     internal sealed class sql_bigint: ValueConvertor_SqlNative
     {
-        public          override            SqlDbType           DBType      { get { return System.Data.SqlDbType.BigInt;        } }
-        public          override            Type                ClrType     { get { return typeof(Int64);                       } }
+        public          override            SqlDbType           DBType      => SqlDbType.BigInt;
+        public          override            Type                ClrType     => typeof(Int64);
 
         public                                                  sql_bigint(string s): base(s)
         {

@@ -6,12 +6,7 @@ namespace Jannesen.Web.Core.Impl
     [AttributeUsage(AttributeTargets.Class)]
     public sealed class WebCoreDataSourceAttribute: WebCoreDynamicClassAttribute
     {
-        public      override    string                          Type
-        {
-            get {
-                return "data-source";
-            }
-        }
+        public      override    string                          Type        => "data-source";
 
         public                                                  WebCoreDataSourceAttribute(string name): base(name)
         {

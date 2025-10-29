@@ -9,8 +9,8 @@ namespace Jannesen.Web.MSSql.Library.BaseTypes
     [ValueConvertorAttributeBaseType("char")]
     internal sealed class sql_char: ValueConvertor_SqlNativeWithLength
     {
-        public          override            SqlDbType           DBType      { get { return System.Data.SqlDbType.VarChar;       } }
-        public          override            Type                ClrType     { get { return typeof(string);                      } }
+        public          override            SqlDbType           DBType      => SqlDbType.VarChar;
+        public          override            Type                ClrType     => typeof(string);
 
         public                                                  sql_char(string s): base(s)
         {

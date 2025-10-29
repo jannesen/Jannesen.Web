@@ -15,8 +15,8 @@ namespace Jannesen.Web.Core
                 services.AddSingleton(createAppl());
                 services.AddMemoryCache();
                 services.Configure<IISServerOptions>((options) => {
-                            options.AllowSynchronousIO = true;
-                        });
+                             options.AllowSynchronousIO = true;
+                         });
             });
 
             webHostBuilder.Configure((appConfig) => {

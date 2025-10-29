@@ -12,15 +12,15 @@ namespace Jannesen.Web.Core
 {
     public sealed class WebApplication: IDisposable
     {
-        public                          string                          Directory           {  get; init; }
-        public                          string                          Realm               {  get; init; }
+        public                          string                              Directory           {  get; init; }
+        public                          string                              Realm               {  get; init; }
 
-        private                         IServiceProvider                                            _serviceProvider;
-        private                         IMemoryCache                                                _cache;             
-        private                         WebApplicationConfig                                        _applicationConfig;
-        private     readonly            Lock                                                        _configLock;
+        private                         IServiceProvider                    _serviceProvider;
+        private                         IMemoryCache                        _cache;             
+        private                         WebApplicationConfig                _applicationConfig;
+        private     readonly            Lock                                _configLock;
 
-        public                          IMemoryCache                                                Cache => _cache;
+        public                          IMemoryCache                        Cache => _cache;
 
         public                          WebApplication()
         {

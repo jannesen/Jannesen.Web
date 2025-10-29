@@ -8,8 +8,8 @@ namespace Jannesen.Web.MSSql.Library.BaseTypes
     [ValueConvertorAttributeBaseType("datetime")]
     class sql_datetime: ValueConvertor_SqlNative
     {
-        public          override            SqlDbType           DBType      { get { return System.Data.SqlDbType.DateTime;      } }
-        public          override            Type                ClrType     { get { return typeof(DateTime);                    } }
+        public          override            SqlDbType           DBType      => SqlDbType.DateTime;
+        public          override            Type                ClrType     => typeof(DateTime);
 
         public                                                  sql_datetime(string s)
         {

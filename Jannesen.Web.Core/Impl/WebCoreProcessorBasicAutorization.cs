@@ -8,18 +8,8 @@ namespace Jannesen.Web.Core.Impl
         private                 string              _username;
         private                 string              _passwd;
 
-        public                  string              UserName
-        {
-            get {
-                return _username;
-            }
-        }
-        public                  string              Passwd
-        {
-            get {
-                return _passwd;
-            }
-        }
+        public                  string              UserName        => _username;
+        public                  string              Passwd          => _passwd;
 
         public                  void                Proces(WebCoreCall httpCall)
         {

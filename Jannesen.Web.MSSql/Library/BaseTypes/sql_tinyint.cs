@@ -9,8 +9,8 @@ namespace Jannesen.Web.MSSql.Library.BaseTypes
     [ValueConvertorAttributeBaseType("tinyint")]
     internal sealed class sql_tinyint: ValueConvertor_SqlNative
     {
-        public          override            SqlDbType           DBType      { get { return System.Data.SqlDbType.TinyInt;       } }
-        public          override            Type                ClrType     { get { return typeof(byte);                        } }
+        public          override            SqlDbType           DBType      => SqlDbType.TinyInt;
+        public          override            Type                ClrType     => typeof(byte);
 
         public                                                  sql_tinyint(string s): base(s)
         {

@@ -19,12 +19,7 @@ namespace Jannesen.Web.StaticFile
         private readonly        int                 _versionCacheMaxAge;
         private readonly        bool                _decodeCharSet;
 
-        public  override        string              Mimetype
-        {
-            get {
-                return _mimetype;
-            }
-        }
+        public  override        string              Mimetype            => _mimetype;
 
         public                                      HttpHandlerStaticFile(WebCoreConfigReader configReader): base(configReader)
         {

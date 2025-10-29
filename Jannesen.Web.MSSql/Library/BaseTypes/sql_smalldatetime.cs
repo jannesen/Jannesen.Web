@@ -8,8 +8,8 @@ namespace Jannesen.Web.MSSql.Library.BaseTypes
     [ValueConvertorAttributeBaseType("smalldatetime")]
     internal sealed class sql_smalldatetime: sql_datetime
     {
-        public          override            SqlDbType           DBType      { get { return System.Data.SqlDbType.SmallDateTime; } }
-        public          override            Type                ClrType     { get { return typeof(DateTime);                    } }
+        public          override            SqlDbType           DBType      => SqlDbType.SmallDateTime;
+        public          override            Type                ClrType     => typeof(DateTime);
 
         public                                                  sql_smalldatetime(string s): base(s)
         {

@@ -47,7 +47,7 @@ namespace Jannesen.Web.ExcelExport.ExcelExport
 
         private                 SpreadsheetDocument         _document;
 
-        public      static      void                        Export(ConfigSheetList configSheets, SqlDataReader dataReader, Stream outputStream)
+        public      static      void                        Export(IReadOnlyList<ConfigSheet> configSheets, SqlDataReader dataReader, Stream outputStream)
         {
             var config = new ProcessConfigSheet[configSheets.Count];
 

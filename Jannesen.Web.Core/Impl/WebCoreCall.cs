@@ -22,70 +22,24 @@ namespace Jannesen.Web.Core.Impl
         private                 byte[]                              _requestBodyData;
         private                 List<object>                        _requestProcessors;
 
-        public                  WebApplicationConfig                ApplicationConfig
-        {
-            get {
-                return _applicationConfig;
-            }
-        }
-        public                  DateTime                            Timestamp
-        {
-            get {
-                return _timestamp;
-            }
-        }
-        public                  HttpContext                         Context
-        {
-            get {
-                return _context;
-            }
-        }
-        public                  HttpRequest                         Request
-        {
-            get {
-                return _request;
-            }
-        }
-        public                  IMemoryCache                        Cache
-        {
-            get {
-                return _applicationConfig.Application.Cache;
-
-            }
-        }
-        public                  WebCoreHttpHandler                  Handler
-        {
-            get {
-                return _handler;
-            }
-        }
-        internal                byte[]                              RequestBodyData
-        {
-            get {
-                return _requestBodyData;
-            }
-        }
-
-        public                  string                              HttpMethod
-        {
-            get {
-                return _request.Method;
-            }
-        }
-        public                  string                              RequestContentType
-        {
-            get {
-                return _request.ContentType;
-            }
-        }
+        public                  WebApplicationConfig                ApplicationConfig   => _applicationConfig;
+        public                  DateTime                            Timestamp           => _timestamp;
+        public                  HttpContext                         Context             => _context;
+        public                  HttpRequest                         Request             => _request;
+        public                  IMemoryCache                        Cache               => _applicationConfig.Application.Cache;
+        public                  WebCoreHttpHandler                  Handler             => _handler;
+        internal                byte[]                              RequestBodyData     => _requestBodyData;
+        public                  string                              HttpMethod          => _request.Method;
+        public                  string                              RequestContentType  => _request.ContentType;
         public                  int?                                RequestContentLength
         {
             get {
                 var s = GetHeader("Content-Length");
 
                 if (!string.IsNullOrEmpty(s)) {
-                    if (int.TryParse(s, out var rtn))
+                    if (int.TryParse(s, out var rtn)) {
                         return rtn;
+                    }
                 }
 
                 return null;

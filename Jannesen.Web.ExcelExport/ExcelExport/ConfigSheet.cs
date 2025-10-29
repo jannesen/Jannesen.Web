@@ -14,56 +14,16 @@ namespace Jannesen.Web.ExcelExport.ExcelExport
         private         int                         _headerRows;
         private         int                         _freezeColumn;
         private         List<double>                _columnsWidth;
-        private         ConfigColumnList            _columns;
+        private         List<ConfigColumn>          _columns;
 
-        public          string                      Name
-        {
-            get {
-                return _name;
-            }
-        }
-        public          double                      FontSize
-        {
-            get {
-                return _fontSize;
-            }
-        }
-        public          string                      BackgroundColor
-        {
-            get {
-                return _backgroundColor;
-            }
-        }
-        public          string                      BackgroundColorOdd
-        {
-            get {
-                return _backgroundColorOdd;
-            }
-        }
-        public          int                         HeaderRows
-        {
-            get {
-                return _headerRows;
-            }
-        }
-        public          int                         FreezeColumn
-        {
-            get {
-                return _freezeColumn;
-            }
-        }
-        public          List<double>                ColumnsWidth
-        {
-            get {
-                return _columnsWidth;
-            }
-        }
-        public          ConfigColumnList            Columns
-        {
-            get {
-                return _columns;
-            }
-        }
+        public          string                      Name                    => _name;
+        public          double                      FontSize                => _fontSize;
+        public          string                      BackgroundColor         => _backgroundColor;
+        public          string                      BackgroundColorOdd      => _backgroundColorOdd;
+        public          int                         HeaderRows              => _headerRows;
+        public          int                         FreezeColumn            => _freezeColumn;
+        public          IReadOnlyList<double>       ColumnsWidth            => _columnsWidth;
+        public          IReadOnlyList<ConfigColumn> Columns                 => _columns;
 
         public                                      ConfigSheet(WebCoreConfigReader configReader)
         {
@@ -80,7 +40,7 @@ namespace Jannesen.Web.ExcelExport.ExcelExport
             _headerRows   = 1;
             _freezeColumn = 0;
             _columnsWidth = new List<double>();
-            _columns      = new ConfigColumnList();
+            _columns      = new List<ConfigColumn>();
 
             _parseColumns(0, 0, configReader, null, this);
         }
@@ -141,9 +101,5 @@ namespace Jannesen.Web.ExcelExport.ExcelExport
                     throw new Exception("With not set for column #" + c.ToString(CultureInfo.InvariantCulture) + ".");
             }
         }
-    }
-
-    internal sealed class ConfigSheetList:  List<ConfigSheet>
-    {
     }
 }

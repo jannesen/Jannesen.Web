@@ -22,11 +22,11 @@ namespace Jannesen.Web.MSSql.Library.Source
             if (httpCall.Request.Method == "GET" || httpCall.Request.Method == "HEAD")
                 throw new WebHandlerConfigException("TEXTXML-BODY not available for HTTP/GET.");
 
-            object      jsondoc = httpCall.RequestTextJson.Document;
+            var jsondoc = httpCall.RequestTextJson.Document;
 
-            using (StringWriter stringWriter = new StringWriter()) {
+            using (var stringWriter = new StringWriter()) {
 #pragma warning disable CA2000 // refecence to stringWriter which is disposed
-                XmlWriter xmlWriter = XmlWriter.Create(stringWriter, new XmlWriterSettings() { CloseOutput=false, OmitXmlDeclaration=true });
+                var xmlWriter = XmlWriter.Create(stringWriter, new XmlWriterSettings() { CloseOutput=false, OmitXmlDeclaration=true });
 #pragma warning restore CA2000
 
                 if (jsondoc is JsonObject docObject)
@@ -47,17 +47,17 @@ namespace Jannesen.Web.MSSql.Library.Source
         {
             xmlWriter.WriteStartElement(elementName);
 
-            foreach(KeyValuePair<string, object> item in jsonObject) {
+            foreach(var item in jsonObject) {
                 if (!(item.Value is JsonObject || item.Value is JsonArray))
                     _jsonToXmlAttribute(xmlWriter, item.Key, item.Value);
             }
 
-            foreach(KeyValuePair<string, object> item in jsonObject) {
+            foreach(var item in jsonObject) {
                 if (item.Value is JsonObject itemObject)
                     _jsonToXmlElement(xmlWriter, item.Key, itemObject);
             }
 
-            foreach(KeyValuePair<string, object> item in jsonObject) {
+            foreach(var item in jsonObject) {
                 if (item.Value is JsonArray itemArray)
                     _jsonToXmlElement(xmlWriter, item.Key, itemArray);
             }
@@ -68,7 +68,7 @@ namespace Jannesen.Web.MSSql.Library.Source
         {
             xmlWriter.WriteStartElement(elementName);
 
-            foreach(object item in jsonArray) {
+            foreach(var item in jsonArray) {
                 if (item is JsonObject itemObject)
                     _jsonToXmlElement(xmlWriter, "row", itemObject);
                 else

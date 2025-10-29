@@ -8,49 +8,19 @@ namespace Jannesen.Web.Core.Impl
 {
     public sealed class WebCoreConfigReader : IDisposable
     {
-        private readonly        IServiceProvider        _serviceProvider;
-        private readonly        WebApplicationConfig    _applicationConfig;
-        private readonly        string                  _path;
-        private readonly        string                  _filename;
-        private readonly        XmlTextReader           _xmlReader;
+        private readonly        IServiceProvider            _serviceProvider;
+        private readonly        WebApplicationConfig        _applicationConfig;
+        private readonly        string                      _path;
+        private readonly        string                      _filename;
+        private readonly        XmlTextReader               _xmlReader;
 
-        public                  IServiceProvider        ServiceProvider
-        {
-            get {
-                return _serviceProvider;
-            }
-        }
-        public                  WebApplicationConfig    ApplicationConfig
-        {
-            get {
-                return _applicationConfig;
-            }
-        }
-        public                  string                  Path
-        {
-            get {
-                return _path;
-            }
-        }
-        public                  string                  Filename
-        {
-            get {
-                return _filename;
-            }
-        }
-        public                  int                     LineNumber
-        {
-            get {
-                return _xmlReader.LineNumber;
-            }
-        }
-        public                  string                  ElementName
-        {
-            get {
-                return _xmlReader.Name;
-            }
-        }
-        public                  bool                    hasChildren
+        public                  IServiceProvider            ServiceProvider         => _serviceProvider;
+        public                  WebApplicationConfig        ApplicationConfig       => _applicationConfig;
+        public                  string                      Path                    => _path;
+        public                  string                      Filename                => _filename;
+        public                  int                         LineNumber              => _xmlReader.LineNumber;
+        public                  string                      ElementName             => _xmlReader.Name;
+        public                  bool                        hasChildren
         {
             get {
                 if (_xmlReader.NodeType != XmlNodeType.Element)
@@ -59,14 +29,9 @@ namespace Jannesen.Web.Core.Impl
                 return !_xmlReader.IsEmptyElement;
             }
         }
-        public                  bool                    isElement
-        {
-            get {
-                return (_xmlReader.NodeType == XmlNodeType.Element);
-            }
-        }
+        public                  bool                        isElement               => (_xmlReader.NodeType == XmlNodeType.Element);
 
-        public                                          WebCoreConfigReader(IServiceProvider serviceProvider, WebApplicationConfig application, string path, string filename)
+        public                                              WebCoreConfigReader(IServiceProvider serviceProvider, WebApplicationConfig application, string path, string filename)
         {
             _serviceProvider   = serviceProvider;
             _applicationConfig = application;
@@ -74,12 +39,12 @@ namespace Jannesen.Web.Core.Impl
             _filename    = filename;
             _xmlReader   = new XmlTextReader(_filename) { DtdProcessing = DtdProcessing.Prohibit, XmlResolver = null };
         }
-        public                  void                    Dispose()
+        public                  void                        Dispose()
         {
             _xmlReader.Close();
         }
 
-        public                  void                    ReadRootNode(string rootElementName)
+        public                  void                        ReadRootNode(string rootElementName)
         {
             do {
                 if (!_xmlReader.Read())
@@ -90,7 +55,7 @@ namespace Jannesen.Web.Core.Impl
             if (_xmlReader.Name != rootElementName)
                 throw new WebConfigException("Invalid root element name.", this);
         }
-        public                  bool                    ReadNextElement()
+        public                  bool                        ReadNextElement()
         {
             for(;;) {
                 if (!_xmlReader.Read())
@@ -105,18 +70,18 @@ namespace Jannesen.Web.Core.Impl
                 }
             }
         }
-        public                  void                    NoChildElements()
+        public                  void                        NoChildElements()
         {
             if (!_xmlReader.IsEmptyElement) {
                 if (ReadNextElement())
                     throw new WebConfigException("Element is not empty.", this);
             }
         }
-        public                  void                    InvalidElement()
+        public                  void                        InvalidElement()
         {
             throw new WebConfigException("Unknown configuration entry '" + _xmlReader.Name + "'.", this);
         }
-        public                  void                    ReadEOF()
+        public                  void                        ReadEOF()
         {
             if (_xmlReader.NodeType != XmlNodeType.EndElement)
                 throw new WebConfigException("Expect root end element.", this);
@@ -126,7 +91,7 @@ namespace Jannesen.Web.Core.Impl
                     throw new WebConfigException("Unexpected node.", this);
             }
         }
-        public                  void                    Skip()
+        public                  void                        Skip()
         {
             if (hasChildren) {
                 while (ReadNextElement()) {
@@ -135,7 +100,7 @@ namespace Jannesen.Web.Core.Impl
                 }
             }
         }
-        public                  void                    Reset()
+        public                  void                        Reset()
         {
             if (_xmlReader.Depth > 1 || !(_xmlReader.NodeType == XmlNodeType.Element && _xmlReader.IsEmptyElement)) {
                 while (_xmlReader.Depth > 1 || _xmlReader.NodeType != XmlNodeType.EndElement) {
@@ -146,7 +111,7 @@ namespace Jannesen.Web.Core.Impl
             }
         }
 
-        public                  string                  CombinePhysicalPath(string path)
+        public                  string                      CombinePhysicalPath(string path)
         {
             ArgumentNullException.ThrowIfNull(path);
 
@@ -194,15 +159,15 @@ namespace Jannesen.Web.Core.Impl
 
             return rtn.ToString();
         }
-        public                  string                  GetValueString(string name)
+        public                  string                      GetValueString(string name)
         {
             return _xmlReader.GetAttribute(name) ?? throw new WebConfigException("Missing attribute '" + name + "'.", this);
         }
-        public                  string                  GetValueString(string name, string defaultValue)
+        public                  string                      GetValueString(string name, string defaultValue)
         {
             return _xmlReader.GetAttribute(name) ?? defaultValue;
         }
-        public                  int                     GetValueInt(string name, int minValue, int maxValue)
+        public                  int                         GetValueInt(string name, int minValue, int maxValue)
         {
             var value = _xmlReader.GetAttribute(name) ?? throw new WebConfigException("Missing attribute '" + name + "'.", this);
             int ivalue;
@@ -220,7 +185,7 @@ namespace Jannesen.Web.Core.Impl
 
             return ivalue;
         }
-        public                  int                     GetValueInt(string name, int defaultValue, int minValue, int maxValue)
+        public                  int                         GetValueInt(string name, int defaultValue, int minValue, int maxValue)
         {
             var value = _xmlReader.GetAttribute(name);
             int ivalue;
@@ -240,7 +205,7 @@ namespace Jannesen.Web.Core.Impl
 
             return ivalue;
         }
-        public                  int?                    GetValueIntNull(string name, int minValue, int maxValue)
+        public                  int?                        GetValueIntNull(string name, int minValue, int maxValue)
         {
             var value = _xmlReader.GetAttribute(name);
             int ivalue;
@@ -260,7 +225,7 @@ namespace Jannesen.Web.Core.Impl
 
             return ivalue;
         }
-        public                  bool                    GetValueBool(string name, bool defaultValue)
+        public                  bool                        GetValueBool(string name, bool defaultValue)
         {
             var value = _xmlReader.GetAttribute(name);
 
@@ -282,7 +247,7 @@ namespace Jannesen.Web.Core.Impl
                 throw new WebConfigException("Invalid boolean value in attribute '" + name + "'.", this);
             }
         }
-        public                  int                     GetValueEnum(Type t, string name)
+        public                  int                         GetValueEnum(Type t, string name)
         {
             var value = GetValueString(name);
 
@@ -293,7 +258,7 @@ namespace Jannesen.Web.Core.Impl
                 throw new WebConfigException("Invalid integer value in attribute '" + name + "'.", this);
             }
         }
-        public                  double                  GetValueDouble(string name, double minValue, double maxValue)
+        public                  double                      GetValueDouble(string name, double minValue, double maxValue)
         {
             var    value = _xmlReader.GetAttribute(name);
             double dvalue;
@@ -313,7 +278,7 @@ namespace Jannesen.Web.Core.Impl
 
             return dvalue;
         }
-        public                  double                  GetValueDouble(string name, double defaultValue, double minValue, double maxValue)
+        public                  double                      GetValueDouble(string name, double defaultValue, double minValue, double maxValue)
         {
             var    value = _xmlReader.GetAttribute(name);
             double dvalue;
@@ -333,7 +298,7 @@ namespace Jannesen.Web.Core.Impl
 
             return dvalue;
         }
-        public                  double?                 GetValueDoubleNull(string name, double minValue, double maxValue)
+        public                  double?                     GetValueDoubleNull(string name, double minValue, double maxValue)
         {
             var    value = _xmlReader.GetAttribute(name);
             double dvalue;
@@ -353,7 +318,7 @@ namespace Jannesen.Web.Core.Impl
 
             return dvalue;
         }
-        public                  string                  GetValuePathName(string name)
+        public                  string                      GetValuePathName(string name)
         {
             if (_path == null)
                 throw new WebConfigException("Path unavailable.", this);

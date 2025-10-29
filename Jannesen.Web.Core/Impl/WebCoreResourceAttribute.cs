@@ -5,12 +5,7 @@ namespace Jannesen.Web.Core.Impl
 {
     public sealed class WebCoreResourceAttribute: WebCoreDynamicClassAttribute
     {
-        public      override    string                          Type
-        {
-            get {
-                return "resource";
-            }
-        }
+        public      override    string                          Type        => "resource";
 
         public                                                  WebCoreResourceAttribute(string name): base(name)
         {

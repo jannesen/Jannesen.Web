@@ -9,8 +9,8 @@ namespace Jannesen.Web.MSSql.Library.BaseTypes
     [ValueConvertorAttributeBaseType("int")]
     internal sealed class sql_int: ValueConvertor_SqlNative
     {
-        public          override            SqlDbType           DBType      { get { return System.Data.SqlDbType.Int;           } }
-        public          override            Type                ClrType     { get { return typeof(Int32);                       } }
+        public          override            SqlDbType           DBType      => SqlDbType.Int;
+        public          override            Type                ClrType     => typeof(Int32);
 
         public                                                  sql_int(string s): base(s)
         {

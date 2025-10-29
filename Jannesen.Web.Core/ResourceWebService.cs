@@ -15,50 +15,13 @@ namespace Jannesen.Web.Core
         private readonly        X509Certificate2Collection      _certificates;
         private readonly        Dictionary<string, string>      _properties;
 
-        public      override    string                          Type
-        {
-            get {
-                return "webservice";
-            }
-        }
-
-        public                  string                          BaseUrl
-        {
-            get {
-                return _baseUrl;
-            }
-        }
-        public                  string                          Key
-        {
-            get {
-                return _key;
-            }
-        }
-        public                  string                          Username
-        {
-            get {
-                return _username;
-            }
-        }
-        public                  string                          Passwd
-        {
-            get {
-                return _passwd;
-            }
-        }
-        public                  X509Certificate2Collection      Certificates
-        {
-            get {
-                return _certificates;
-            }
-        }
-
-        public Dictionary<string, string> Properties
-        {
-            get {
-                return _properties;
-            }
-        }
+        public      override    string                          Type            => "webservice";
+        public                  string                          BaseUrl         => _baseUrl;
+        public                  string                          Key             => _key;
+        public                  string                          Username        => _username;
+        public                  string                          Passwd          => _passwd;
+        public                  X509Certificate2Collection      Certificates    => _certificates;
+        public                  Dictionary<string, string>      Properties      => _properties;
 
         public                                                  ResourceWebService(WebCoreConfigReader configReader): base(configReader)
         {

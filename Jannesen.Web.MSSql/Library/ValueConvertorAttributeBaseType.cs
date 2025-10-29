@@ -6,12 +6,7 @@ namespace Jannesen.Web.MSSql.Library
 {
     public sealed class ValueConvertorAttributeBaseType: WebCoreDynamicClassAttribute
     {
-        public      override    string                          Type
-        {
-            get {
-                return "sql-type";
-            }
-        }
+        public      override    string                          Type            => "sql-type";
 
         public                                                  ValueConvertorAttributeBaseType(string name): base(name)
         {

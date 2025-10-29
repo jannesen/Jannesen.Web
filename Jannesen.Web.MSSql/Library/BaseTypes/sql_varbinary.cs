@@ -9,8 +9,8 @@ namespace Jannesen.Web.MSSql.Library.BaseTypes
     [ValueConvertorAttributeBaseType("varbinary")]
     internal sealed class sql_varbinary: ValueConvertor_SqlNativeWithLength
     {
-        public          override            SqlDbType           DBType      { get { return System.Data.SqlDbType.VarBinary;     } }
-        public          override            Type                ClrType     { get { return typeof(byte[]);                      } }
+        public          override            SqlDbType           DBType      => SqlDbType.VarBinary;
+        public          override            Type                ClrType     => typeof(byte[]);
 
         public                                                  sql_varbinary(string s): base(s)
         {

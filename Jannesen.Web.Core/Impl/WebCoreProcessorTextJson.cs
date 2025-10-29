@@ -7,12 +7,7 @@ namespace Jannesen.Web.Core.Impl
     {
         private                 object              _document;
 
-        public                  object              Document
-        {
-            get {
-                return _document;
-            }
-        }
+        public                  object              Document        => _document;
 
         public                  void                Proces(WebCoreCall httpCall)
         {

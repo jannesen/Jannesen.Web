@@ -9,8 +9,8 @@ namespace Jannesen.Web.MSSql.Library.BaseTypes
     [ValueConvertorAttributeBaseType("smallmoney")]
     internal sealed class sql_smallmoney: ValueConvertor_SqlNative
     {
-        public          override            SqlDbType           DBType      { get { return System.Data.SqlDbType.SmallMoney;    } }
-        public          override            Type                ClrType     { get { return typeof(decimal);                     } }
+        public          override            SqlDbType           DBType      => SqlDbType.SmallMoney;
+        public          override            Type                ClrType     => typeof(decimal);
 
         public                                                  sql_smallmoney(string s): base(s)
         {

@@ -8,8 +8,8 @@ namespace Jannesen.Web.MSSql.Library.BaseTypes
     [ValueConvertorAttributeBaseType("xml")]
     internal sealed class sql_xml: ValueConvertor_SqlNative
     {
-        public          override            SqlDbType           DBType      { get { return System.Data.SqlDbType.Xml;           } }
-        public          override            Type                ClrType     { get { return typeof(string);                      } }
+        public          override            SqlDbType           DBType      => SqlDbType.Xml;
+        public          override            Type                ClrType     => typeof(string);
 
         public                                                  sql_xml(string s): base(s)
         {

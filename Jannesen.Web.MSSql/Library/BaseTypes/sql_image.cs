@@ -8,8 +8,8 @@ namespace Jannesen.Web.MSSql.Library.BaseTypes
     [ValueConvertorAttributeBaseType("image")]
     internal sealed class sql_image: ValueConvertor_SqlNative
     {
-        public          override            SqlDbType           DBType      { get { return System.Data.SqlDbType.Image;         } }
-        public          override            Type                ClrType     { get { return typeof(byte[]);                      } }
+        public          override            SqlDbType           DBType      => SqlDbType.Image;
+        public          override            Type                ClrType     => typeof(byte[]);
 
         public                                                  sql_image(string s): base(s)
         {

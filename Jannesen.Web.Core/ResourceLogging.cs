@@ -16,19 +16,8 @@ namespace Jannesen.Web.Core
         private                 FileStream          _filestream;
         private                 DateTime            _nextFile;
 
-        public      override    string              Type
-        {
-            get {
-                return "log";
-            }
-        }
-
-        public                  string              Directory
-        {
-            get {
-                return _directory;
-            }
-        }
+        public      override    string              Type        => "log";
+        public                  string              Directory   => _directory;
 
         public                                      ResourceLogging(WebCoreConfigReader configReader): base(configReader)
         {

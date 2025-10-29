@@ -5,12 +5,7 @@ namespace Jannesen.Web.Core.Impl
 {
     public sealed class WebCoreHttpHandlerAttribute: WebCoreDynamicClassAttribute
     {
-        public      override    string                          Type
-        {
-            get {
-                return "http-handler";
-            }
-        }
+        public      override    string                          Type        => "http-handler";
 
         public                                                  WebCoreHttpHandlerAttribute(string name): base(name)
         {

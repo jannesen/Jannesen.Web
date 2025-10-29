@@ -16,60 +16,15 @@ namespace Jannesen.Web.ExcelExport.ExcelExport
         private readonly        string                      _headerForegroundColor;
         private readonly        string                      _headerBackgroundColor;
 
-        public                  int                         Col
-        {
-            get {
-                return _col;
-            }
-        }
-        public                  int                         Row
-        {
-            get {
-                return _row;
-            }
-        }
-        public                  int                         ColSpan
-        {
-            get {
-                return _colSpan;
-            }
-        }
-        public                  int                         RowSpan
-        {
-            get {
-                return _rowSpan;
-            }
-        }
-        public                  string                      Title
-        {
-            get {
-                return _title;
-            }
-        }
-        public                  string                      Fieldname
-        {
-            get {
-                return _fieldname;
-            }
-        }
-        public                  string                      Format
-        {
-            get {
-                return _format;
-            }
-        }
-        public                  string                      HeaderForegroundColor
-        {
-            get {
-                return _headerForegroundColor;
-            }
-        }
-        public                  string                      HeaderBackgroundColor
-        {
-            get {
-                return _headerBackgroundColor;
-            }
-        }
+        public                  int                         Col                         => _col;
+        public                  int                         Row                         => _row;
+        public                  int                         ColSpan                     => _colSpan;
+        public                  int                         RowSpan                     => _rowSpan;
+        public                  string                      Title                       => _title;
+        public                  string                      Fieldname                   => _fieldname;
+        public                  string                      Format                      => _format;
+        public                  string                      HeaderForegroundColor       => _headerForegroundColor;
+        public                  string                      HeaderBackgroundColor       => _headerBackgroundColor;
 
         public                                              ConfigColumn(int col, int row, WebCoreConfigReader configReader, ConfigColumn parent)
         {
@@ -90,9 +45,5 @@ namespace Jannesen.Web.ExcelExport.ExcelExport
         {
             _colSpan = colSpan;
         }
-    }
-
-    internal sealed class ConfigColumnList: List<ConfigColumn>
-    {
     }
 }

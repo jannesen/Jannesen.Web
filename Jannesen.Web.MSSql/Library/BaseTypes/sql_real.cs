@@ -9,8 +9,8 @@ namespace Jannesen.Web.MSSql.Library.BaseTypes
     [ValueConvertorAttributeBaseType("real")]
     internal sealed class sql_real: ValueConvertor_SqlNativeWithLength
     {
-        public          override            SqlDbType           DBType      { get { return System.Data.SqlDbType.Real;          } }
-        public          override            Type                ClrType     { get { return typeof(float);                       } }
+        public          override            SqlDbType           DBType      => SqlDbType.Real;
+        public          override            Type                ClrType     => typeof(float);
 
         public                                                  sql_real(string s): base(s)
         {

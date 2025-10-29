@@ -9,8 +9,8 @@ namespace Jannesen.Web.MSSql.Library.BaseTypes
     [ValueConvertorAttributeBaseType("float")]
     internal sealed class sql_float: ValueConvertor_SqlNativeWithLength
     {
-        public          override            SqlDbType           DBType      { get { return System.Data.SqlDbType.Float;         } }
-        public          override            Type                ClrType     { get { return typeof(double);                      } }
+        public          override            SqlDbType           DBType      => SqlDbType.Float;
+        public          override            Type                ClrType     => typeof(double);
 
         public                                                  sql_float(string s): base(s)
         {
