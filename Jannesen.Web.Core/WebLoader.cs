@@ -109,12 +109,12 @@ namespace Jannesen.Web.Core
 
                     foreach(Type type in assembly.GetTypes()) {
                         try {
-                            foreach(WebCoreDynamicClassAttribute attr in type.GetCustomAttributes(typeof(WebCoreDynamicClassAttribute), false)) {
+                            foreach(WebCoreDynamicClassAttribute attr in (WebCoreDynamicClassAttribute[])type.GetCustomAttributes(typeof(WebCoreDynamicClassAttribute), false)) {
                                 _dynamicClasses.Add(attr, attr.GetConstructor(type));
                             }
 
                             if (type.GetTypeInfo().IsClass && typeof(IWebCoreErrorHandler).IsAssignableFrom(type)) {
-                                _errorHandlers.Add(type.FullName, (IWebCoreErrorHandler)(type.GetConstructor(Array.Empty<Type>()).Invoke(Array.Empty<object>())));
+                                _errorHandlers.Add(type.FullName, (IWebCoreErrorHandler)(type.GetConstructor([]).Invoke([])));
                             }
                         }
                         catch(Exception err) {

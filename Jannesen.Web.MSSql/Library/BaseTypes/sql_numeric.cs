@@ -3,7 +3,7 @@ using System.Globalization;
 
 #pragma warning disable CA1812 // Avoid uninstantiated internal classes (created using reflection)
 
-namespace Jannesen.Web.MSSql.Library.BaseType
+namespace Jannesen.Web.MSSql.Library.BaseTypes
 {
     [ValueConvertorAttributeBaseType("numeric")]
     internal sealed class sql_numeric: sql_decimal

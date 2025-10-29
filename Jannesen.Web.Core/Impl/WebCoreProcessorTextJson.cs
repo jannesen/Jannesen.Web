@@ -38,11 +38,11 @@ namespace Jannesen.Web.Core.Impl
             if (_document == null)
                 throw new WebRequestException("Empty body or null.");
 
-            if (!(_document is JsonObject))
+            if (!(_document is JsonObject docObject))
                 throw new WebRequestException("JSON root must by a object");
 
             if (name.IndexOf('.', StringComparison.Ordinal) < 0)
-                return ((JsonObject)_document).TryGetValue(name, out rtn);
+                return docObject.TryGetValue(name, out rtn);
 
             object  obj = _document;
 

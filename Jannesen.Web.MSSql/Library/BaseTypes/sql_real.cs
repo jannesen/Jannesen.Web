@@ -4,7 +4,7 @@ using System.Globalization;
 
 #pragma warning disable CA1812 // Avoid uninstantiated internal classes (created using reflection)
 
-namespace Jannesen.Web.MSSql.Library.BaseType
+namespace Jannesen.Web.MSSql.Library.BaseTypes
 {
     [ValueConvertorAttributeBaseType("real")]
     internal sealed class sql_real: ValueConvertor_SqlNativeWithLength
@@ -20,14 +20,15 @@ namespace Jannesen.Web.MSSql.Library.BaseType
 
         public          override            object              ConvertClrToValue(object value)
         {
-            if (value == null)      return null;
-            if (value is float)     return value;
-            if (value is double)    return Convert.ToSingle((double)value);
-            if (value is Int16)     return Convert.ToSingle((Int16)value);
-            if (value is Int32)     return Convert.ToSingle((Int32)value);
-            if (value is Int64)     return Convert.ToSingle((Int64)value);
-            if (value is decimal)   return Convert.ToSingle((decimal)value);
-            if (value is string)    return ConvertStringToValue((string)value);
+            if (value == null)             return null;
+            if (value is float)            return value;
+            if (value is double  vdouble)  return Convert.ToSingle(vdouble);
+            if (value is decimal vdecimal) return Convert.ToSingle(vdecimal);
+            if (value is Int32   vint32)   return Convert.ToSingle(vint32);
+            if (value is byte    vbyte)    return Convert.ToSingle(vbyte);
+            if (value is Int16   vint16)   return Convert.ToSingle(vint16);
+            if (value is Int64   vint64)   return Convert.ToSingle(vint64);
+            if (value is string  vstring)  return ConvertStringToValue(vstring);
 
             return NoConversion(value);
         }

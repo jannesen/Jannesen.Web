@@ -3,7 +3,7 @@ using System.Data;
 
 #pragma warning disable CA1812 // Avoid uninstantiated internal classes (created using reflection)
 
-namespace Jannesen.Web.MSSql.Library.BaseType
+namespace Jannesen.Web.MSSql.Library.BaseTypes
 {
     [ValueConvertorAttributeBaseType("ntext")]
     internal sealed class sql_ntext: ValueConvertor_SqlNative
@@ -17,8 +17,8 @@ namespace Jannesen.Web.MSSql.Library.BaseType
 
         public          override            object              ConvertClrToValue(object value)
         {
-            if (value == null)      return null;
-            if (value is string)    return ConvertStringToValue((string)value);
+            if (value == null)           return null;
+            if (value is string vstring) return ConvertStringToValue(vstring);
 
             return NoConversion(value);
         }

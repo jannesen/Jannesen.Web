@@ -4,7 +4,7 @@ using System.Globalization;
 
 #pragma warning disable CA1812 // Avoid uninstantiated internal classes (created using reflection)
 
-namespace Jannesen.Web.MSSql.Library.BaseType
+namespace Jannesen.Web.MSSql.Library.BaseTypes
 {
     [ValueConvertorAttributeBaseType("float")]
     internal sealed class sql_float: ValueConvertor_SqlNativeWithLength
@@ -20,16 +20,15 @@ namespace Jannesen.Web.MSSql.Library.BaseType
 
         public          override            object              ConvertClrToValue(object value)
         {
-            if (value == null)      return null;
-            if (value is double)    return value;
-            if (value is float)     return Convert.ToDouble((float)value);
-            if (value is byte)      return Convert.ToDouble((byte)value);
-            if (value is Int16)     return Convert.ToDouble((Int16)value);
-            if (value is Int32)     return Convert.ToDouble((Int32)value);
-            if (value is Int64)     return Convert.ToDouble((Int64)value);
-            if (value is decimal)   return Convert.ToDouble((decimal)value);
-
-            if (value is string)    return ConvertStringToValue((string)value);
+            if (value == null)             return null;
+            if (value is double)           return value;
+            if (value is float   vfloat)   return Convert.ToDouble(vfloat);
+            if (value is Int32   vint32)   return Convert.ToDouble(vint32);
+            if (value is byte    vbyte)    return Convert.ToDouble(vbyte);
+            if (value is Int16   vint16)   return Convert.ToDouble(vint16);
+            if (value is Int64   vint64)   return Convert.ToDouble(vint64);
+            if (value is decimal vdecimal) return Convert.ToDouble(vdecimal);
+            if (value is string  vstring)  return ConvertStringToValue(vstring);
 
             return NoConversion(value);
         }

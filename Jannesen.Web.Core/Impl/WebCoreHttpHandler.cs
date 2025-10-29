@@ -119,14 +119,12 @@ namespace Jannesen.Web.Core.Impl
                     break;
 
                 default:
-                    if (_logging != null) {
-                        _logging.Logging(httpCall, err);
-                    }
+                    _logging?.Logging(httpCall, err);
                     throw;
                 }
             }
             catch(Exception err) {
-                if (!(err is WebException && ((WebException)err).logError == false)) {
+                if (!(err is WebException werr && werr.logError == false)) {
                     applicationConfig.Application.LogError("Error in handler: " + Path + " Url: " + httpCall.Request.GetDisplayUrl(), err);
                 }
 
@@ -135,10 +133,7 @@ namespace Jannesen.Web.Core.Impl
 
             if (webResponse != null) {
                 webResponse.Send(httpCall, context.Response);
-
-                if (_logging != null) {
-                    _logging.Logging(httpCall, webResponse, context.Response);
-                }
+                _logging?.Logging(httpCall, webResponse, context.Response);
             }
         }
     }

@@ -266,7 +266,7 @@ namespace Jannesen.Web.Core.Impl
             if (expression.Length == 1 && expression == "*")
                 return ; // Simple wildcard
 
-            if (expression.Length >= 2 && expression[0] == '{' && expression[expression.Length - 1] == '}') {
+            if (expression.Length >= 2 && expression[0] == '{' && expression[^1] == '}') {
                 Parser parser = new Parser(expression);
                 _names = parser.names.ToArray();
                 _regex = new Regex(parser.regex.ToString(), RegexOptions.Compiled | RegexOptions.Singleline);

@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Globalization;
 using System.IO;
+using System.Threading;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Http.Extensions;
 using Jannesen.Web.Core.Impl;
@@ -11,7 +12,7 @@ namespace Jannesen.Web.Core
     public class ResourceLogging: WebCoreResource
     {
         private readonly        string              _directory;
-        private readonly        object              _logLock;
+        private readonly        Lock                _logLock;
         private                 FileStream          _filestream;
         private                 DateTime            _nextFile;
 
@@ -34,7 +35,7 @@ namespace Jannesen.Web.Core
             ArgumentNullException.ThrowIfNull(configReader);
 
             _directory   = configReader.GetValueString("directory");
-            _logLock     = new object();
+            _logLock     = new Lock();
             _nextFile    = DateTime.MinValue;
         }
 

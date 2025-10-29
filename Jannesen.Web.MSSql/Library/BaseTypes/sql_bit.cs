@@ -3,7 +3,7 @@ using System.Data;
 
 #pragma warning disable CA1812 // Avoid uninstantiated internal classes (created using reflection)
 
-namespace Jannesen.Web.MSSql.Library.BaseType
+namespace Jannesen.Web.MSSql.Library.BaseTypes
 {
     [ValueConvertorAttributeBaseType("bit")]
     internal sealed class sql_bit: ValueConvertor_SqlNative
@@ -17,13 +17,13 @@ namespace Jannesen.Web.MSSql.Library.BaseType
 
         public          override            object              ConvertClrToValue(object value)
         {
-            if (value == null)      return null;
-            if (value is byte)      return ((byte)value != 0);
-            if (value is Int16)     return ((Int16)value != 0);
-            if (value is int)       return ((int)value != 0);
-            if (value is Int64)     return ((Int64)value != 0);
-            if (value is bool)      return value;
-            if (value is string)    return ConvertStringToValue((string)value);
+            if (value == null)            return null;
+            if (value is bool)            return value;
+            if (value is Int32  vint32 )  return (vint32 != 0);
+            if (value is byte   vbyte  )  return (vbyte  != 0);
+            if (value is Int16  vint16 )  return (vint16 != 0);
+            if (value is Int64  vint64 )  return (vint64 != 0);
+            if (value is string vstring)  return ConvertStringToValue(vstring);
 
             return NoConversion(value);
         }

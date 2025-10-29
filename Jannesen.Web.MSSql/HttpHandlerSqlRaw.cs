@@ -5,7 +5,7 @@ using Microsoft.Data.SqlClient;
 using Jannesen.Web.Core.Impl;
 using Jannesen.Web.MSSql.Library;
 
-namespace Jannesen.Web.MSSql.Sqx
+namespace Jannesen.Web.MSSql
 {
     [WebCoreHttpHandlerAttribute("sql-raw")]
     public class HttpHandlerSqlRaw: HttpHandlerMSSql

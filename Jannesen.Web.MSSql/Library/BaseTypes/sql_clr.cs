@@ -5,14 +5,14 @@ using System.Runtime.InteropServices;
 
 #pragma warning disable CA1812 // Avoid uninstantiated internal classes (created using reflection)
 
-namespace Jannesen.Web.MSSql.Library.BaseType
+namespace Jannesen.Web.MSSql.Library.BaseTypes
 {
     [ValueConvertorAttributeBaseType("clr")]
     internal sealed class sql_clr: ValueConvertor_SqlNative
     {
-        private                             Type                _type;
-        private                             int                 _size;
-        private                             MethodInfo          _parse;
+        private         readonly            Type                _type;
+        private         readonly            int                 _size;
+        private         readonly            MethodInfo          _parse;
 
         public          override            SqlDbType           DBType      { get { return System.Data.SqlDbType.VarBinary;     } }
         public          override            Type                ClrType     { get { return typeof(byte[]);                      } }
@@ -35,7 +35,7 @@ namespace Jannesen.Web.MSSql.Library.BaseType
             else
                 throw new NotSupportedException("Not a support type '" + s + "'.");
 
-            _parse = _type.GetMethod("Parse", new Type[] { typeof(System.Data.SqlTypes.SqlString) });
+            _parse = _type.GetMethod("Parse", [ typeof(System.Data.SqlTypes.SqlString) ]);
 
             if (!(_parse != null && _parse.IsStatic))
                 throw new InvalidOperationException("Missing parse method.");
@@ -43,8 +43,8 @@ namespace Jannesen.Web.MSSql.Library.BaseType
 
         public          override            object              ConvertClrToValue(object value)
         {
-            if (value == null)      return null;
-            if (value is string)    return ConvertStringToValue((string)value);
+            if (value == null)           return null;
+            if (value is string vstring) return ConvertStringToValue(vstring);
 
             return NoConversion(value);
         }
@@ -53,7 +53,7 @@ namespace Jannesen.Web.MSSql.Library.BaseType
             if (string.IsNullOrEmpty(sValue))
                 return null;
 
-            return _toByteArray(_parse.Invoke(null, new object[] { new System.Data.SqlTypes.SqlString(sValue) }));
+            return _toByteArray(_parse.Invoke(null, [ new System.Data.SqlTypes.SqlString(sValue) ]));
         }
         public          override            void                ConvertXmlValueToJson(string sValue, Jannesen.FileFormat.Json.JsonWriter jsonWriter)
         {

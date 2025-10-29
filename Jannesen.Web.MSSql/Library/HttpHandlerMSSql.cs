@@ -72,11 +72,11 @@ retry:      using (SqlConnection sqlConnection = GetConnection(httpCall))
         }
         public      override    int                         ProcessErrorCode(Exception err, out string code, out string message)
         {
-            if (err is SqlException) {
+            if (err is SqlException sqlErr) {
                 string      msg = err.Message;
                 int         i;
 
-                if (msg.Length > 2 && msg[0] == '[' && msg[msg.Length - 1] == ']') {
+                if (msg.Length > 2 && msg[0] == '[' && msg[^1] == ']') {
                     code     = msg.Substring(1, msg.Length - 2);
                     message  = code;
                 }
@@ -85,7 +85,7 @@ retry:      using (SqlConnection sqlConnection = GetConnection(httpCall))
                     message  = msg.Substring(i+2);
                 }
                 else {
-                    switch(((SqlException)err).Number) {
+                    switch(sqlErr.Number) {
                     case -2:
                         code    = "DATABASE-TIMEOUT";
                         message = "Database timeout";
@@ -192,7 +192,7 @@ retry:      using (SqlConnection sqlConnection = GetConnection(httpCall))
             while (err.InnerException != null)
                 err = err.InnerException;
 
-            return err is SqlException &&  ((SqlException)err).Number == 1205;
+            return err is SqlException sqlErr &&  sqlErr.Number == 1205;
         }
     }
 }

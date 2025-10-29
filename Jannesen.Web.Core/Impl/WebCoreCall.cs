@@ -196,8 +196,9 @@ namespace Jannesen.Web.Core.Impl
         // Find if already created.
             if (_requestProcessors != null) {
                 for (int i = 0 ; i < _requestProcessors.Count ; ++i) {
-                    if (_requestProcessors[i] is T)
-                        return (T)_requestProcessors[i];
+                    if (_requestProcessors[i] is T rp) {
+                        return rp;
+                    }
                 }
             }
 
@@ -207,8 +208,9 @@ namespace Jannesen.Web.Core.Impl
 
                 processor.Proces(this);
 
-                if (_requestProcessors == null)
+                if (_requestProcessors == null) {
                     _requestProcessors = new List<object>();
+                }
 
                 _requestProcessors.Add(processor);
 

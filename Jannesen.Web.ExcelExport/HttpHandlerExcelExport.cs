@@ -1,5 +1,6 @@
 ﻿using System;
 using System.IO;
+using System.Threading;
 using Microsoft.Data.SqlClient;
 using Jannesen.Web.Core.Impl;
 using Jannesen.Web.MSSql.Library;
@@ -13,7 +14,7 @@ namespace Jannesen.Web.ExcelExport
     public class HttpHandlerExcelExport: HttpHandlerMSSql
     {
         private     readonly    ConfigSheetList             _sheets;
-        private static readonly object                      _singleLock = new Object();
+        private static readonly Lock                        _singleLock = new Lock();
 
         public                                              HttpHandlerExcelExport(WebCoreConfigReader configReader): base(configReader)
         {

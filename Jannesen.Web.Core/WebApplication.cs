@@ -18,7 +18,7 @@ namespace Jannesen.Web.Core
         private                         IServiceProvider                                            _serviceProvider;
         private                         IMemoryCache                                                _cache;             
         private                         WebApplicationConfig                                        _applicationConfig;
-        private                         Lock                                                        _configLock;
+        private     readonly            Lock                                                        _configLock;
 
         public                          IMemoryCache                                                Cache => _cache;
 

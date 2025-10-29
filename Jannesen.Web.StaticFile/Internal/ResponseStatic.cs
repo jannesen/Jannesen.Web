@@ -43,18 +43,18 @@ namespace Jannesen.Web.StaticFile.Internal
             response.ContentType = null;
 
             if (_lastModified.HasValue) {
-                response.Headers["Last-Modified"] = _lastModified.Value.ToString("R", System.Globalization.DateTimeFormatInfo.InvariantInfo);
+                response.Headers.LastModified = _lastModified.Value.ToString("R", System.Globalization.DateTimeFormatInfo.InvariantInfo);
                 ifModifiedSince = call.RequestIfModifiedSince;
             }
 
             if (_eTag != null) {
-                response.Headers["ETag"] = _eTag;
+                response.Headers.ETag = _eTag;
                 etag = call.RequestIfNoneMatch;
             }
 
-            response.Headers["Cache-Control"] = (_cachepublic ? "public" : "private" ) +
+            response.Headers.CacheControl = (_cachepublic ? "public" : "private" ) +
                                                 (_cacheMaxAge > 0 ? ", max-age=" + _cacheMaxAge.ToString(CultureInfo.InvariantCulture) : (_cacheMaxAge == 0 ? ", max-age=0, must-revalidate" : ""));
-            response.Headers["Content-Type"] = _contentType;
+            response.Headers.ContentType  = _contentType;
 
             if ((etag != null             && _eTag == etag                   ) ||
                 (ifModifiedSince.HasValue && _lastModified == ifModifiedSince))

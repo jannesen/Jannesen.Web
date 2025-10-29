@@ -10,6 +10,39 @@ trim_trailing_whitespace = true
 [*.cs]
 charset                  = utf-8-bom
 
+# Use collection initializers or expressions (IDE0028)
+dotnet_diagnostic.IDE0028.severity = none
+
+# Use range operator (IDE0057)
+dotnet_diagnostic.IDE0057.severity = none
+
+# Use simple 'using' statement (IDE0063)
+dotnet_diagnostic.IDE0063.severity = none
+
+# Use switch expression (IDE0066)
+dotnet_diagnostic.IDE0066.severity = none
+
+# Use compound assignment (IDE0074)
+dotnet_diagnostic.IDE0074.severity = none
+
+# Use pattern matching (not operator) (IDE0083)
+dotnet_diagnostic.IDE0083.severity = none
+
+# Simplify new expression (IDE0090)
+dotnet_diagnostic.IDE0090.severity = none
+
+# Use primary constructor (IDE0290)
+dotnet_diagnostic.IDE0290.severity = none
+
+# Use collection expression for fluent (IDE0305)
+dotnet_diagnostic.IDE0305.severity = none
+
+# Use collection expression for new (IDE0306)
+dotnet_diagnostic.IDE0306.severity = none
+
+# IDE1006: Code-style naming rules
+dotnet_diagnostic.IDE1006.severity = none
+
 # CA1031: Do not catch general exception types
 dotnet_diagnostic.CA1031.severity = none
 

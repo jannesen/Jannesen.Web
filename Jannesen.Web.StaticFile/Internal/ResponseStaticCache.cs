@@ -16,8 +16,8 @@ namespace Jannesen.Web.StaticFile.Internal
 
         protected   override    void            SendBodyData(HttpResponse response)
         {
-            response.Headers["Content-Encoding"] = _fileCache.ContentEncoding;
-            response.Headers["Content-Length"]   = _fileCache.Data.Length.ToString(CultureInfo.InvariantCulture);
+            response.Headers.ContentEncoding = _fileCache.ContentEncoding;
+            response.Headers.ContentLength   = _fileCache.Data.Length;
             response.Body.Write(_fileCache.Data, 0, _fileCache.Data.Length);
         }
 

@@ -196,29 +196,17 @@ namespace Jannesen.Web.Core.Impl
         }
         public                  string                  GetValueString(string name)
         {
-            string      value = _xmlReader.GetAttribute(name);
-
-            if (value == null)
-                throw new WebConfigException("Missing attribute '" + name + "'.", this);
-
-            return value;
+            return _xmlReader.GetAttribute(name) ?? throw new WebConfigException("Missing attribute '" + name + "'.", this);
         }
         public                  string                  GetValueString(string name, string defaultValue)
         {
-            string      value = _xmlReader.GetAttribute(name);
-
-            if (value == null)
-                return defaultValue;
-
-            return value;
+            return _xmlReader.GetAttribute(name) ?? defaultValue;
         }
         public                  int                     GetValueInt(string name, int minValue, int maxValue)
         {
-            string      value = _xmlReader.GetAttribute(name);
+            string      value = _xmlReader.GetAttribute(name) ?? throw new WebConfigException("Missing attribute '" + name + "'.", this);
             int         ivalue;
-
-            if (value == null)
-                throw new WebConfigException("Missing attribute '" + name + "'.", this);
+                ;
 
             try {
                 ivalue = int.Parse(value, CultureInfo.InvariantCulture);

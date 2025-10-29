@@ -4,7 +4,7 @@ using System.Globalization;
 
 #pragma warning disable CA1812 // Avoid uninstantiated internal classes (created using reflection)
 
-namespace Jannesen.Web.MSSql.Library.BaseType
+namespace Jannesen.Web.MSSql.Library.BaseTypes
 {
     [ValueConvertorAttributeBaseType("smallmoney")]
     internal sealed class sql_smallmoney: ValueConvertor_SqlNative
@@ -18,14 +18,15 @@ namespace Jannesen.Web.MSSql.Library.BaseType
 
         public          override            object              ConvertClrToValue(object value)
         {
-            if (value == null)      return null;
-            if (value is decimal)   return value;
-            if (value is float)     return Convert.ToDecimal((float)value);
-            if (value is double)    return Convert.ToDecimal((double)value);
-            if (value is Int16)     return Convert.ToDecimal((Int16)value);
-            if (value is Int32)     return Convert.ToDecimal((Int32)value);
-            if (value is Int64)     return Convert.ToDecimal((Int64)value);
-            if (value is string)    return ConvertStringToValue((string)value);
+            if (value == null)              return null;
+            if (value is decimal)           return value;
+            if (value is double vdouble)    return Convert.ToDecimal(vdouble);
+            if (value is float  vfloat)     return Convert.ToDecimal(vfloat);
+            if (value is byte   vbyte)      return Convert.ToDecimal(vbyte);
+            if (value is Int16  vint16)     return Convert.ToDecimal(vint16);
+            if (value is Int32  vint32)     return Convert.ToDecimal(vint32);
+            if (value is Int64  vint64)     return Convert.ToDecimal(vint64);
+            if (value is string vstring)    return ConvertStringToValue(vstring);
 
             return NoConversion(value);
         }

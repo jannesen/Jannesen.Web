@@ -4,7 +4,7 @@ using System.Globalization;
 
 #pragma warning disable CA1812 // Avoid uninstantiated internal classes (created using reflection)
 
-namespace Jannesen.Web.MSSql.Library.BaseType
+namespace Jannesen.Web.MSSql.Library.BaseTypes
 {
     [ValueConvertorAttributeBaseType("bigint")]
     internal sealed class sql_bigint: ValueConvertor_SqlNative
@@ -18,12 +18,12 @@ namespace Jannesen.Web.MSSql.Library.BaseType
 
         public          override            object              ConvertClrToValue(object value)
         {
-            if (value == null)      return null;
-            if (value is Int64)     return value;
-            if (value is byte)      return (Int64)(byte)value;
-            if (value is Int16)     return (Int64)(Int16)value;
-            if (value is int  )     return (Int64)(int)value;
-            if (value is string)    return ConvertStringToValue((string)value);
+            if (value == null)            return null;
+            if (value is Int64)           return value;
+            if (value is Int32  vint32 )  return (Int64)vint32;
+            if (value is byte   vbyte  )  return (Int64)vbyte;
+            if (value is Int16  vint16 )  return (Int64)vint16;
+            if (value is string vstring)  return ConvertStringToValue(vstring);
 
             return NoConversion(value);
         }

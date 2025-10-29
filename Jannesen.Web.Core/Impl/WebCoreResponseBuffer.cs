@@ -132,7 +132,7 @@ namespace Jannesen.Web.Core.Impl
 
             if (_statusCode == HttpStatusCode.OK && _data != null) {
                 if (_disposition != null) {
-                    response.Headers["Content-Disposition"] = _disposition;
+                    response.Headers.ContentDisposition = _disposition;
                 }
 
                 if (_lastModified < DateTime.MaxValue &&  _lastModified > DateTime.UtcNow)
@@ -143,16 +143,16 @@ namespace Jannesen.Web.Core.Impl
                     DateTime?   req_ifModifiedSince = null;
 
                     if (_lastModified < DateTime.MaxValue) {
-                        response.Headers["Last-Modified"] = LastModified.ToString("R", System.Globalization.DateTimeFormatInfo.InvariantInfo);
+                        response.Headers.LastModified = LastModified.ToString("R", System.Globalization.DateTimeFormatInfo.InvariantInfo);
                         req_ifModifiedSince = call.RequestIfModifiedSince;
                     }
 
                     if (_eTag != null) {
-                        response.Headers["ETag"] = _eTag;
+                        response.Headers.ETag = _eTag;
                         req_etag = call.RequestIfNoneMatch;
                     }
 
-                    response.Headers["Cache-Control"] = _cacheMaxAge >= 0
+                    response.Headers.CacheControl = _cacheMaxAge >= 0
                                                         ? ((_cachepublic ? "public, max-age=" : "private, max-age=") + _cacheMaxAge.ToString(CultureInfo.InvariantCulture) + ", must-revalidate")
                                                         : ((_cachepublic ? "public"           : "private"          ));
 
@@ -165,9 +165,9 @@ namespace Jannesen.Web.Core.Impl
                 }
                 else
                 if (_cacheMaxAge > 0)
-                    response.Headers["Cache-Control"] = (_cachepublic ? "public, max-age=" : "private, max-age=") + _cacheMaxAge.ToString(CultureInfo.InvariantCulture);
+                    response.Headers.CacheControl = (_cachepublic ? "public, max-age=" : "private, max-age=") + _cacheMaxAge.ToString(CultureInfo.InvariantCulture);
                 else
-                    response.Headers["Cache-Control"] = "no-cache, no-store";
+                    response.Headers.CacheControl = "no-cache, no-store";
             }
             else
                 response.StatusCode = (int)_statusCode;
@@ -175,14 +175,14 @@ namespace Jannesen.Web.Core.Impl
             response.ContentType = null;
 
             if (_data != null) {
-                response.Headers["Content-Type"] = _contentType;
+                response.Headers.ContentType = _contentType;
 
                 if (call.HttpMethod != "HEAD") {
                     if (_compression && _length > 512) {
                         string contentEncoding = GetResponseCompressionEncoding(call);
 
                         if (contentEncoding != null) {
-                            response.Headers["Content-Encoding"] = contentEncoding;
+                            response.Headers.ContentEncoding = contentEncoding;
 
                             using (MemoryStream buffer = new MemoryStream(_length > 0x4000 ? _length / 4 : 0x1000)) {
                                 using (Stream stream = GetCompressor(contentEncoding, buffer))

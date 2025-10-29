@@ -244,9 +244,10 @@ namespace Jannesen.Web.ExcelExport.ExcelExport
 
             default:
                 {
-                    foreach(NumberingFormat f in _numberingFormats) {
-                        if (f.FormatCode == format)
-                            return f.NumberFormatId;
+                    foreach(var f in _numberingFormats) {
+                        if (f is NumberingFormat nf && nf.FormatCode == format) {
+                            return nf.NumberFormatId;
+                        }
                     }
 
                     {

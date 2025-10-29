@@ -11,7 +11,7 @@ namespace Jannesen.Web.Core.Impl
     }
 
 #pragma warning disable CA1815 // CA1815: Override equals and operator equals on value types
-    public struct WebCoreDataValue
+    public readonly struct WebCoreDataValue
     {
         public          WebCoreDataValueType    Type        { get; private init; }
         public          object                  Value       { get; private init; }
@@ -31,11 +31,11 @@ namespace Jannesen.Web.Core.Impl
                     return null;
 
                 case WebCoreDataValueType.ClrValue:
-                    if (Value is string)        return (string)Value;
-                    if (Value is byte)          return ((byte) Value).ToString(CultureInfo.InvariantCulture);
-                    if (Value is Int16)         return ((Int16)Value).ToString(CultureInfo.InvariantCulture);
-                    if (Value is Int32)         return ((Int32)Value).ToString(CultureInfo.InvariantCulture);
-                    if (Value is Int64)         return ((Int64)Value).ToString(CultureInfo.InvariantCulture);
+                    if (Value is string vstring) return vstring;
+                    if (Value is byte   vbyte)   return vbyte.ToString(CultureInfo.InvariantCulture);
+                    if (Value is Int16  vint16)  return vint16.ToString(CultureInfo.InvariantCulture);
+                    if (Value is Int32  vint32)  return vint32.ToString(CultureInfo.InvariantCulture);
+                    if (Value is Int64  vint64)  return vint64.ToString(CultureInfo.InvariantCulture);
 
                     throw new InvalidOperationException("No conversion possible from " + Value.GetType().FullName + " to StringValue.");
 

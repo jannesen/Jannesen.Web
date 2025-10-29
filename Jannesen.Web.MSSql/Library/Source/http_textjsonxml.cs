@@ -29,11 +29,11 @@ namespace Jannesen.Web.MSSql.Library.Source
                 XmlWriter xmlWriter = XmlWriter.Create(stringWriter, new XmlWriterSettings() { CloseOutput=false, OmitXmlDeclaration=true });
 #pragma warning restore CA2000
 
-                if (jsondoc is JsonObject)
-                    _jsonToXmlElement(xmlWriter, "json-object", (JsonObject)jsondoc);
+                if (jsondoc is JsonObject docObject)
+                    _jsonToXmlElement(xmlWriter, "json-object", docObject);
                 else
-                if (jsondoc is JsonArray)
-                    _jsonToXmlElement(xmlWriter, "json-array", (JsonArray)jsondoc);
+                if (jsondoc is JsonArray docArray)
+                    _jsonToXmlElement(xmlWriter, "json-array", docArray);
                 else
                     throw new WebRequestException("Invalid JSON content");
 
@@ -53,13 +53,13 @@ namespace Jannesen.Web.MSSql.Library.Source
             }
 
             foreach(KeyValuePair<string, object> item in jsonObject) {
-                if (item.Value is JsonObject)
-                    _jsonToXmlElement(xmlWriter, item.Key, (JsonObject)item.Value);
+                if (item.Value is JsonObject itemObject)
+                    _jsonToXmlElement(xmlWriter, item.Key, itemObject);
             }
 
             foreach(KeyValuePair<string, object> item in jsonObject) {
-                if (item.Value is JsonArray)
-                    _jsonToXmlElement(xmlWriter, item.Key, (JsonArray)item.Value);
+                if (item.Value is JsonArray itemArray)
+                    _jsonToXmlElement(xmlWriter, item.Key, itemArray);
             }
 
             xmlWriter.WriteEndElement();
@@ -69,11 +69,11 @@ namespace Jannesen.Web.MSSql.Library.Source
             xmlWriter.WriteStartElement(elementName);
 
             foreach(object item in jsonArray) {
-                if (item is JsonObject)
-                    _jsonToXmlElement(xmlWriter, "row", (JsonObject)item);
+                if (item is JsonObject itemObject)
+                    _jsonToXmlElement(xmlWriter, "row", itemObject);
                 else
-                if (item is JsonArray)
-                    _jsonToXmlElement(xmlWriter, "row", (JsonArray)item);
+                if (item is JsonArray itemArray)
+                    _jsonToXmlElement(xmlWriter, "row", itemArray);
                 else {
                     xmlWriter.WriteStartElement("row");
                     _jsonToXmlAttribute(xmlWriter, "value", item);
@@ -85,17 +85,17 @@ namespace Jannesen.Web.MSSql.Library.Source
         private     static          void                    _jsonToXmlAttribute(XmlWriter xmlWriter, string attributeName, object value)
         {
             if (value != null) {
-                if (value is string)
-                    xmlWriter.WriteAttributeString("_s_" + attributeName, (string)value);
+                if (value is string vstring)
+                    xmlWriter.WriteAttributeString("_s_" + attributeName, vstring);
                 else
-                if (value is Int64)
-                    xmlWriter.WriteAttributeString("_i_" + attributeName, XmlConvert.ToString((Int64)value));
+                if (value is Int64 vint64)
+                    xmlWriter.WriteAttributeString("_i_" + attributeName, XmlConvert.ToString(vint64));
                 else
-                if (value is double)
-                    xmlWriter.WriteAttributeString("_n_" + attributeName, XmlConvert.ToString((double)value));
+                if (value is double vdouble)
+                    xmlWriter.WriteAttributeString("_n_" + attributeName, XmlConvert.ToString(vdouble));
                 else
-                if (value is bool)
-                    xmlWriter.WriteAttributeString("_b_" + attributeName, (bool)value ? "1" : "0");
+                if (value is bool vbool)
+                    xmlWriter.WriteAttributeString("_b_" + attributeName, vbool ? "1" : "0");
                 else
                     throw new WebConversionException("Can't convert json '" + value.GetType().Name + "' to xml-attribute.");
             }
