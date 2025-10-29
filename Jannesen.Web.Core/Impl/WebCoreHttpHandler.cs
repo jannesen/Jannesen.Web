@@ -66,13 +66,13 @@ namespace Jannesen.Web.Core.Impl
             _verb   = string.Intern(configReader.GetValueString("verb", "GET").ToUpperInvariant());
             _public = configReader.GetValueBool("public", false);
 
-            string errorHandler = configReader.GetValueString("error-handler", null);
+            var errorHandler = configReader.GetValueString("error-handler", null);
 
             if (errorHandler != null) {
                 _errorHandler = WebLoader.Instance.GetErrorHandler(errorHandler);
             }
 
-            string logging = configReader.GetValueString("logging", null);
+            var logging = configReader.GetValueString("logging", null);
 
             if (logging != null)
                 _logging = configReader.ApplicationConfig.GetResource<ResourceLogging>(logging);
@@ -98,8 +98,8 @@ namespace Jannesen.Web.Core.Impl
 
         private                 void                                _processRequest(WebApplicationConfig applicationConfig, HttpContext context)
         {
-            WebCoreResponse     webResponse;
-            WebCoreCall         httpCall    = new WebCoreCall(applicationConfig, context, this);
+            var             httpCall    = new WebCoreCall(applicationConfig, context, this);
+            WebCoreResponse webResponse;
 
             try {
                 webResponse = Process(httpCall);
@@ -156,10 +156,11 @@ namespace Jannesen.Web.Core.Impl
                 if (httpHandler.WildcardPathProcessor == null)
                     _exact.Add(httpHandler.Path, httpHandler);
                 else {
-                    int     i = 0;
+                    var i = 0;
 
-                    while (i < _wildcard.Count && _wildcard[i].WildcardPathProcessor.Prefix.Length >= httpHandler.WildcardPathProcessor.Prefix.Length)
+                    while (i < _wildcard.Count && _wildcard[i].WildcardPathProcessor.Prefix.Length >= httpHandler.WildcardPathProcessor.Prefix.Length) {
                         ++i;
+                    }
 
                     _wildcard.Insert(i, httpHandler);
                 }
@@ -167,14 +168,16 @@ namespace Jannesen.Web.Core.Impl
             public                  WebCoreHttpHandler                          GetHandler(string path)
             {
                 {
-                    if (_exact.TryGetValue(path, out var rtn))
+                    if (_exact.TryGetValue(path, out var rtn)) {
                         return rtn;
+                    }
                 }
 
                 {
-                    for(int i = 0 ; i < _wildcard.Count ; ++i) {
-                        if (_wildcard[i].WildcardPathProcessor.IsMatch(path))
+                    for(var i = 0 ; i < _wildcard.Count ; ++i) {
+                        if (_wildcard[i].WildcardPathProcessor.IsMatch(path)) {
                             return _wildcard[i];
+                        }
                     }
                 }
 

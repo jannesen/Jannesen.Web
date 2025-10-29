@@ -36,7 +36,7 @@ namespace Jannesen.Web.MSSql.Library
         {
             ArgumentNullException.ThrowIfNull(configReader);
 
-            string  type     = configReader.GetValueString  ("type");
+            var type     = configReader.GetValueString  ("type");
 
             Parameter parameter;
 
@@ -47,11 +47,11 @@ namespace Jannesen.Web.MSSql.Library
 
         public       override   WebCoreResponse             Process(WebCoreCall httpCall)
         {
-            int retry_count = 0;
+            var retry_count = 0;
 
-retry:      using (SqlConnection sqlConnection = GetConnection(httpCall))
+retry:      using (var sqlConnection = GetConnection(httpCall))
             {
-                using (SqlCommand sqlCommand = new SqlCommand(_procedure, sqlConnection) {CommandType = CommandType.StoredProcedure, CommandTimeout = _timeout } ) {
+                using (var sqlCommand = new SqlCommand(_procedure, sqlConnection) {CommandType = CommandType.StoredProcedure, CommandTimeout = _timeout } ) {
                     _parameters.AddParametersToCommand(sqlCommand, httpCall);
 
                     try {
@@ -73,8 +73,8 @@ retry:      using (SqlConnection sqlConnection = GetConnection(httpCall))
         public      override    int                         ProcessErrorCode(Exception err, out string code, out string message)
         {
             if (err is SqlException sqlErr) {
-                string      msg = err.Message;
-                int         i;
+                var msg = err.Message;
+                int i;
 
                 if (msg.Length > 2 && msg[0] == '[' && msg[^1] == ']') {
                     code     = msg.Substring(1, msg.Length - 2);
@@ -124,7 +124,7 @@ retry:      using (SqlConnection sqlConnection = GetConnection(httpCall))
             ArgumentNullException.ThrowIfNull(httpCall);
             ArgumentNullException.ThrowIfNull(sqlCommand);
 
-            using (SqlDataReader dataReader = sqlCommand.ExecuteReader()) {
+            using (var dataReader = sqlCommand.ExecuteReader()) {
                 return Process(httpCall, dataReader);
             }
         }
@@ -147,8 +147,8 @@ retry:      using (SqlConnection sqlConnection = GetConnection(httpCall))
             try {
                 if (dataReader.FieldCount>0 && dataReader.GetName(0).StartsWith("opt.", StringComparison.Ordinal)) {
                     if (dataReader.Read()) {
-                        for (int i = 0 ; i < dataReader.FieldCount ; ++i) {
-                            string fieldname = dataReader.GetName(i);
+                        for (var i = 0 ; i < dataReader.FieldCount ; ++i) {
+                            var fieldname = dataReader.GetName(i);
 
                             switch(fieldname) {
                             case "opt.cache.lastmodified":

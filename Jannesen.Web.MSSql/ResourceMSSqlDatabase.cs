@@ -108,7 +108,7 @@ namespace Jannesen.Web.MSSql
         }
         public                  SqlConnection       GetConnection()
         {
-            SqlConnection   sqlConnection = new SqlConnection(_connectString);
+            var sqlConnection = new SqlConnection(_connectString);
 
             try {
                 sqlConnection.Open();

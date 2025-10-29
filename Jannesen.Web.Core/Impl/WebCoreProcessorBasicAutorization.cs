@@ -25,11 +25,11 @@ namespace Jannesen.Web.Core.Impl
         {
             ArgumentNullException.ThrowIfNull(httpCall);
 
-            string          authorization   = httpCall.GetHeader("Authorization");
+            var authorization   = httpCall.GetHeader("Authorization");
 
             if (authorization != null && authorization.StartsWith("Basic ", StringComparison.Ordinal)) {
-                string  AuthStr     = System.Text.Encoding.ASCII.GetString(System.Convert.FromBase64String(authorization.Substring(6)));
-                int     AuthStrPos  = AuthStr.IndexOf(':', StringComparison.Ordinal);
+                var AuthStr     = System.Text.Encoding.ASCII.GetString(System.Convert.FromBase64String(authorization.Substring(6)));
+                var AuthStrPos  = AuthStr.IndexOf(':', StringComparison.Ordinal);
 
                 if (AuthStrPos>=0) {
                     _username       = AuthStr.Substring(0, AuthStrPos);

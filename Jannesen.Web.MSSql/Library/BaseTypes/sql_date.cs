@@ -31,11 +31,11 @@ namespace Jannesen.Web.MSSql.Library.BaseTypes
             if (string.IsNullOrEmpty(sValue))
                 return null;
 
-            int     fieldpos = 0;
-            int[]   fields   = new int[3];
+            var fieldpos = 0;
+            var fields   = new int[3];
 
-            for (int pos = 0 ; pos<sValue.Length ; ++pos) {
-                char    chr = sValue[pos];
+            for (var pos = 0 ; pos<sValue.Length ; ++pos) {
+                var chr = sValue[pos];
 
                 if (chr>='0' && chr <='9') {
                     fields[fieldpos] = fields[fieldpos]*10 + (chr-'0');

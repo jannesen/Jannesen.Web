@@ -65,8 +65,8 @@ namespace Jannesen.Web.Core
             lock(_lock) {
                 if (!_dynamicClasses.TryGetValue(className, out constructorInfo)) {
                     if (className.Name.IndexOf('.', StringComparison.Ordinal) > 0) {
-                        for (int i = 0 ; i < _loadedModules.Count ; ++i) {
-                            Type        classType = _loadedModules[i].GetType(className.Name);
+                        for (var i = 0 ; i < _loadedModules.Count ; ++i) {
+                            var classType = _loadedModules[i].GetType(className.Name);
 
                             if (classType != null) {
                                 constructorInfo = className.GetConstructor(classType);
@@ -107,9 +107,9 @@ namespace Jannesen.Web.Core
                 if (!_loadedModules.Contains(assembly)) {
                     _loadedModules.Add(assembly);
 
-                    foreach(Type type in assembly.GetTypes()) {
+                    foreach(var type in assembly.GetTypes()) {
                         try {
-                            foreach(WebCoreDynamicClassAttribute attr in (WebCoreDynamicClassAttribute[])type.GetCustomAttributes(typeof(WebCoreDynamicClassAttribute), false)) {
+                            foreach(var attr in (WebCoreDynamicClassAttribute[])type.GetCustomAttributes(typeof(WebCoreDynamicClassAttribute), false)) {
                                 _dynamicClasses.Add(attr, attr.GetConstructor(type));
                             }
 

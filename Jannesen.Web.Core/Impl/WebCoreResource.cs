@@ -77,7 +77,7 @@ namespace Jannesen.Web.Core.Impl
         }
         public                  void                                    Dispose()
         {
-            foreach(WebCoreResource resource in _dictionary.Values) {
+            foreach(var resource in _dictionary.Values) {
                 try {
                     resource.Dispose();
                 }

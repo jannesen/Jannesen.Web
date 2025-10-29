@@ -154,7 +154,7 @@ namespace Jannesen.Web.Core.Impl
                 return path;
             }
 
-            StringBuilder   rtn = new StringBuilder();
+            var rtn = new StringBuilder();
             List<string>    parts;
 
             if (_filename.Length > 2 && _filename[1] == ':' && _filename[2] == '\\') {
@@ -169,7 +169,7 @@ namespace Jannesen.Web.Core.Impl
             else
                 throw new WebConfigException("Current file is not absolute", this);
 
-            foreach(string p in path.Replace("\\", "/", StringComparison.Ordinal).Split('/')) {
+            foreach(var p in path.Replace("\\", "/", StringComparison.Ordinal).Split('/')) {
                 switch(p) {
                 case ".":
                     break;
@@ -187,7 +187,7 @@ namespace Jannesen.Web.Core.Impl
                 }
             }
 
-            foreach(string p in parts) {
+            foreach(var p in parts) {
                 rtn.Append('\\');
                 rtn.Append(p);
             }
@@ -204,8 +204,8 @@ namespace Jannesen.Web.Core.Impl
         }
         public                  int                     GetValueInt(string name, int minValue, int maxValue)
         {
-            string      value = _xmlReader.GetAttribute(name) ?? throw new WebConfigException("Missing attribute '" + name + "'.", this);
-            int         ivalue;
+            var value = _xmlReader.GetAttribute(name) ?? throw new WebConfigException("Missing attribute '" + name + "'.", this);
+            int ivalue;
                 ;
 
             try {
@@ -222,8 +222,8 @@ namespace Jannesen.Web.Core.Impl
         }
         public                  int                     GetValueInt(string name, int defaultValue, int minValue, int maxValue)
         {
-            string      value = _xmlReader.GetAttribute(name);
-            int         ivalue;
+            var value = _xmlReader.GetAttribute(name);
+            int ivalue;
 
             if (value == null)
                 return defaultValue;
@@ -242,8 +242,8 @@ namespace Jannesen.Web.Core.Impl
         }
         public                  int?                    GetValueIntNull(string name, int minValue, int maxValue)
         {
-            string      value = _xmlReader.GetAttribute(name);
-            int         ivalue;
+            var value = _xmlReader.GetAttribute(name);
+            int ivalue;
 
             if (value == null)
                 return null;
@@ -262,7 +262,7 @@ namespace Jannesen.Web.Core.Impl
         }
         public                  bool                    GetValueBool(string name, bool defaultValue)
         {
-            string      value = _xmlReader.GetAttribute(name);
+            var value = _xmlReader.GetAttribute(name);
 
             if (value == null)
                 return defaultValue;
@@ -284,7 +284,7 @@ namespace Jannesen.Web.Core.Impl
         }
         public                  int                     GetValueEnum(Type t, string name)
         {
-            string      value = GetValueString(name);
+            var value = GetValueString(name);
 
             try {
                 return (int)Enum.Parse(t, value, true);
@@ -295,8 +295,8 @@ namespace Jannesen.Web.Core.Impl
         }
         public                  double                  GetValueDouble(string name, double minValue, double maxValue)
         {
-            string      value = _xmlReader.GetAttribute(name);
-            double      dvalue;
+            var    value = _xmlReader.GetAttribute(name);
+            double dvalue;
 
             if (value == null)
                 throw new WebConfigException("Missing attribute '" + name + "'.", this);
@@ -315,8 +315,8 @@ namespace Jannesen.Web.Core.Impl
         }
         public                  double                  GetValueDouble(string name, double defaultValue, double minValue, double maxValue)
         {
-            string      value = _xmlReader.GetAttribute(name);
-            double      dvalue;
+            var    value = _xmlReader.GetAttribute(name);
+            double dvalue;
 
             if (value == null)
                 return defaultValue;
@@ -335,8 +335,8 @@ namespace Jannesen.Web.Core.Impl
         }
         public                  double?                 GetValueDoubleNull(string name, double minValue, double maxValue)
         {
-            string      value = _xmlReader.GetAttribute(name);
-            double      dvalue;
+            var    value = _xmlReader.GetAttribute(name);
+            double dvalue;
 
             if (value == null)
                 return null;
@@ -358,7 +358,7 @@ namespace Jannesen.Web.Core.Impl
             if (_path == null)
                 throw new WebConfigException("Path unavailable.", this);
 
-            string  pathname = GetValueString(name);
+            var pathname = GetValueString(name);
 
 //          if (pathname == "/" || pathname.IndexOf('\\') >= 0 || pathname.IndexOf("/./") >= 0 || pathname.IndexOf("/../") >= 0)
 //              throw new WebConfigException("Invalid pathname in attribute '" + name + "'.", this);

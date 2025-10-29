@@ -36,26 +36,29 @@ namespace Jannesen.Web.ExcelExport.ExcelExport
 
         public                  uint                        GetCellFormatHeader(ConfigColumn configColumn, ConfigSheet configSheet)
         {
-            Font            font = new Font()
-                                    {
-                                        FontName = new FontName() { Val = "Calibri"            },
-                                        FontSize = new FontSize() { Val = configSheet.FontSize },
-                                        Color    = new Color()    { Rgb = configColumn.HeaderForegroundColor }
-                                    };
+            var font = new Font() {
+                           FontName = new FontName() { Val = "Calibri"            },
+                           FontSize = new FontSize() { Val = configSheet.FontSize },
+                           Color    = new Color()    { Rgb = configColumn.HeaderForegroundColor }
+                       };
 
-            PatternFill     patternFill = new PatternFill() { PatternType = PatternValues.Solid };
-            patternFill.Append(new ForegroundColor(){ Rgb     = configColumn.HeaderBackgroundColor });
-            patternFill.Append(new BackgroundColor(){ Indexed = 64 });
-            Fill            fill = new Fill();
+            var patternFill = new PatternFill() {
+                                  PatternType = PatternValues.Solid
+                              };
+            patternFill.Append(new ForegroundColor() {
+                                   Rgb     = configColumn.HeaderBackgroundColor
+                               });
+            patternFill.Append(new BackgroundColor() {
+                                   Indexed = 64
+                               });
+            var fill = new Fill();
             fill.Append(patternFill);
 
-            return _getCellFormat(new CellFormat()      // CellFormat #2
-                                {
-                                    Alignment      = new Alignment()
-                                                        {
-                                                            Horizontal = (configColumn.ColSpan > 1 ? HorizontalAlignmentValues.Center : HorizontalAlignmentValues.Left),
-                                                            Vertical = VerticalAlignmentValues.Top
-                                                        },
+            return _getCellFormat(new CellFormat() { // CellFormat #2
+                                    Alignment      = new Alignment() {
+                                                         Horizontal = (configColumn.ColSpan > 1 ? HorizontalAlignmentValues.Center : HorizontalAlignmentValues.Left),
+                                                         Vertical = VerticalAlignmentValues.Top
+                                                     },
                                     NumberFormatId = 0,
                                     FontId         = _getFont(font),
                                     FillId         = _getFill(fill),
@@ -68,29 +71,30 @@ namespace Jannesen.Web.ExcelExport.ExcelExport
         }
         public                  uint                        GetCellFormatData(ConfigColumn configColumn, ConfigSheet configSheet, bool odd)
         {
-            Font            font = new Font()
-                                    {
-                                        FontName = new FontName() { Val = "Calibri"            },
-                                        FontSize = new FontSize() { Val = configSheet.FontSize },
-                                    };
-            Fill            fill = null;
+            var font = new Font() {
+                           FontName = new FontName() { Val = "Calibri"            },
+                           FontSize = new FontSize() { Val = configSheet.FontSize },
+                       };
+            var fill = (Fill)null;
 
             if (configSheet.BackgroundColor != null) {
-                PatternFill     patternFill = new PatternFill() { PatternType = PatternValues.Solid };
+                var patternFill = new PatternFill() {
+                                      PatternType = PatternValues.Solid
+                                  };
                 patternFill.Append(new ForegroundColor(){ Rgb     = (odd) ? configSheet.BackgroundColorOdd : configSheet.BackgroundColor });
                 patternFill.Append(new BackgroundColor(){ Indexed = 64 });
                 fill = new Fill();
                 fill.Append(patternFill);
             }
-            return _getCellFormat(new CellFormat()
-                                {
-                                    NumberFormatId    = configColumn.Format != null ? _getNumberingFormat(configColumn.Format) : 0,
-                                    FontId            = _getFont(font),
-                                    FillId            = (fill != null) ? _getFill(fill) : 0,
-                                    ApplyNumberFormat = true,
-                                    ApplyFont         = true,
-                                    ApplyFill         = true
-                                });
+
+            return _getCellFormat(new CellFormat() {
+                                      NumberFormatId    = configColumn.Format != null ? _getNumberingFormat(configColumn.Format) : 0,
+                                      FontId            = _getFont(font),
+                                      FillId            = (fill != null) ? _getFill(fill) : 0,
+                                      ApplyNumberFormat = true,
+                                      ApplyFont         = true,
+                                      ApplyFill         = true
+                                  });
         }
 
         public                  void                        Save(WorkbookPart workbookPart)
@@ -105,7 +109,7 @@ namespace Jannesen.Web.ExcelExport.ExcelExport
             _differentialFormats.Count  = (uint)_differentialFormats.ChildElements.Count;
             _tableStyles.Count          = (uint)_tableStyles.ChildElements.Count;
 
-            Stylesheet  stylesheet = new Stylesheet();
+            var stylesheet = new Stylesheet();
             stylesheet.Append(_numberingFormats,
                               _fonts,
                               _fills,

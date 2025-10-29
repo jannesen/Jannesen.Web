@@ -42,7 +42,7 @@ namespace Jannesen.Web.Core.Impl
             }
             set {
                 if (value < DateTime.MaxValue) {
-                    long ticks = value.ToUniversalTime().Ticks;
+                    var ticks = value.ToUniversalTime().Ticks;
 
                     _lastModified = new DateTime(ticks - ticks % TimeSpan.TicksPerSecond, DateTimeKind.Utc);;
                 }
@@ -179,13 +179,13 @@ namespace Jannesen.Web.Core.Impl
 
                 if (call.HttpMethod != "HEAD") {
                     if (_compression && _length > 512) {
-                        string contentEncoding = GetResponseCompressionEncoding(call);
+                        var contentEncoding = GetResponseCompressionEncoding(call);
 
                         if (contentEncoding != null) {
                             response.Headers.ContentEncoding = contentEncoding;
 
-                            using (MemoryStream buffer = new MemoryStream(_length > 0x4000 ? _length / 4 : 0x1000)) {
-                                using (Stream stream = GetCompressor(contentEncoding, buffer))
+                            using (var buffer = new MemoryStream(_length > 0x4000 ? _length / 4 : 0x1000)) {
+                                using (var stream = GetCompressor(contentEncoding, buffer))
                                     stream.Write(_data, 0, _length);
 
                                 response.Headers["Content-Length"] = buffer.Length.ToString(CultureInfo.InvariantCulture);

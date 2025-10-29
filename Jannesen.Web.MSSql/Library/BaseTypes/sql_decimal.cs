@@ -34,7 +34,7 @@ namespace Jannesen.Web.MSSql.Library.BaseTypes
                 throw new FormatException("Syntax error sql-type.");
 
             try {
-                int     i = s.IndexOf(',', StringComparison.Ordinal);
+                var i = s.IndexOf(',', StringComparison.Ordinal);
 
                 if (i < 0) {
                     _precision = int.Parse(s, System.Globalization.NumberStyles.Integer, CultureInfo.InvariantCulture);

@@ -25,10 +25,10 @@ namespace Jannesen.Web.MSSql.Library
                 if (!_cache.TryGetValue(nameparameter, out valueType)) {
                     string  name;
                     string  parm;
-                    int     b = nameparameter.IndexOf('(', StringComparison.Ordinal);
+                    var b = nameparameter.IndexOf('(', StringComparison.Ordinal);
 
                     if (b > 0) {
-                        int     e = nameparameter.IndexOf(')', b + 1);
+                        var e = nameparameter.IndexOf(')', b + 1);
 
                         if (e != nameparameter.Length - 1)
                             throw new FormatException("Syntax error sql-type.");
@@ -107,9 +107,9 @@ namespace Jannesen.Web.MSSql.Library
 
         private     static              string              _normalizeNumberValueToJson(string snumber)
         {
-            var  rtn = new StringBuilder(snumber.Length);
-            int  length = snumber.Length;
-            int  p    = 0;
+            var rtn = new StringBuilder(snumber.Length);
+            var length = snumber.Length;
+            var p    = 0;
 
             // Trim +
             if (snumber[p] == '+')
@@ -134,8 +134,8 @@ namespace Jannesen.Web.MSSql.Library
 
             // Has fraction
             if (p < length && snumber[p] == '.') {
-                int     b = p;      // Begin fraction
-                int     e = p-1;    // Last digit
+                var b = p;      // Begin fraction
+                var e = p-1;    // Last digit
 
                 p++;
 
@@ -152,8 +152,8 @@ namespace Jannesen.Web.MSSql.Library
             }
 
             if (p < length && (snumber[p] == 'e' || snumber[p] == 'E')) {
-                char    sign = ' ';
-                int     e = 0;
+                var sign = ' ';
+                var e = 0;
                 ++p;
 
                 if (p < length && (snumber[p] == '+' || snumber[p] == '-'))

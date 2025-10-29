@@ -26,14 +26,14 @@ namespace Jannesen.Web.MSSql
 
         protected   override    WebCoreResponse             Process(WebCoreCall httpCall, SqlDataReader dataReader)
         {
-            WebCoreResponseBuffer   webResponseBuffer = new WebCoreResponseBuffer(null, this.Public, false);
+            var webResponseBuffer = new WebCoreResponseBuffer(null, this.Public, false);
 
             if (HandleResponseOptions(webResponseBuffer, dataReader) == HttpStatusCode.OK) {
                 if (dataReader.Read()) {
-                    for (int col= 0 ; col < dataReader.FieldCount ; ++col) {
+                    for (var col= 0 ; col < dataReader.FieldCount ; ++col) {
                         switch(dataReader.GetName(col).ToLowerInvariant()) {
                         case "content-type": {
-                                SqlString   String = dataReader.GetSqlString(col);
+                                var String = dataReader.GetSqlString(col);
 
                                 if (!String.IsNull)
                                     webResponseBuffer.ContentType = String.Value;
@@ -41,7 +41,7 @@ namespace Jannesen.Web.MSSql
                             break;
 
                         case "text": {
-                                SqlString text = dataReader.GetSqlString(col);
+                                var text = dataReader.GetSqlString(col);
 
                                 if (!text.IsNull) {
                                     webResponseBuffer.SetData(System.Text.Encoding.UTF8.GetBytes(text.Value));
@@ -50,7 +50,7 @@ namespace Jannesen.Web.MSSql
                             break;
 
                         case "data": {
-                                SqlBinary data = dataReader.GetSqlBinary(col);
+                                var data = dataReader.GetSqlBinary(col);
 
                                 if (!data.IsNull)
                                     webResponseBuffer.SetData(data.Value, data.Length);

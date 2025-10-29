@@ -86,24 +86,24 @@ namespace Jannesen.Web.ExcelExport.ExcelExport
         }
         private         int                         _parseColumns(int col, int row, WebCoreConfigReader configReader, ConfigColumn parent, ConfigSheet sheet)
         {
-            int     startCol = col;
+            var startCol = col;
 
             if (configReader.hasChildren) {
                 while (configReader.ReadNextElement()) {
                     switch(configReader.ElementName) {
                     case "column": {
-                            ConfigColumn    column = new ConfigColumn(col, row, configReader, parent);
+                            var column = new ConfigColumn(col, row, configReader, parent);
                             _columns.Add(column);
 
-                            double?     width     = configReader.GetValueDoubleNull("width", 1, 200);
-                            bool        freepane  = configReader.GetValueBool("free-pane", false);
+                            var width     = configReader.GetValueDoubleNull("width", 1, 200);
+                            var freepane  = configReader.GetValueBool("free-pane", false);
 
                             if (column.Fieldname != null) {
                                 configReader.NoChildElements();
                             }
                             else {
                                 if (configReader.hasChildren) {
-                                    int n = _parseColumns(col, row + column.RowSpan, configReader, column, sheet);
+                                    var n = _parseColumns(col, row + column.RowSpan, configReader, column, sheet);
                                     column.SetColSpan(n);
                                 }
                             }
@@ -136,7 +136,7 @@ namespace Jannesen.Web.ExcelExport.ExcelExport
         }
         private         void                        _validate()
         {
-            for(int c = 0 ; c < _columnsWidth.Count ; ++c) {
+            for(var c = 0 ; c < _columnsWidth.Count ; ++c) {
                 if (_columnsWidth[c] == -1)
                     throw new Exception("With not set for column #" + c.ToString(CultureInfo.InvariantCulture) + ".");
             }

@@ -45,19 +45,20 @@ namespace Jannesen.Web.StaticFile
             ArgumentNullException.ThrowIfNull(httpCall);
 
             Internal.ResponseStatic     response     = null;
-            string                      physicalPath = _mapPhysicalPath(httpCall);
-            FileInfo                    fileinfo     = _getFileInfo(physicalPath);
+            var physicalPath = _mapPhysicalPath(httpCall);
+            var fileinfo     = _getFileInfo(physicalPath);
 
             if ((_compress || _decodeCharSet) && fileinfo.Length < 10000000) // Only public and <10 M files are compressed
             {
-                string                  compressEncoding  = WebCoreResponse.GetResponseCompressionEncoding(httpCall);
-                string                  cacheKey          = (compressEncoding != null ? "TextFile/" + compressEncoding + "/" : "StaticFileUTF8//" ) + physicalPath;
-                Internal.FileCache      webFileCache      = (Internal.FileCache)httpCall.Cache.Get(cacheKey);
+                var compressEncoding  = WebCoreResponse.GetResponseCompressionEncoding(httpCall);
+                var cacheKey          = (compressEncoding != null ? "TextFile/" + compressEncoding + "/" : "StaticFileUTF8//" ) + physicalPath;
+                var webFileCache      = (Internal.FileCache)httpCall.Cache.Get(cacheKey);
 
                 if (webFileCache != null && webFileCache.HasData) {
                     if (fileinfo.Length           != webFileCache.FileLength ||
-                        fileinfo.LastWriteTimeUtc != webFileCache.LastWriteTimeUtc)
+                        fileinfo.LastWriteTimeUtc != webFileCache.LastWriteTimeUtc) {
                         webFileCache = null;
+                    }
                 }
 
                 if (webFileCache == null) {

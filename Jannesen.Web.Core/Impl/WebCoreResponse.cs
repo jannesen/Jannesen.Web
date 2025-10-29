@@ -14,13 +14,12 @@ namespace Jannesen.Web.Core.Impl
         {
             ArgumentNullException.ThrowIfNull(httpCall);
 
-            string s = httpCall.GetHeader("Accept-Encoding");
+            var s = httpCall.GetHeader("Accept-Encoding");
 
             if (!string.IsNullOrEmpty(s)) {
-                for(int c = 0 ; c < _compressors.Length ; ++c) {
-                    string compressor = _compressors[c];
-
-                    int i = s.IndexOf(compressor, StringComparison.Ordinal);
+                for(var c = 0 ; c < _compressors.Length ; ++c) {
+                    var compressor = _compressors[c];
+                    var i = s.IndexOf(compressor, StringComparison.Ordinal);
 
                     if (i >= 0) {
                         i += compressor.Length;

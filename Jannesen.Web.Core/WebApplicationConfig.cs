@@ -59,15 +59,18 @@ namespace Jannesen.Web.Core
         public                          void                                Load(IServiceProvider serviceProvider, string directory)
         {
             try {
-                int rtn = 0;
+                var rtn = 0;
 
-                if (_loadConfig(serviceProvider, "/", directory + "\\jannesen.web.config") < 0)
+                if (_loadConfig(serviceProvider, "/", directory + "\\jannesen.web.config") < 0) { 
                     rtn = -1;
+                }
 
-                if (rtn != 0)
+                if (rtn != 0) { 
                     _application.LogError("Initialized with errors");
-                else
+                }
+                else {
                     _application.LogInfo("Initialized");
+                }
             }
             catch(Exception err) {
                 _application.LogError("Initialization failed." , err);
@@ -76,7 +79,7 @@ namespace Jannesen.Web.Core
         public                          bool                                NeedsReInitialize()
         {
             if (_nextDependanceCheck < DateTime.UtcNow) {
-                for(int i = 0 ; i < _dependanceFiles.Count ; ++i) {
+                for(var i = 0 ; i < _dependanceFiles.Count ; ++i) {
                     if (_dependanceFiles[i].IsChanged)
                         return true;
                 }
@@ -99,12 +102,12 @@ namespace Jannesen.Web.Core
 
         private                         int                                 _loadConfig(IServiceProvider serviceProvider, string path, string filename)
         {
-            int     rtn = 0;
+            var rtn = 0;
 
             System.Diagnostics.Debug.WriteLine("LoadConfiguration: " + filename);
 
             try {
-                using (WebCoreConfigReader configReader = new WebCoreConfigReader(serviceProvider, this, path, filename)) {
+                using (var configReader = new WebCoreConfigReader(serviceProvider, this, path, filename)) {
                     _dependanceFiles.Add(new DependanceFile(configReader.Filename));
 
                     configReader.ReadRootNode("configuration");
@@ -118,7 +121,7 @@ namespace Jannesen.Web.Core
                                 break;
 
                             case "load": {
-                                    string name = configReader.GetValueString("name");
+                                    var name = configReader.GetValueString("name");
                                     configReader.NoChildElements();
                                     WebLoader.Instance.LoadModule(name);
                                 }
@@ -133,13 +136,13 @@ namespace Jannesen.Web.Core
                                 break;
 
                             case "include": {
-                                    string  file    = configReader.GetValueString("file").Replace("\\", "/", StringComparison.Ordinal);
-                                    string  incpath = (string)null;
+                                    var file    = configReader.GetValueString("file").Replace("\\", "/", StringComparison.Ordinal);
+                                    var incpath = (string)null;
 
                                     configReader.NoChildElements();
 
                                     if (file.IndexOf("./", StringComparison.Ordinal) < 0 && path != null) {
-                                        int  i = file.LastIndexOf('/');
+                                        var i = file.LastIndexOf('/');
                                         incpath = (i >= 0) ? string.Concat(path, file.AsSpan(0, i + 1)) : path;
                                     }
 

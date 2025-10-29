@@ -10,20 +10,20 @@ namespace Jannesen.Web.Core.Impl.Source
 
         public                                          multiple(string source, string name_args): base(source)
         {
-            string[]    sources = source.Split(SplitChar);
+            var sources = source.Split(SplitChar);
 
             _list = new WebCoreDataSource[sources.Length];
 
-            for (int i = 0 ; i < sources.Length ; ++i) {
+            for (var i = 0 ; i < sources.Length ; ++i) {
                 _list[i] = WebLoader.Instance.GetDataSource(sources[i], name_args);
             }
         }
 
         public      override        WebCoreDataValue    GetValue(WebCoreCall httpCall)
         {
-            WebCoreDataValue        rtn = WebCoreDataValue.NoValue;
+            var rtn = WebCoreDataValue.NoValue;
 
-            for (int i = 0 ; i < _list.Length ; ++i) {
+            for (var i = 0 ; i < _list.Length ; ++i) {
                 rtn = _list[i].GetValue(httpCall);
 
                 if (rtn.Type != WebCoreDataValueType.NoValue)

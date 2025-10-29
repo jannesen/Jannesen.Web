@@ -22,7 +22,7 @@ namespace Jannesen.Web.MSSql.Library
     {
         public                  void                AddParametersToCommand(SqlCommand sqlCommand, WebCoreCall httpCall)
         {
-            foreach(Parameter parameter in this)
+            foreach(var parameter in this)
                 parameter.AddToCommand(sqlCommand, httpCall);
         }
     }

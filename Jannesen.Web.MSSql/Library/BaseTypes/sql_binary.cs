@@ -42,7 +42,7 @@ namespace Jannesen.Web.MSSql.Library.BaseTypes
             if (sValue == null)
                 return null;
 
-            byte[]  bValue = System.Convert.FromBase64String(sValue);
+            var bValue = System.Convert.FromBase64String(sValue);
 
             if (bValue.Length != Length)
                 throw new FormatException("Invalid length of binary.");

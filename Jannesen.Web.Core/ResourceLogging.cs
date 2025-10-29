@@ -56,7 +56,7 @@ namespace Jannesen.Web.Core
 
             lock(_logLock) {
                 try {
-                    using (StreamWriter writer = _getLogStream()) {
+                    using (var writer = _getLogStream()) {
                         _logRequest(writer, call);
                         _logResponse(writer, response, httpResponse);
                         _logEnd(writer);
@@ -73,7 +73,7 @@ namespace Jannesen.Web.Core
 
             lock(_logLock) {
                 try {
-                    using (StreamWriter writer = _getLogStream()) {
+                    using (var writer = _getLogStream()) {
                         _logRequest(writer, call);
                         _logError(writer, err);
                         _logEnd(writer);
@@ -87,7 +87,7 @@ namespace Jannesen.Web.Core
 
         private                 StreamWriter        _getLogStream()
         {
-            DateTime now = DateTime.Now;
+            var now = DateTime.Now;
 
             if (_filestream == null || now > _nextFile) {
                 if (_filestream != null) {
@@ -95,7 +95,7 @@ namespace Jannesen.Web.Core
                     _filestream = null;
                 }
 
-                string fileName = _directory + "\\weblog-" + now.ToString("yyyy-MM-dd", CultureInfo.InvariantCulture) + ".log";
+                var fileName = _directory + "\\weblog-" + now.ToString("yyyy-MM-dd", CultureInfo.InvariantCulture) + ".log";
                 Application.LogInfo("New logfile: " + fileName);
                 _filestream = new FileStream(fileName, FileMode.Append, FileAccess.Write, FileShare.ReadWrite, 1);
                 _nextFile   = new DateTime(now.Ticks - (now.Ticks % TimeSpan.TicksPerDay) + TimeSpan.TicksPerDay);
@@ -112,12 +112,12 @@ namespace Jannesen.Web.Core
             writer.Write(" ");
             writer.WriteLine(call.Request.GetEncodedPathAndQuery());
 
-            bool    textbody = false;
+            var textbody = false;
 
             foreach(var h in call.Request.Headers) {
                 var key = h.Key;
 
-                for(int i = 0 ; i < h.Value.Count ; i++) {
+                for(var i = 0 ; i < h.Value.Count ; i++) {
                     var value = h.Value[i];
 
                     switch(h.Key) {
@@ -159,12 +159,12 @@ namespace Jannesen.Web.Core
 
             writer.WriteLine(httpResponse.StatusCode);
 
-            bool    hasContentLength = false;
+            var hasContentLength = false;
 
             foreach(var h in httpResponse.Headers) {
                 var key = h.Key;
 
-                for(int i = 0 ; i < h.Value.Count; ++i) {
+                for(var i = 0 ; i < h.Value.Count; ++i) {
                     var value = h.Value[i];
 
                     if (key == "Content-Length")

@@ -53,16 +53,18 @@ namespace Jannesen.Web.MSSql
 
         protected   override    WebCoreResponse             Process(WebCoreCall httpCall, SqlDataReader dataReader)
         {
-            WebCoreResponseBuffer   webResponseBuffer = new WebCoreResponseBuffer("text/xml; charset=" + _charset.BodyName, this.Public, true);
+            var webResponseBuffer = new WebCoreResponseBuffer("text/xml; charset=" + _charset.BodyName, this.Public, true);
 
             if (HandleResponseOptions(webResponseBuffer, dataReader) == HttpStatusCode.OK) {
                 try {
-                    using (MemoryStream buffer = new MemoryStream(0x10000)) {
-                        using (StreamWriter textStream  = new StreamWriter(buffer, _charset, 1024, true)) {
-                            if (_xmlIdent)
+                    using (var buffer = new MemoryStream(0x10000)) {
+                        using (var textStream  = new StreamWriter(buffer, _charset, 1024, true)) {
+                            if (_xmlIdent) {
                                 _fetchXmlIdent(textStream, dataReader);
-                            else
+                            }
+                            else {
                                 _fetchData(textStream, dataReader);
+                            }
                         }
 
                         webResponseBuffer.SetData(buffer);
@@ -78,15 +80,15 @@ namespace Jannesen.Web.MSSql
 
         private     static      void                        _fetchXmlIdent(StreamWriter textStream, SqlDataReader dataReader)
         {
-            using (MemoryStream xmlMemory = new MemoryStream()) {
-                using (StreamWriter xmlStream = new StreamWriter(xmlMemory, new System.Text.UTF8Encoding(false), 1024, true)) {
+            using (var xmlMemory = new MemoryStream()) {
+                using (var xmlStream = new StreamWriter(xmlMemory, new System.Text.UTF8Encoding(false), 1024, true)) {
                     _fetchData(xmlStream, dataReader);
                 }
 
                 xmlMemory.Seek(0, SeekOrigin.Begin);
 
                 using (var xmlInput = new XmlTextReader(new StreamReader(xmlMemory, new System.Text.UTF8Encoding(false))) { DtdProcessing=DtdProcessing.Prohibit, XmlResolver=null }) {
-                    using (XmlTextWriter xmlWriter = new XmlTextWriter(textStream)) {
+                    using (var xmlWriter = new XmlTextWriter(textStream)) {
                         xmlWriter.Formatting = Formatting.Indented;
                         xmlWriter.Indentation = 1;
                         xmlWriter.IndentChar = '\t';
@@ -100,7 +102,7 @@ namespace Jannesen.Web.MSSql
         }
         private     static      void                        _fetchData(StreamWriter textStream, SqlDataReader dataReader)
         {
-            bool        fempty = true;
+            var fempty = true;
 
             do {
                 while(dataReader.Read()) {

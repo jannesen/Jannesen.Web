@@ -42,7 +42,7 @@ namespace Jannesen.Web.Core.Impl
             {
                 _expectchar('{');
                     regex.Append("(?<");
-                    string name = _getname();
+                    var name = _getname();
                     names.Add(name);
                     regex.Append(name);
                     regex.Append('>');
@@ -80,7 +80,7 @@ namespace Jannesen.Web.Core.Impl
             }
             private         string                  _getname()
             {
-                StringBuilder   rtn = new StringBuilder();
+                var rtn = new StringBuilder();
 
                 while (_char_name(expression[pos]))
                     rtn.Append(expression[pos++]);
@@ -93,7 +93,7 @@ namespace Jannesen.Web.Core.Impl
                     ++pos;
 
                     while (pos < length) {
-                        char c = expression[pos];
+                        var c = expression[pos];
 
                         if (c == '\\') {
                             ++pos;
@@ -193,7 +193,7 @@ namespace Jannesen.Web.Core.Impl
                 if (pos >= length)
                     throw new FormatException("Invalid wildcard path expression.");
 
-                char c = expression[pos++];
+                var c = expression[pos++];
 
                 if ((c >= '0' && c <= '9') ||
                     (c >= 'A' && c <= 'Z') ||
@@ -267,7 +267,7 @@ namespace Jannesen.Web.Core.Impl
                 return ; // Simple wildcard
 
             if (expression.Length >= 2 && expression[0] == '{' && expression[^1] == '}') {
-                Parser parser = new Parser(expression);
+                var parser = new Parser(expression);
                 _names = parser.names.ToArray();
                 _regex = new Regex(parser.regex.ToString(), RegexOptions.Compiled | RegexOptions.Singleline);
                 return ; // Complex wildcard
@@ -280,14 +280,14 @@ namespace Jannesen.Web.Core.Impl
         {
             ArgumentNullException.ThrowIfNull(path);
 
-            int     asteriskBegin   = path.IndexOf('*', StringComparison.Ordinal);
-            int     asteriskEnd     = path.LastIndexOf('*');
-            int     braceBegin      = path.IndexOf('{', StringComparison.Ordinal);
-            int     braceEnd        = path.LastIndexOf('}');
+            var asteriskBegin   = path.IndexOf('*', StringComparison.Ordinal);
+            var asteriskEnd     = path.LastIndexOf('*');
+            var braceBegin      = path.IndexOf('{', StringComparison.Ordinal);
+            var braceEnd        = path.LastIndexOf('}');
 
             if ((asteriskBegin >= 0 || braceBegin >= 0) && (asteriskEnd >= 0 || braceEnd >= 0)) {
-                int     begin = asteriskBegin;
-                int     end   = asteriskEnd;
+                var begin = asteriskBegin;
+                var end   = asteriskEnd;
 
                 if (braceBegin >= 0 && (begin == -1 || braceBegin < begin))     begin = braceBegin;
                 if (braceEnd   >= 0 && (end   == -1 || braceEnd   > end  ))     end   = braceEnd;

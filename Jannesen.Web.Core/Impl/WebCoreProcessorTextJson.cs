@@ -44,11 +44,12 @@ namespace Jannesen.Web.Core.Impl
             if (name.IndexOf('.', StringComparison.Ordinal) < 0)
                 return docObject.TryGetValue(name, out rtn);
 
-            object  obj = _document;
+            var obj = _document;
 
-            foreach(string n in name.Split('.')) {
-                if (!(obj is JsonObject jsonObject))
+            foreach(var n in name.Split('.')) {
+                if (!(obj is JsonObject jsonObject)) {
                     throw new WebRequestException("Invalid Json schema.");
+                }
 
                 if (n == "$") {
                     obj = JsonWriter.Stringify(jsonObject);

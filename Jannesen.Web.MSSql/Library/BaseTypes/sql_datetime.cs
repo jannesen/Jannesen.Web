@@ -35,12 +35,12 @@ namespace Jannesen.Web.MSSql.Library.BaseTypes
             if (string.IsNullOrEmpty(sValue))
                 return null;
 
-            int     fieldpos = 0;
-            int[]   fields   = new int[7];
-            int     factor   = 0;
+            var fieldpos = 0;
+            var fields   = new int[7];
+            var factor   = 0;
 
-            for (int pos = 0 ; pos<sValue.Length ; ++pos) {
-                char    chr = sValue[pos];
+            for (var pos = 0 ; pos<sValue.Length ; ++pos) {
+                var chr = sValue[pos];
 
                 if (chr>='0' && chr <='9') {
                     if (fieldpos<6)

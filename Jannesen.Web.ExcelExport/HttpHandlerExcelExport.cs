@@ -39,13 +39,13 @@ namespace Jannesen.Web.ExcelExport
 
         protected   override    WebCoreResponse             Process(WebCoreCall httpCall, SqlDataReader dataReader)
         {
-            WebCoreResponseBuffer   webResponseBuffer = new WebCoreResponseBuffer("application/vnd.openxmlformats-officedocument.spreadsheetml.sheet", false, false);
+            var webResponseBuffer = new WebCoreResponseBuffer("application/vnd.openxmlformats-officedocument.spreadsheetml.sheet", false, false);
 
             HandleResponseOptions(webResponseBuffer, dataReader);
 
             lock(_singleLock) {
-                using (MemoryStream buffer = new MemoryStream(4096000)) {
-                    ExcelExport.ExportToExcel.Export(_sheets, dataReader, buffer);
+                using (var buffer = new MemoryStream(4096000)) {
+                    ExportToExcel.Export(_sheets, dataReader, buffer);
                     webResponseBuffer.SetData(buffer);
                 }
             }

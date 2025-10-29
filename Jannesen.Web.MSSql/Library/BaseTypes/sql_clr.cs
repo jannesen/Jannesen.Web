@@ -82,7 +82,7 @@ namespace Jannesen.Web.MSSql.Library.BaseTypes
 
             var rtn = new byte[_size];
 
-            GCHandle h = GCHandle.Alloc(rtn, GCHandleType.Pinned);
+            var h = GCHandle.Alloc(rtn, GCHandleType.Pinned);
 
             try {
                 Marshal.StructureToPtr(structdata, h.AddrOfPinnedObject(), false);
@@ -95,7 +95,7 @@ namespace Jannesen.Web.MSSql.Library.BaseTypes
         }
         private                             object              _fromByteArray(byte[] binarydata)
         {
-            GCHandle h = GCHandle.Alloc(binarydata, GCHandleType.Pinned);
+            var h = GCHandle.Alloc(binarydata, GCHandleType.Pinned);
 
             try {
                 return Marshal.PtrToStructure(h.AddrOfPinnedObject(), _type);

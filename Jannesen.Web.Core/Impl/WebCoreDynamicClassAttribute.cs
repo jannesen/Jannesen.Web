@@ -32,12 +32,12 @@ namespace Jannesen.Web.Core.Impl
             if (baseClass != null && !type.IsSubclassOf(baseClass))
                 throw new InternalErrorException("Internal error, " + type.FullName + " is not a subclass of " + baseClass.FullName + ".");
 
-            ConstructorInfo     constructorInfo = type.GetConstructor(argTypes);
+            var constructorInfo = type.GetConstructor(argTypes);
 
             if (constructorInfo == null) {
-                string  msg = "Internal error, missing constructor " + type.FullName + "(";
+                var msg = "Internal error, missing constructor " + type.FullName + "(";
 
-                for (int i = 0 ; i < argTypes.Length ; ++i) {
+                for (var i = 0 ; i < argTypes.Length ; ++i) {
                     if (i > 0)
                         msg += ",";
 

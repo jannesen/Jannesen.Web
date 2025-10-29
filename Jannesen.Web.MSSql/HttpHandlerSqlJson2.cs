@@ -52,7 +52,7 @@ namespace Jannesen.Web.MSSql
                     if (xmlReader.Name != "value")
                         throw new WebConversionException("Expect value element, got '" + xmlReader.Name + "'.");
 
-                    string value = "";
+                    var value = "";
 
                     if (!xmlReader.IsEmptyElement) {
                         if (!xmlReader.Read())
@@ -142,7 +142,7 @@ namespace Jannesen.Web.MSSql
             }
             public  override        void                        Convert(JsonWriter jsonWriter, XmlReader xmlReader)
             {
-                int curpos = 0;
+                var curpos = 0;
 
                 jsonWriter.WriteStartObject();
 
@@ -179,16 +179,16 @@ namespace Jannesen.Web.MSSql
 
             private                 ResponseObjectField         _findByName(ref int curpos, string name)
             {
-                int     fieldCount = Fields.Length;
+                var fieldCount = Fields.Length;
 
-                for (int i = curpos ; i < fieldCount ; ++i) {
+                for (var i = curpos ; i < fieldCount ; ++i) {
                     if (Fields[i].Name == name) {
                         curpos = i+1 < fieldCount ? i+1 : 0;
                         return Fields[i];
                     }
                 }
 
-                for (int i = 0 ; i < curpos ; ++i) {
+                for (var i = 0 ; i < curpos ; ++i) {
                     if (Fields[i].Name == name) {
                         curpos = i+1 < fieldCount ? i+1 : 0;
                         return Fields[i];
@@ -199,7 +199,7 @@ namespace Jannesen.Web.MSSql
             }
             private         static  string                      _normalizeName(string name)
             {
-                int pos = 0;
+                var pos = 0;
                 int p;
 
                 while ((p = name.IndexOf('_', pos)) >= 0) {
@@ -305,14 +305,14 @@ next:               pos = p + 1;
                             responseformat = _findResponseMsg(null);
 
                         try {
-                            using (MemoryStream buffer = new MemoryStream(0x10000)) {
+                            using (var buffer = new MemoryStream(0x10000)) {
                                 var streamBuffer = new StreamWriter(buffer, new System.Text.UTF8Encoding(false), 1024, true);
 
                                 if (_jsmodule) {
                                     streamBuffer.Write("define([], function() { return ");
                                 }
 
-                                using (JsonWriter jsonWriter = new JsonWriter(streamBuffer, true)) {
+                                using (var jsonWriter = new JsonWriter(streamBuffer, true)) {
                                     if (!dataReader.IsDBNull(0)) {
                                         using (var xmlReader = dataReader.GetXmlReader(0)) {
                                             ReadNextElement(xmlReader);

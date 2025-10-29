@@ -23,8 +23,9 @@ namespace Jannesen.Web.ExcelExport.ExcelExport
                 this.Config  = config;
                 this.Columns = new ProcessConfigColumn[config.Columns.Count];
 
-                for (int c = 0 ; c < config.Columns.Count ; ++c)
+                for (var c = 0 ; c < config.Columns.Count ; ++c) {
                     this.Columns[c] = new ProcessConfigColumn(config.Columns[c]);
+                }
             }
         }
 
@@ -48,10 +49,11 @@ namespace Jannesen.Web.ExcelExport.ExcelExport
 
         public      static      void                        Export(ConfigSheetList configSheets, SqlDataReader dataReader, Stream outputStream)
         {
-            ProcessConfigSheet[]        config = new ProcessConfigSheet[configSheets.Count];
+            var config = new ProcessConfigSheet[configSheets.Count];
 
-            for (int s = 0 ; s < configSheets.Count ; ++s)
+            for (var s = 0 ; s < configSheets.Count ; ++s) {
                 config[s] = new ProcessConfigSheet(configSheets[s]);
+            }
 
             (new ExportToExcel())._process(config, dataReader, outputStream);
         }
@@ -70,11 +72,11 @@ namespace Jannesen.Web.ExcelExport.ExcelExport
         }
         private                 void                        _createStyleSheet(ProcessConfigSheet[] config)
         {
-            ExcelStyleSheet     excelStyleSheet = new ExcelStyleSheet();
+            var excelStyleSheet = new ExcelStyleSheet();
 
-            foreach(ProcessConfigSheet dataSetConfig in config) {
-                foreach(ProcessConfigColumn colcnf in dataSetConfig.Columns) {
-                    ConfigColumn cfg = colcnf.Config;
+            foreach(var dataSetConfig in config) {
+                foreach(var colcnf in dataSetConfig.Columns) {
+                    var cfg = colcnf.Config;
 
                     if (cfg.Fieldname != null) {
                         colcnf.DataStyleIndex    = excelStyleSheet.GetCellFormatData(cfg, dataSetConfig.Config, false);
@@ -90,17 +92,17 @@ namespace Jannesen.Web.ExcelExport.ExcelExport
         }
         private                 void                        _createSheets(ProcessConfigSheet[] config, SqlDataReader dataReader)
         {
-            uint    sheetNumber = 0;
-            Sheets  sheets      = new DocumentFormat.OpenXml.Spreadsheet.Sheets();
+            var sheetNumber = (uint)0;
+            var sheets      = new DocumentFormat.OpenXml.Spreadsheet.Sheets();
 
             _document.WorkbookPart.Workbook.Append(new BookViews(new WorkbookView()));
             _document.WorkbookPart.Workbook.AppendChild(sheets);
 
             do {
-                ProcessConfigSheet  sheetConfig     = config[sheetNumber++];
-                WorksheetPart       worksheetPart   = _document.WorkbookPart.AddNewPart<WorksheetPart>();
-                Worksheet           worksheet       = new Worksheet();
-                SheetData           sheetData       = new SheetData();
+                var sheetConfig   = config[sheetNumber++];
+                var worksheetPart = _document.WorkbookPart.AddNewPart<WorksheetPart>();
+                var worksheet     = new Worksheet();
+                var sheetData     = new SheetData();
 
                 _mapDataSet(sheetConfig, dataReader);
                 _excelFreePanes(worksheet, sheetConfig.Config.FreezeColumn, sheetConfig.Config.HeaderRows);
@@ -125,7 +127,7 @@ namespace Jannesen.Web.ExcelExport.ExcelExport
         }
         private     static      void                        _mapDataSet(ProcessConfigSheet config, SqlDataReader dataReader)
         {
-            foreach(ProcessConfigColumn colcnf in config.Columns) {
+            foreach(var colcnf in config.Columns) {
                 colcnf.ExcelColumnName = _excelColumnName(colcnf.Config.Col);
 
                 if (colcnf.Config.Fieldname != null) {
@@ -146,22 +148,22 @@ namespace Jannesen.Web.ExcelExport.ExcelExport
         private     static      void                        _setupColumnsWidth(ProcessConfigSheet config, Worksheet worksheet)
         {
             {
-                List<double>    columnsWidth    = config.Config.ColumnsWidth;
-                Columns         columns         = new Columns();
+                var columnsWidth    = config.Config.ColumnsWidth;
+                var columns         = new Columns();
 
-                for (int colnr = 0 ; colnr < columnsWidth.Count ; ++colnr) {
-                    double  width  = columnsWidth[colnr];
+                for (var colnr = 0 ; colnr < columnsWidth.Count ; ++colnr) {
+                    var  width  = columnsWidth[colnr];
 
                     if (width > 0) {
-                        Column  column = new Column()
-                                            {
-                                                Min         = ((uint)colnr + 1),
-                                                Width       = width,
-                                                CustomWidth = true
-                                            };
+                        var  column = new Column() {
+                                          Min         = ((uint)colnr + 1),
+                                          Width       = width,
+                                          CustomWidth = true
+                                      };
 
-                        while ((colnr + 1) < columnsWidth.Count && columnsWidth[colnr + 1] == width)
+                        while ((colnr + 1) < columnsWidth.Count && columnsWidth[colnr + 1] == width) {
                             ++colnr;
+                        }
 
                         column.Max = ((uint)colnr + 1);
 
@@ -175,21 +177,19 @@ namespace Jannesen.Web.ExcelExport.ExcelExport
         }
         private     static      void                        _copyHeader(ProcessConfigSheet config, SheetData sheetData)
         {
-            for (int row = 0 ; row < config.Config.HeaderRows ; ++row) {
-                Row         headerRow  = new Row { RowIndex = (uint)row + 1 };
+            for (var row = 0 ; row < config.Config.HeaderRows ; ++row) {
+                var headerRow  = new Row { RowIndex = (uint)row + 1 };
 
-                foreach(ProcessConfigColumn colcfg in config.Columns) {
+                foreach(var colcfg in config.Columns) {
                     if (colcfg.Config.Row == row && colcfg.Config.Title != null) {
-                        Cell cell = new Cell()
-                                            {
-                                                CellReference   = colcfg.ExcelColumnName + (row+1).ToString(CultureInfo.InvariantCulture),
-                                                DataType        = CellValues.String,
-                                                StyleIndex      = colcfg.HeaderStyleIndex
-                                            };
-                        cell.Append(new CellValue()
-                                            {
-                                                Text = colcfg.Config.Title
-                                            });
+                        var cell = new Cell() {
+                                       CellReference   = colcfg.ExcelColumnName + (row+1).ToString(CultureInfo.InvariantCulture),
+                                       DataType        = CellValues.String,
+                                       StyleIndex      = colcfg.HeaderStyleIndex
+                                   };
+                        cell.Append(new CellValue() {
+                                        Text = colcfg.Config.Title
+                                    });
                         headerRow.Append(cell);
                     }
                 }
@@ -199,17 +199,19 @@ namespace Jannesen.Web.ExcelExport.ExcelExport
         }
         private     static      void                        _copyData(ProcessConfigSheet config, SheetData sheetData, SqlDataReader dataReader)
         {
-            uint    rownr = (uint)config.Config.HeaderRows;
-            int     r     = 0;
+            var rownr = (uint)config.Config.HeaderRows;
+            var r     = 0;
 
             while (dataReader.Read()) {
-                Row     row    = new Row { RowIndex = ++rownr };
-                string  srownr = rownr.ToString(CultureInfo.InvariantCulture);
-                bool    odd    = (++r % 2) == 1;
+                var row    = new Row { RowIndex = ++rownr };
+                var srownr = rownr.ToString(CultureInfo.InvariantCulture);
+                var odd    = (++r % 2) == 1;
 
-                foreach (ProcessConfigColumn colcfg in config.Columns) {
+                foreach (var colcfg in config.Columns) {
                     if (colcfg.FieldNr >= 0) {
-                        Cell    cell = new Cell() { CellReference = colcfg.ExcelColumnName + srownr };
+                        var cell = new Cell() {
+                                       CellReference = colcfg.ExcelColumnName + srownr
+                                   };
 
 
                         if (!dataReader.IsDBNull(colcfg.FieldNr)) {
@@ -277,7 +279,7 @@ namespace Jannesen.Web.ExcelExport.ExcelExport
         }
         private     static      void                        _columnsMerge(ProcessConfigSheet config, Worksheet worksheet)
         {
-            foreach(ProcessConfigColumn colcfg in config.Columns) {
+            foreach(var colcfg in config.Columns) {
                 if (colcfg.Config.ColSpan > 1 || colcfg.Config.RowSpan > 1) {
                     _excelMergeCells(worksheet, colcfg.Config.Col,                             colcfg.Config.Row,
                                                 colcfg.Config.Col + colcfg.Config.ColSpan - 1, colcfg.Config.Row + colcfg.Config.RowSpan - 1);
@@ -287,7 +289,7 @@ namespace Jannesen.Web.ExcelExport.ExcelExport
 
         private     static      void                        _excelMergeCells(Worksheet worksheet, int col1, int row1, int col2, int row2)
         {
-            string  r = _excelCellName(col1, row1) + ":" + _excelCellName(col2, row2);
+            var r = _excelCellName(col1, row1) + ":" + _excelCellName(col2, row2);
 
             _getMergeCells(worksheet).Append(new MergeCell()
                                                     {
@@ -296,22 +298,20 @@ namespace Jannesen.Web.ExcelExport.ExcelExport
         }
         private     static      void                        _excelFreePanes(Worksheet worksheet, int col, int row)
         {
-            SheetView sheetView = new SheetView()
-                                    {
-                                        TabSelected = true,
-                                        WorkbookViewId = (UInt32Value)0U
-                                    };
+            var sheetView = new SheetView() {
+                                TabSelected = true,
+                                WorkbookViewId = (UInt32Value)0U
+                            };
 
-            sheetView.Append(new Pane()
-                                {
-                                    HorizontalSplit = (col>0) ? new DoubleValue((double)col) : null,
-                                    VerticalSplit   = new DoubleValue((double)row),
-                                    TopLeftCell     = _excelCellName(col, row),
-                                    ActivePane      = PaneValues.BottomRight,
-                                    State           = PaneStateValues.Frozen
-                                });
+            sheetView.Append(new Pane() {
+                                 HorizontalSplit = (col>0) ? new DoubleValue((double)col) : null,
+                                 VerticalSplit   = new DoubleValue((double)row),
+                                 TopLeftCell     = _excelCellName(col, row),
+                                 ActivePane      = PaneValues.BottomRight,
+                                 State           = PaneStateValues.Frozen
+                             });
 
-            SheetViews  sheetViews = new SheetViews();
+            var sheetViews = new SheetViews();
 
             sheetViews.Append(sheetView);
             worksheet.Append(sheetViews);
@@ -325,7 +325,7 @@ namespace Jannesen.Web.ExcelExport.ExcelExport
             if (colnr < 26)
                 return ((char)('A' + colnr)).ToString(CultureInfo.InvariantCulture);
 
-            StringBuilder       builder = new StringBuilder(2);
+            var builder = new StringBuilder(2);
 
             builder.Append((char)('A' + (colnr / 26) - 1));
             builder.Append((char)('A' + (colnr % 26)    ));
@@ -337,7 +337,7 @@ namespace Jannesen.Web.ExcelExport.ExcelExport
             if (worksheet.Elements<MergeCells>().Any())
                 return worksheet.Elements<MergeCells>().First();
 
-            MergeCells  mergeCells = new MergeCells();
+            var mergeCells = new MergeCells();
 
             // Insert a MergeCells object into the specified position.
             if (worksheet.Elements<CustomSheetView>().Any()) {

@@ -25,8 +25,8 @@ namespace Jannesen.Web.Core.Impl
             if ((!(err is WebHttpException)) && _handler.MapTo200 && (StatusCode != HttpStatusCode.Unauthorized))
                 StatusCode = HttpStatusCode.OK;
 
-            using (MemoryStream buffer = new MemoryStream()) {
-                using (StreamWriter streamWriter = new StreamWriter(buffer, new UTF8Encoding(false, false), 0x1000, true)) {
+            using (var buffer = new MemoryStream()) {
+                using (var streamWriter = new StreamWriter(buffer, new UTF8Encoding(false, false), 0x1000, true)) {
                     switch (ContentType) {
                     case "text/xml":            _writeXml(streamWriter);    break;
                     case "application/json":    _writeJson(streamWriter);   break;
@@ -52,7 +52,7 @@ namespace Jannesen.Web.Core.Impl
 
         private                 HttpStatusCode          _processErrorCode()
         {
-            for (Exception err = _err ; err != null ; err = err.InnerException) {
+            for (var err = _err ; err != null ; err = err.InnerException) {
                 if (err is WebHttpException httpException) {
                     var statusCode = httpException.StatusCode;
 
@@ -90,9 +90,10 @@ namespace Jannesen.Web.Core.Impl
                 }
 
                 {
-                    int httpCode = _handler.ProcessErrorCode(err, out _code, out var _);
-                    if (httpCode != 0)
+                    var httpCode = _handler.ProcessErrorCode(err, out _code, out var _);
+                    if (httpCode != 0) {
                         return (HttpStatusCode)httpCode;
+                    }
                 }
             }
 
@@ -109,8 +110,9 @@ namespace Jannesen.Web.Core.Impl
                 streamWriter.WriteLine();
                 streamWriter.WriteLine("============================================================");
                 streamWriter.WriteLine("DETAILS:");
-                for (Exception err = _err ; err != null ; err = err.InnerException)
+                for (var err = _err ; err != null ; err = err.InnerException) { 
                     streamWriter.WriteLine(err.Message);
+                }
                 streamWriter.WriteLine("============================================================");
             }
         }
@@ -118,12 +120,12 @@ namespace Jannesen.Web.Core.Impl
         {
             ContentType = "text/xml; charset=utf-8";
 
-            using (XmlTextWriter xmlWriter = new XmlTextWriter(streamWriter)) {
+            using (var xmlWriter = new XmlTextWriter(streamWriter)) {
                 xmlWriter.WriteStartElement("error");
                 xmlWriter.WriteAttributeString("code", _code);
 
                 if (_withDetails()) {
-                    for (Exception err = _err ; err != null ; err = err.InnerException) {
+                    for (var err = _err ; err != null ; err = err.InnerException) {
                         xmlWriter.WriteStartElement("error-detail");
                         xmlWriter.WriteAttributeString("class",   err.GetType().FullName);
                         xmlWriter.WriteAttributeString("message", err.Message);
@@ -138,7 +140,7 @@ namespace Jannesen.Web.Core.Impl
         {
             ContentType = "application/json; charset=utf-8";
 
-            using (JsonWriter jsonWriter = new JsonWriter(streamWriter, false)) {
+            using (var jsonWriter = new JsonWriter(streamWriter, false)) {
                 jsonWriter.WriteStartObject();
 
                 if (_handler.MapTo200) {
@@ -150,7 +152,7 @@ namespace Jannesen.Web.Core.Impl
                 if (_withDetails()) {
                     jsonWriter.WriteStartArray("detail");
 
-                    for (Exception err = _err ; err != null ; err = err.InnerException) {
+                    for (var err = _err ; err != null ; err = err.InnerException) {
                         jsonWriter.WriteStartObject();
                         jsonWriter.WriteNameValue("class",   err.GetType().FullName);
                         jsonWriter.WriteNameValue("message", err.Message);

@@ -71,15 +71,15 @@ namespace Jannesen.Web.StaticFile.Internal
             _contentEncoding = contentEncoding;
             _decodeCharSet   = decodeCharSet;
 
-            using (MemoryStream outBuffer = new MemoryStream((int)fileinfo.Length)) {
-                using (FileStream inStream = new FileStream(physicalPath, FileMode.Open, FileAccess.Read, FileShare.Read)) {
-                    using (System.Security.Cryptography.SHA1 sha = System.Security.Cryptography.SHA1.Create()) {
+            using (var outBuffer = new MemoryStream((int)fileinfo.Length)) {
+                using (var inStream = new FileStream(physicalPath, FileMode.Open, FileAccess.Read, FileShare.Read)) {
+                    using (var sha = System.Security.Cryptography.SHA1.Create()) {
                         _eTag = Convert.ToBase64String(sha.ComputeHash(inStream)).Substring(0, 26).Replace('/','-');
 
                         inStream.Seek(0, SeekOrigin.Begin);
                     }
 
-                    Stream compressStream = WebCoreResponse.GetCompressor(contentEncoding, outBuffer);
+                    var compressStream = WebCoreResponse.GetCompressor(contentEncoding, outBuffer);
 
                     if (decodeCharSet)
                         _decodeAndCopy(inStream, compressStream);
@@ -111,9 +111,9 @@ namespace Jannesen.Web.StaticFile.Internal
 
         private static          void                        _decodeAndCopy(FileStream inStream, Stream outStream)
         {
-            byte[] buf = new byte[81920];
+            var buf = new byte[81920];
 
-            int rs = inStream.Read(buf, 0, buf.Length);
+            var rs = inStream.Read(buf, 0, buf.Length);
 
             if (buf[0] == 0xEF && buf[1] == 0xBB && buf[2] == 0xBF) {
                 outStream.Write(buf, 3, rs - 3);
@@ -123,9 +123,9 @@ namespace Jannesen.Web.StaticFile.Internal
                 int off;
                 int cs;
                 int bs;
-                char[] cbuf = new char[buf.Length];
+                var cbuf = new char[buf.Length];
                 Decoder decoder;
-                Encoder encoder = Encoding.UTF8.GetEncoder();
+                var encoder = Encoding.UTF8.GetEncoder();
 
                 if (buf[0] == 0xFF && buf[1] == 0xFE)
                     throw new NotSupportedException("UTF-16 LE not supported.");

@@ -81,7 +81,7 @@ namespace Jannesen.Web.Core.Impl
         public                  int?                                RequestContentLength
         {
             get {
-                string s = GetHeader("Content-Length");
+                var s = GetHeader("Content-Length");
 
                 if (!string.IsNullOrEmpty(s)) {
                     if (int.TryParse(s, out var rtn))
@@ -94,7 +94,7 @@ namespace Jannesen.Web.Core.Impl
         public                  DateTime?                           RequestIfModifiedSince
         {
             get {
-                string s = GetHeader("If-Modified-Since");
+                var s = GetHeader("If-Modified-Since");
 
                 if (!string.IsNullOrEmpty(s)) {
                     if (DateTime.TryParseExact(s, "R", System.Globalization.DateTimeFormatInfo.InvariantInfo, System.Globalization.DateTimeStyles.AdjustToUniversal, out var rtn))
@@ -107,7 +107,7 @@ namespace Jannesen.Web.Core.Impl
         public                  string                              RequestIfNoneMatch
         {
             get {
-                string s = GetHeader("If-None-Match");
+                var s = GetHeader("If-None-Match");
 
                 return !string.IsNullOrEmpty(s) ? s : null;
             }
@@ -115,7 +115,7 @@ namespace Jannesen.Web.Core.Impl
         public                  string                              RequestReferer
         {
             get {
-                string s = GetHeader("Referer");
+                var s = GetHeader("Referer");
 
                 return !string.IsNullOrEmpty(s) ? s : null;
             }
@@ -123,7 +123,7 @@ namespace Jannesen.Web.Core.Impl
         public                  string                              RequestUserAgent
         {
             get {
-                string s = GetHeader("User-Agent");
+                var s = GetHeader("User-Agent");
 
                 return !string.IsNullOrEmpty(s) ? s : null;
             }
@@ -131,10 +131,10 @@ namespace Jannesen.Web.Core.Impl
         public                  string                              RequestRemoteAddr
         {
             get {
-                string rtn = GetHeader("X-Forwarded-For");
+                var rtn = GetHeader("X-Forwarded-For");
 
                 if (!string.IsNullOrEmpty(rtn)) {
-                    int p = rtn.IndexOf(',', StringComparison.Ordinal);
+                    var p = rtn.IndexOf(',', StringComparison.Ordinal);
                     if (p > 0) {
                         rtn = rtn.Substring(0, p);
                     }
@@ -195,7 +195,7 @@ namespace Jannesen.Web.Core.Impl
         {
         // Find if already created.
             if (_requestProcessors != null) {
-                for (int i = 0 ; i < _requestProcessors.Count ; ++i) {
+                for (var i = 0 ; i < _requestProcessors.Count ; ++i) {
                     if (_requestProcessors[i] is T rp) {
                         return rp;
                     }
@@ -204,7 +204,7 @@ namespace Jannesen.Web.Core.Impl
 
         // Create and process
             {
-                T   processor = new T();
+                var processor = new T();
 
                 processor.Proces(this);
 
@@ -220,16 +220,16 @@ namespace Jannesen.Web.Core.Impl
         public                  byte[]                              GetBodyData()
         {
             if (_requestBodyData == null) {
-                int?    length = RequestContentLength;
+                var length = RequestContentLength;
 
                 if (!length.HasValue)
                     throw new WebRequestException("Missing content-length header.");
 
-                byte[]  buf = new byte[length.Value];
+                var buf = new byte[length.Value];
 
-                using (Stream inputStream = _request.Body) {
-                    int     size = 0;
-                    int     rs;
+                using (var inputStream = _request.Body) {
+                    var size = 0;
+                    int rs;
 
                     while (size < buf.Length && (rs = inputStream.Read(buf, size, buf.Length - size)) > 0)
                         size += rs;
@@ -254,18 +254,18 @@ namespace Jannesen.Web.Core.Impl
                 throw new WebRequestException("Missing Content-Type.");
             }
 
-            System.Text.Encoding    encoding         = null;
-            string[]                contentTypeParts = requestContentType.Split(';');
+            var encoding         = (System.Text.Encoding)null;
+            var contentTypeParts = requestContentType.Split(';');
 
-            for (int i = 1 ; i <contentTypeParts.Length ; ++i)
+            for (var i = 1 ; i <contentTypeParts.Length ; ++i)
                 contentTypeParts[i] = contentTypeParts[i].TrimStart();
 
             if (contenttype != null && contentTypeParts[0] != contenttype)
                 throw new WebRequestException("Expect " + contenttype + " body.");
 
-            for (int i = 1 ; i < contentTypeParts.Length ; ++i) {
+            for (var i = 1 ; i < contentTypeParts.Length ; ++i) {
                 if (contentTypeParts[i].StartsWith("charset=", StringComparison.Ordinal)) {
-                    string  charset     = contentTypeParts[i].Substring(8);
+                    var charset     = contentTypeParts[i].Substring(8);
 
                     switch(charset.ToLowerInvariant()) {
                     case "unicode": encoding = System.Text.Encoding.Unicode;    break;

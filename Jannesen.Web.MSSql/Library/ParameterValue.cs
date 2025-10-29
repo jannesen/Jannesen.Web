@@ -15,8 +15,8 @@ namespace Jannesen.Web.MSSql.Library
         {
             ArgumentNullException.ThrowIfNull(configReader);
 
-            string  source   = configReader.GetValueString  ("source");
-            _optional        = configReader.GetValueBool    ("optional", false);
+            var source = configReader.GetValueString  ("source");
+            _optional  = configReader.GetValueBool    ("optional", false);
 
             try {
                 _type = ValueConvertor.GetType(type);
@@ -40,7 +40,7 @@ namespace Jannesen.Web.MSSql.Library
             ArgumentNullException.ThrowIfNull(sqlCommand);
             ArgumentNullException.ThrowIfNull(httpCall);
 
-            WebCoreDataValue    value = _source.GetValue(httpCall);
+            var value = _source.GetValue(httpCall);
 
             switch (value.Type) {
             case WebCoreDataValueType.NoValue:
