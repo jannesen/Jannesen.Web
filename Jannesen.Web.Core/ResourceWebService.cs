@@ -9,29 +9,30 @@ namespace Jannesen.Web.Core
     public class ResourceWebService: WebCoreResource
     {
         private readonly        string                          _baseUrl;
-        private readonly        string                          _key;
-        private readonly        string                          _username;
-        private readonly        string                          _passwd;
-        private readonly        X509Certificate2Collection      _certificates;
+        private readonly        string?                         _key;
+        private readonly        string?                         _username;
+        private readonly        string?                         _passwd;
+        private readonly        X509Certificate2Collection?     _certificates;
         private readonly        Dictionary<string, string>      _properties;
 
         public      override    string                          Type            => "webservice";
         public                  string                          BaseUrl         => _baseUrl;
-        public                  string                          Key             => _key;
-        public                  string                          Username        => _username;
-        public                  string                          Passwd          => _passwd;
-        public                  X509Certificate2Collection      Certificates    => _certificates;
+        public                  string?                         Key             => _key;
+        public                  string?                         Username        => _username;
+        public                  string?                         Passwd          => _passwd;
+        public                  X509Certificate2Collection?     Certificates    => _certificates;
         public                  Dictionary<string, string>      Properties      => _properties;
 
         public                                                  ResourceWebService(WebCoreConfigReader configReader): base(configReader)
         {
             ArgumentNullException.ThrowIfNull(configReader);
 
-            _baseUrl  = configReader.GetValueString("baseurl");
-            _key      = configReader.GetValueString("key", null);
-            _username = configReader.GetValueString("username", null);
-            _passwd   = (_username != null) ? configReader.GetValueString("passwd") : null;
-            _properties = configReader.GetValueDictionary();
+            _baseUrl      = configReader.GetValueString("baseurl");
+            _key          = configReader.GetValueString("key", null);
+            _username     = configReader.GetValueString("username", null);
+            _passwd       = (_username != null) ? configReader.GetValueString("passwd") : null;
+            _certificates = null;
+            _properties   = configReader.GetValueDictionary();
 
             var certificate = configReader.GetValueString("certificate", null);
             if (certificate != null) {

@@ -5,6 +5,8 @@
 		<TargetFrameworks>net9.0</TargetFrameworks>
 		<AppendTargetFrameworkToOutputPath>false</AppendTargetFrameworkToOutputPath>
 
+        <Nullable>Enable</Nullable>
+
 		<Company>Jannesen B.V.</Company>
 		<Version>2.00.00.000</Version>
 		<RepositoryUrl>https://github.com/jannesen/Jannesen.Web</RepositoryUrl>

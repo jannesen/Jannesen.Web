@@ -13,7 +13,7 @@ namespace Jannesen.Web.Core
     {
         private readonly        string              _directory;
         private readonly        Lock                _logLock;
-        private                 FileStream          _filestream;
+        private                 FileStream?         _filestream;
         private                 DateTime            _nextFile;
 
         public      override    string              Type        => "log";
@@ -25,6 +25,7 @@ namespace Jannesen.Web.Core
 
             _directory   = configReader.GetValueString("directory");
             _logLock     = new Lock();
+            _filestream  = null;
             _nextFile    = DateTime.MinValue;
         }
 
@@ -115,9 +116,9 @@ namespace Jannesen.Web.Core
                         break;
 
                     case "Content-Type":
-                        if (value.IndexOf("charset=utf-8", StringComparison.Ordinal) > 0 ||
-                            value.IndexOf("charset=UTF-8", StringComparison.Ordinal) > 0)
+                        if (value != null && value.Contains("charset=utf-8", StringComparison.OrdinalIgnoreCase)) {
                             textbody = true;
+                        }
                         break;
                     }
 
@@ -169,7 +170,7 @@ namespace Jannesen.Web.Core
                 response.WriteLoggingData(writer);
             }
         }
-        private     static      void                _logError(StreamWriter writer, Exception err)
+        private     static      void                _logError(StreamWriter writer, Exception? err)
         {
             ArgumentNullException.ThrowIfNull(writer);
 

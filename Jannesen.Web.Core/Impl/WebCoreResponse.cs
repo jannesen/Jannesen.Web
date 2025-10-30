@@ -11,7 +11,7 @@ namespace Jannesen.Web.Core.Impl
 
         private static readonly string[]        _compressors = [ "gzip", "deflate" ];
 
-        public      static      string          GetResponseCompressionEncoding(WebCoreCall httpCall)
+        public      static      string?         GetResponseCompressionEncoding(WebCoreCall httpCall)
         {
             ArgumentNullException.ThrowIfNull(httpCall);
 
@@ -33,7 +33,7 @@ namespace Jannesen.Web.Core.Impl
 
             return null;
         }
-        public      static      Stream          GetCompressor(string compressor, Stream outstream)
+        public      static      Stream          GetCompressor(string? compressor, Stream outstream)
         {
             switch(compressor) {
             case null:      return outstream;

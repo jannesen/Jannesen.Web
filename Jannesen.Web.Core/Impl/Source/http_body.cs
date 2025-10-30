@@ -41,12 +41,12 @@ namespace Jannesen.Web.Core.Impl.Source
                 throw new WebHandlerConfigException("BODY not available in with HTTP/GET.");
 
             switch(_valueCode) {
-            case ValueNameCode.ContentType:     return new WebCoreDataValue((object)httpCall.RequestContentType);
-            case ValueNameCode.ContentLength:   return new WebCoreDataValue((object)httpCall.RequestContentLength);
+            case ValueNameCode.ContentType:     return new WebCoreDataValue((object?)httpCall.RequestContentType);
+            case ValueNameCode.ContentLength:   return new WebCoreDataValue((object?)httpCall.RequestContentLength);
             case ValueNameCode.Data:            return new WebCoreDataValue((object)httpCall.GetBodyData());
-            case ValueNameCode.Text:            return new WebCoreDataValue((object)httpCall.GetBodyString("text/plain"));
-            case ValueNameCode.Json:            return new WebCoreDataValue((object)httpCall.GetBodyString("application/json"));
-            case ValueNameCode.TextXml:         return new WebCoreDataValue((object)httpCall.GetBodyString("text/xml"));
+            case ValueNameCode.Text:            return new WebCoreDataValue((object?)httpCall.GetBodyString("text/plain"));
+            case ValueNameCode.Json:            return new WebCoreDataValue((object?)httpCall.GetBodyString("application/json"));
+            case ValueNameCode.TextXml:         return new WebCoreDataValue((object?)httpCall.GetBodyString("text/xml"));
             default:                            throw new NotImplementedException("Parameter header:" + Name + " not implemented.");
             }
         }

@@ -29,11 +29,11 @@ namespace Jannesen.Web.MSSql.Library.BaseTypes
             _precision = int.Parse(s, System.Globalization.NumberStyles.Integer, CultureInfo.InvariantCulture);
         }
 
-        public          override            object              ConvertStringToValue(string sValue)
+        public          override            object?             ConvertStringToValue(string? sValue)
         {
             return sql_datetime.ConvertStringToValue(sValue, false);
         }
-        public          override            object              ConvertClrToValue(object value)
+        public          override            object?             ConvertClrToValue(object? value)
         {
             if (value == null)             return null;
             if (value is DateTime)         return value;

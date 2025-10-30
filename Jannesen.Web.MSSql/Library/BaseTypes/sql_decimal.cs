@@ -51,7 +51,7 @@ namespace Jannesen.Web.MSSql.Library.BaseTypes
             }
         }
 
-        public          override            object              ConvertClrToValue(object value)
+        public          override            object?             ConvertClrToValue(object? value)
         {
             if (value == null)           return null;
             if (value is decimal)        return value;
@@ -65,7 +65,7 @@ namespace Jannesen.Web.MSSql.Library.BaseTypes
 
             return NoConversion(value);
         }
-        public          override            object              ConvertStringToValue(string sValue)
+        public          override            object?             ConvertStringToValue(string? sValue)
         {
             if (string.IsNullOrEmpty(sValue))
                 return null;

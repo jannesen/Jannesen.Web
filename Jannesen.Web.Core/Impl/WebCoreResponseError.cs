@@ -13,9 +13,9 @@ namespace Jannesen.Web.Core.Impl
     {
         private readonly        WebCoreHttpHandler      _handler;
         private readonly        Exception               _err;
-        private                 string                  _code;
+        private                 string?                 _code;
 
-        public                                          WebCoreResponseError(WebCoreHttpHandler handler, Exception err, string contentType): base(contentType, false, true)
+        public                                          WebCoreResponseError(WebCoreHttpHandler handler, Exception err, string? contentType): base(contentType, false, true)
         {
             _handler = handler;
             _err     = err;

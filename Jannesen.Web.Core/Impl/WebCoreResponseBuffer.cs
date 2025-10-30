@@ -9,18 +9,18 @@ namespace Jannesen.Web.Core.Impl
 {
     public class WebCoreResponseBuffer: WebCoreResponse
     {
-        private                 string              _contentType;
+        private                 string?             _contentType;
         private readonly        bool                _cachepublic;
         private readonly        bool                _compression;
         private                 DateTime            _lastModified;
-        private                 string              _eTag;
+        private                 string?             _eTag;
         private                 int                 _cacheMaxAge;
-        private                 string              _disposition;
+        private                 string?             _disposition;
         private                 HttpStatusCode      _statusCode;
-        private                 byte[]              _data;
+        private                 byte[]?             _data;
         private                 int                 _length;
 
-        public                  string              ContentType
+        public                  string?             ContentType
         {
             get {
                 return _contentType;
@@ -50,7 +50,7 @@ namespace Jannesen.Web.Core.Impl
                     _lastModified = DateTime.MaxValue;
             }
         }
-        public                  string              ETag
+        public                  string?             ETag
         {
             get {
                 return _eTag;
@@ -59,7 +59,7 @@ namespace Jannesen.Web.Core.Impl
                 _eTag = value;
             }
         }
-        public                  string              Disposition
+        public                  string?             Disposition
         {
             get {
                 return _disposition;
@@ -90,7 +90,7 @@ namespace Jannesen.Web.Core.Impl
         public                                      WebCoreResponseBuffer(): this("", false, false)
         {
         }
-        public                                      WebCoreResponseBuffer(string contentType, bool pub, bool compression)
+        public                                      WebCoreResponseBuffer(string? contentType, bool pub, bool compression)
         {
             _contentType     = contentType;
             _cachepublic     = pub;
@@ -139,8 +139,8 @@ namespace Jannesen.Web.Core.Impl
                     _lastModified = DateTime.MaxValue;
 
                 if (_lastModified < DateTime.MaxValue || _eTag != null) {
-                    string      req_etag            = null;
-                    DateTime?   req_ifModifiedSince = null;
+                    var req_etag            = (string?)null;
+                    var req_ifModifiedSince = (DateTime?)null;
 
                     if (_lastModified < DateTime.MaxValue) {
                         response.Headers.LastModified = LastModified.ToString("R", System.Globalization.DateTimeFormatInfo.InvariantInfo);
@@ -210,7 +210,7 @@ namespace Jannesen.Web.Core.Impl
             ArgumentNullException.ThrowIfNull(writer);
 
             if (_data != null) {
-                if (_contentType.IndexOf("charset=utf-8", StringComparison.Ordinal) > 0) {
+                if (_contentType != null && _contentType.Contains("charset=utf-8", StringComparison.OrdinalIgnoreCase)) {
                     writer.WriteLine();
                     writer.Flush();
                     writer.BaseStream.Write(_data, 0, _length);

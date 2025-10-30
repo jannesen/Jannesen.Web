@@ -11,23 +11,23 @@ namespace Jannesen.Web.Core.Impl
         private readonly        string                              _path;
         private readonly        string                              _verb;
         private readonly        bool                                _public;
-        private readonly        WebCoreWildcardPathProcessor        _wildcardPathProcessor;
-        private readonly        IWebCoreErrorHandler                _errorHandler;
-        private readonly        ResourceLogging                     _logging;
+        private readonly        WebCoreWildcardPathProcessor?       _wildcardPathProcessor;
+        private readonly        IWebCoreErrorHandler?               _errorHandler;
+        private readonly        ResourceLogging?                    _logging;
 
         public                  string                              Path                    => _path;
         public                  string                              Verb                    => _verb;
         public      virtual     bool                                Public                  => _public;
-        public                  WebCoreWildcardPathProcessor        WildcardPathProcessor   => _wildcardPathProcessor;
-        public                  ResourceLogging                     Logging                 => _logging;
-        public      virtual     string                              Mimetype                => null;
+        public                  WebCoreWildcardPathProcessor?       WildcardPathProcessor   => _wildcardPathProcessor;
+        public                  ResourceLogging?                    Logging                 => _logging;
+        public      virtual     string?                             Mimetype                => null;
 
         protected                                                   WebCoreHttpHandler(WebCoreConfigReader configReader)
         {
             ArgumentNullException.ThrowIfNull(configReader);
 
             _path   = configReader.GetValuePathName("path");
-            _verb   = string.Intern(configReader.GetValueString("verb", "GET").ToUpperInvariant());
+            _verb   = string.Intern(configReader.GetValueString("verb", "GET")!.ToUpperInvariant());
             _public = configReader.GetValueBool("public", false);
 
             var errorHandler = configReader.GetValueString("error-handler", null);
@@ -53,7 +53,7 @@ namespace Jannesen.Web.Core.Impl
         }
 
         public      abstract    WebCoreResponse                     Process(WebCoreCall httpCall);
-        public      virtual     int                                 ProcessErrorCode(Exception err, out string code, out string message)
+        public      virtual     int                                 ProcessErrorCode(Exception err, out string? code, out string? message)
         {
             code    = null;
             message = null;
@@ -122,14 +122,14 @@ namespace Jannesen.Web.Core.Impl
                 else {
                     var i = 0;
 
-                    while (i < _wildcard.Count && _wildcard[i].WildcardPathProcessor.Prefix.Length >= httpHandler.WildcardPathProcessor.Prefix.Length) {
+                    while (i < _wildcard.Count && _wildcard[i].WildcardPathProcessor!.Prefix.Length >= httpHandler.WildcardPathProcessor.Prefix.Length) {
                         ++i;
                     }
 
                     _wildcard.Insert(i, httpHandler);
                 }
             }
-            public                  WebCoreHttpHandler                          GetHandler(string path)
+            public                  WebCoreHttpHandler?                         GetHandler(string path)
             {
                 {
                     if (_exact.TryGetValue(path, out var rtn)) {
@@ -139,7 +139,7 @@ namespace Jannesen.Web.Core.Impl
 
                 {
                     for(var i = 0 ; i < _wildcard.Count ; ++i) {
-                        if (_wildcard[i].WildcardPathProcessor.IsMatch(path)) {
+                        if (_wildcard[i].WildcardPathProcessor!.IsMatch(path)) {
                             return _wildcard[i];
                         }
                     }
@@ -165,10 +165,11 @@ namespace Jannesen.Web.Core.Impl
 
             verbDictionary.Add(httpHandler);
         }
-        public                  WebCoreHttpHandler                          GetHandler(string path, string verb)
+        public                  WebCoreHttpHandler?                         GetHandler(string path, string verb)
         {
-            if (!_dictionary.TryGetValue((verb != "HEAD" ? verb : "GET"), out var verbDictionary))
+            if (!_dictionary.TryGetValue((verb != "HEAD" ? verb : "GET"), out var verbDictionary)) {
                 return null;
+            }
 
             return verbDictionary.GetHandler(path);
         }

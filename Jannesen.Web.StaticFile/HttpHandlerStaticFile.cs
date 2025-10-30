@@ -25,7 +25,7 @@ namespace Jannesen.Web.StaticFile
         {
             ArgumentNullException.ThrowIfNull(configReader);
 
-            _directory           = System.IO.Path.GetDirectoryName(configReader.Filename);
+            _directory           = System.IO.Path.GetDirectoryName(configReader.Filename) ?? throw new InvalidOperationException("Can't determin directory.");
             _mimetype            = configReader.GetValueString("mimetype");
             _compress            = configReader.GetValueBool("compress", false);
             _cacheMaxAge         = configReader.GetValueInt("cache-max-age",         -1, 0, 30*24*60*60);
@@ -39,15 +39,15 @@ namespace Jannesen.Web.StaticFile
         {
             ArgumentNullException.ThrowIfNull(httpCall);
 
-            Internal.ResponseStatic     response     = null;
+            var response     = (Internal.ResponseStatic?)null;
             var physicalPath = _mapPhysicalPath(httpCall);
             var fileinfo     = _getFileInfo(physicalPath);
 
             if ((_compress || _decodeCharSet) && fileinfo.Length < 10000000) // Only public and <10 M files are compressed
             {
-                var compressEncoding  = WebCoreResponse.GetResponseCompressionEncoding(httpCall);
-                var cacheKey          = (compressEncoding != null ? "TextFile/" + compressEncoding + "/" : "StaticFileUTF8//" ) + physicalPath;
-                var webFileCache      = (Internal.FileCache)httpCall.Cache.Get(cacheKey);
+                var compressEncoding = WebCoreResponse.GetResponseCompressionEncoding(httpCall);
+                var cacheKey         = (compressEncoding != null ? "TextFile/" + compressEncoding + "/" : "StaticFileUTF8//" ) + physicalPath;
+                var webFileCache     = (Internal.FileCache?)httpCall.Cache.Get(cacheKey);
 
                 if (webFileCache != null && webFileCache.HasData) {
                     if (fileinfo.Length           != webFileCache.FileLength ||
@@ -89,7 +89,7 @@ namespace Jannesen.Web.StaticFile
 
         private                 string              _mapPhysicalPath(WebCoreCall httpCall)
         {
-            var path = httpCall.Request.Path.Value;
+            var path = httpCall.Request.Path.Value ?? throw new InvalidOperationException("path is null.");
 
             for (var i = 0; i < path.Length ; ++i) {
                 var c = path[i];

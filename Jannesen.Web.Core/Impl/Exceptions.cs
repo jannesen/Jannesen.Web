@@ -29,8 +29,12 @@ namespace Jannesen.Web.Core.Impl
         public              string          Filename        { get ; }
         public              int             LineNumber      { get ; }
 
-        public                              WebConfigException(string message, WebCoreConfigReader configReader): this(message, null, configReader)
+        public                              WebConfigException(string message, WebCoreConfigReader configReader): base(message)
         {
+            ArgumentNullException.ThrowIfNull(configReader);
+
+            Filename   = configReader.Filename;
+            LineNumber = configReader.LineNumber;
         }
         public                              WebConfigException(string message, Exception innerException, WebCoreConfigReader configReader): base(message, innerException)
         {
@@ -48,7 +52,7 @@ namespace Jannesen.Web.Core.Impl
         public                              WebSourceException(string message): base(message)
         {
         }
-        public                              WebSourceException(string message, Exception innerException): base(message, innerException)
+        public                              WebSourceException(string message, Exception? innerException): base(message, innerException)
         {
         }
 
@@ -60,7 +64,7 @@ namespace Jannesen.Web.Core.Impl
         public                              WebConversionException(string message): base(message)
         {
         }
-        public                              WebConversionException(string message, Exception innerException): base(message, innerException)
+        public                              WebConversionException(string message, Exception? innerException): base(message, innerException)
         {
         }
 

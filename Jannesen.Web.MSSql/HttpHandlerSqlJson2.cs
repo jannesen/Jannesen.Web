@@ -31,7 +31,7 @@ namespace Jannesen.Web.MSSql
                     return new ResponseValue(type);
                 }
             }
-            public  abstract        void                        Convert(JsonWriter jsonWriter, XmlReader xmlReader);
+            public  abstract        void                        Convert(JsonWriter jsonWriter, XmlReader? xmlReader);
             public  virtual         void                        ConvertValue(JsonWriter jsonWriter, string value)
             {
                 throw new WebConversionException("Expect simple value.");
@@ -46,7 +46,7 @@ namespace Jannesen.Web.MSSql
                 _valueConvertor = ValueConvertor.GetType(nativeType);
             }
 
-            public  override        void                        Convert(JsonWriter jsonWriter, XmlReader xmlReader)
+            public  override        void                        Convert(JsonWriter jsonWriter, XmlReader? xmlReader)
             {
                 if (xmlReader != null) {
                     if (xmlReader.Name != "value")
@@ -61,7 +61,7 @@ namespace Jannesen.Web.MSSql
                         if (xmlReader.NodeType != XmlNodeType.Text)
                             throw new WebConversionException("expect element value.");
 
-                        value = xmlReader.Value;
+                        value = xmlReader.Value!;
 
                         if (!xmlReader.Read())
                             throw new WebConversionException("EOF while reading XML.");
@@ -89,7 +89,7 @@ namespace Jannesen.Web.MSSql
             {
                 Response = ResponseRoot.ParseType(configReader, type, false);
             }
-            public  override        void                        Convert(JsonWriter jsonWriter, XmlReader xmlReader)
+            public  override        void                        Convert(JsonWriter jsonWriter, XmlReader? xmlReader)
             {
                 jsonWriter.WriteStartArray();
 
@@ -140,7 +140,7 @@ namespace Jannesen.Web.MSSql
 
                 Fields = fields.ToArray();
             }
-            public  override        void                        Convert(JsonWriter jsonWriter, XmlReader xmlReader)
+            public  override        void                        Convert(JsonWriter jsonWriter, XmlReader? xmlReader)
             {
                 var curpos = 0;
 
@@ -224,8 +224,8 @@ next:               pos = p + 1;
         }
         private sealed class ResponseMsg
         {
-            public string       Name;
-            public ResponseRoot Format;
+            public                  string?      Name;
+            public required         ResponseRoot Format;
         }
 
         public      override    string                      Mimetype
@@ -236,7 +236,7 @@ next:               pos = p + 1;
         }
 
         private readonly        bool                        _jsmodule;
-        private readonly        ResponseMsg[]               _responses;
+        private readonly        ResponseMsg[]?              _responses;
 
         public                                              HttpHandlerSqlXmlJson2(WebCoreConfigReader configReader): base(configReader)
         {
@@ -253,9 +253,9 @@ next:               pos = p + 1;
 
                     case "response":
                         responses.Add(new ResponseMsg() {
-                                            Name   = configReader.GetValueString("responsemsg", null),
-                                            Format = ResponseRoot.ParseType(configReader, configReader.GetValueString("type"), true)
-                                       });
+                                          Name   = configReader.GetValueString("responsemsg", null),
+                                          Format = ResponseRoot.ParseType(configReader, configReader.GetValueString("type"), true)
+                                      });
                         break;
 
                     default:
@@ -264,8 +264,9 @@ next:               pos = p + 1;
                     }
                 }
 
-                if (responses.Count > 0)
+                if (responses.Count > 0) {
                     _responses = responses.ToArray();
+                }
             }
 
             if (Path.EndsWith(".js", StringComparison.Ordinal)) {
@@ -289,7 +290,7 @@ next:               pos = p + 1;
             else {
                 using (var dataReader = sqlCommand.ExecuteReader()) {
                     if (HandleResponseOptions(responseBuffer, dataReader) == HttpStatusCode.OK) {
-                        ResponseRoot responseformat = null;
+                        var responseformat = (ResponseRoot?)null;
 
                         if (!dataReader.Read())
                             throw new WebResponseException("No datareceived from database.");
@@ -360,11 +361,13 @@ next:               pos = p + 1;
             }
         }
 
-        private                 ResponseRoot                _findResponseMsg(string responsemsg)
+        private                 ResponseRoot                _findResponseMsg(string? responsemsg)
         {
-            foreach(var x in _responses) {
-                if (x.Name == responsemsg)
-                    return x.Format;
+            if (_responses != null) {
+                foreach(var x in _responses) {
+                    if (x.Name == responsemsg)
+                        return x.Format;
+                }
             }
 
             throw new WebResponseException("Unknown responsemsg received from database.");

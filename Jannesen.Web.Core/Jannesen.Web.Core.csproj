@@ -5,6 +5,8 @@
         <TargetFrameworks>net9.0</TargetFrameworks>
         <AppendTargetFrameworkToOutputPath>false</AppendTargetFrameworkToOutputPath>
 
+        <Nullable>Enable</Nullable>
+
         <EnableNETAnalyzers>False</EnableNETAnalyzers>
         <AnalysisLevel>latest</AnalysisLevel>
         <AnalysisMode>AllEnabledByDefault</AnalysisMode>

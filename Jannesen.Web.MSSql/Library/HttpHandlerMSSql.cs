@@ -61,7 +61,7 @@ retry:      using (var sqlConnection = GetConnection(httpCall))
                 }
             }
         }
-        public      override    int                         ProcessErrorCode(Exception err, out string code, out string message)
+        public      override    int                         ProcessErrorCode(Exception err, out string? code, out string? message)
         {
             if (err is SqlException sqlErr) {
                 var msg = err.Message;

@@ -34,7 +34,7 @@ namespace Jannesen.Web.MSSql
             var   webResponseBuffer = new WebCoreResponseBuffer("application/json; charset=utf-8", this.Public, true);
 
             if (HandleResponseOptions(webResponseBuffer, dataReader) == HttpStatusCode.OK) {
-                object  json;
+                object? json;
 
                 try {
                     json = _xmlToJson(dataReader);
@@ -55,7 +55,7 @@ namespace Jannesen.Web.MSSql
             return webResponseBuffer;
         }
 
-        private                 object                      _xmlToJson(SqlDataReader dataReader)
+        private                 object?                     _xmlToJson(SqlDataReader dataReader)
         {
             using (var memoryStream = new MemoryStream()) {
                 var fempty = true;
@@ -101,9 +101,9 @@ namespace Jannesen.Web.MSSql
                 }
             }
         }
-        private                 object                      _parseToJsonChild(XmlTextReader xmlReader)
+        private                 object?                     _parseToJsonChild(XmlTextReader xmlReader)
         {
-            object  rtn = null;
+            var rtn = (object?)null;
 
             if (!xmlReader.IsEmptyElement) {
                 _parseReadNode(xmlReader);
@@ -232,7 +232,7 @@ namespace Jannesen.Web.MSSql
 
             return rtn;
         }
-        private     static      string                      _parseElementValue(XmlTextReader xmlReader)
+        private     static      string?                     _parseElementValue(XmlTextReader xmlReader)
         {
             if (!xmlReader.IsEmptyElement) {
                 var rtn = "";
@@ -268,12 +268,12 @@ namespace Jannesen.Web.MSSql
             if (!xmlReader.Read())
                 throw new WebConversionException("Reading EOF on xml-document.");
         }
-        private     static      object                      _jsonConvertValue(char t, string svalue)
+        private     static      object?                     _jsonConvertValue(char t, string? svalue)
         {
             switch(t) {
             case 's':   return svalue;
-            case 'i':   return !string.IsNullOrEmpty(svalue) ? (object)int.Parse(svalue, CultureInfo.InvariantCulture)   : null;
-            case 'n':   return !string.IsNullOrEmpty(svalue) ? (object)float.Parse(svalue, CultureInfo.InvariantCulture) : null;
+            case 'i':   return !string.IsNullOrEmpty(svalue) ? (object?)int.Parse(svalue, CultureInfo.InvariantCulture)   : null;
+            case 'n':   return !string.IsNullOrEmpty(svalue) ? (object?)float.Parse(svalue, CultureInfo.InvariantCulture) : null;
 
             case 'b':
                 switch(svalue) {

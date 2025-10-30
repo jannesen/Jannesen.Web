@@ -15,14 +15,14 @@ namespace Jannesen.Web.MSSql.Library.BaseTypes
         {
         }
 
-        public          override            object              ConvertClrToValue(object value)
+        public          override            object?             ConvertClrToValue(object? value)
         {
             if (value == null)      return null;
             if (value is string)    return value;
 
             return NoConversion(value);
         }
-        public          override            object              ConvertStringToValue(string sValue)
+        public          override            object?             ConvertStringToValue(string? sValue)
         {
             return sValue;
         }

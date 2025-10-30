@@ -5,7 +5,7 @@ namespace Jannesen.Web.Core.Impl
 {
     public class WebCoreProcessorTextXml : IWebCoreCallProcessor
     {
-        private                 XmlDocument         _document;
+        private                 XmlDocument?        _document;
 
         public                  void                Proces(WebCoreCall httpCall)
         {
@@ -27,7 +27,7 @@ namespace Jannesen.Web.Core.Impl
             }
         }
 
-        public                  string              GetStringValue(string xpath)
+        public                  string?             GetStringValue(string xpath)
         {
             if (_document == null)
                 throw new WebRequestException("Empty body.");

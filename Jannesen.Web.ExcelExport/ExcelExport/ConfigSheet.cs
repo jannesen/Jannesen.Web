@@ -7,31 +7,25 @@ namespace Jannesen.Web.ExcelExport.ExcelExport
 {
     internal sealed class ConfigSheet
     {
-        private         string                      _name;
-        private         double                      _fontSize;
-        private         string                      _backgroundColor;
-        private         string                      _backgroundColorOdd;
-        private         int                         _headerRows;
-        private         int                         _freezeColumn;
-        private         List<double>                _columnsWidth;
-        private         List<ConfigColumn>          _columns;
+        private readonly        string                          _name;
+        private readonly        double                          _fontSize;
+        private readonly        string?                         _backgroundColor;
+        private readonly        string?                         _backgroundColorOdd;
+        private                 int                             _headerRows;
+        private                 int                             _freezeColumn;
+        private readonly        List<double>                    _columnsWidth;
+        private readonly        List<ConfigColumn>              _columns;
 
-        public          string                      Name                    => _name;
-        public          double                      FontSize                => _fontSize;
-        public          string                      BackgroundColor         => _backgroundColor;
-        public          string                      BackgroundColorOdd      => _backgroundColorOdd;
-        public          int                         HeaderRows              => _headerRows;
-        public          int                         FreezeColumn            => _freezeColumn;
-        public          IReadOnlyList<double>       ColumnsWidth            => _columnsWidth;
-        public          IReadOnlyList<ConfigColumn> Columns                 => _columns;
+        public                  string                          Name                    => _name;
+        public                  double                          FontSize                => _fontSize;
+        public                  string?                         BackgroundColor         => _backgroundColor;
+        public                  string?                         BackgroundColorOdd      => _backgroundColorOdd;
+        public                  int                             HeaderRows              => _headerRows;
+        public                  int                             FreezeColumn            => _freezeColumn;
+        public                  IReadOnlyList<double>           ColumnsWidth            => _columnsWidth;
+        public                  IReadOnlyList<ConfigColumn>     Columns                 => _columns;
 
         public                                      ConfigSheet(WebCoreConfigReader configReader)
-        {
-            _parse(configReader);
-            _validate();
-        }
-
-        private         void                        _parse(WebCoreConfigReader configReader)
         {
             _name                = configReader.GetValueString("name");
             _fontSize            = configReader.GetValueDouble("font-size", 10, 6, 100);
@@ -43,8 +37,11 @@ namespace Jannesen.Web.ExcelExport.ExcelExport
             _columns      = new List<ConfigColumn>();
 
             _parseColumns(0, 0, configReader, null, this);
+
+            _validate();
         }
-        private         int                         _parseColumns(int col, int row, WebCoreConfigReader configReader, ConfigColumn parent, ConfigSheet sheet)
+
+        private         int                         _parseColumns(int col, int row, WebCoreConfigReader configReader, ConfigColumn? parent, ConfigSheet sheet)
         {
             var startCol = col;
 
@@ -97,8 +94,9 @@ namespace Jannesen.Web.ExcelExport.ExcelExport
         private         void                        _validate()
         {
             for(var c = 0 ; c < _columnsWidth.Count ; ++c) {
-                if (_columnsWidth[c] == -1)
+                if (_columnsWidth[c] == -1) {
                     throw new Exception("With not set for column #" + c.ToString(CultureInfo.InvariantCulture) + ".");
+                }
             }
         }
     }

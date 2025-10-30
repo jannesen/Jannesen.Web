@@ -13,20 +13,20 @@ namespace Jannesen.Web.MSSql
     public class ResourceMSSqlDatabase: WebCoreResource
     {
         private readonly        string              _server;
-        private readonly        string              _instance;
+        private readonly        string?             _instance;
         private readonly        string              _database;
         private readonly        bool                _iisUserIdentity;
-        private readonly        string              _username;
-        private readonly        string              _passwd;
+        private readonly        string?             _username;
+        private readonly        string?             _passwd;
         private readonly        string              _connectString;
 
         public      override    string              Type                => "mssql";
         public                  string              Server              => _server;
-        public                  string              Instance            => _instance;
+        public                  string?             Instance            => _instance;
         public                  string              Database            => _database;
         public                  bool                IISUserIdentityswd  => _iisUserIdentity;
-        public                  string              Username            => _username;
-        public                  string              Passwd              => _passwd;
+        public                  string?             Username            => _username;
+        public                  string?             Passwd              => _passwd;
 
 
         public                                      ResourceMSSqlDatabase(WebCoreConfigReader configReader): base(configReader)

@@ -75,7 +75,7 @@ namespace Jannesen.Web.ExcelExport.ExcelExport
                            FontName = new FontName() { Val = "Calibri"            },
                            FontSize = new FontSize() { Val = configSheet.FontSize },
                        };
-            var fill = (Fill)null;
+            var fill = (Fill?)null;
 
             if (configSheet.BackgroundColor != null) {
                 var patternFill = new PatternFill() {
@@ -250,7 +250,7 @@ namespace Jannesen.Web.ExcelExport.ExcelExport
                 {
                     foreach(var f in _numberingFormats) {
                         if (f is NumberingFormat nf && nf.FormatCode == format) {
-                            return nf.NumberFormatId;
+                            return nf.NumberFormatId!;
                         }
                     }
 

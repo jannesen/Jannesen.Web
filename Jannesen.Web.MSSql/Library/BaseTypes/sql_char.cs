@@ -18,14 +18,14 @@ namespace Jannesen.Web.MSSql.Library.BaseTypes
                 throw new FormatException("Syntax error sql-type.");
         }
 
-        public          override            object              ConvertClrToValue(object value)
+        public          override            object?             ConvertClrToValue(object? value)
         {
             if (value == null)           return null;
             if (value is string vstring) return ConvertStringToValue(vstring);
 
             return NoConversion(value);
         }
-        public          override            object              ConvertStringToValue(string sValue)
+        public          override            object?             ConvertStringToValue(string? sValue)
         {
             if (sValue == null)
                 return null;
@@ -37,7 +37,7 @@ namespace Jannesen.Web.MSSql.Library.BaseTypes
         }
         public          override            void                ConvertXmlValueToJson(string sValue, Jannesen.FileFormat.Json.JsonWriter jsonWriter)
         {
-            jsonWriter.WriteValue(sValue.TrimEnd());
+            jsonWriter.WriteValue(sValue?.TrimEnd());
         }
 
 

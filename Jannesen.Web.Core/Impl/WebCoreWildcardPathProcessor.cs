@@ -225,13 +225,13 @@ namespace Jannesen.Web.Core.Impl
         private readonly        string                              _prefix;
         private readonly        string                              _suffix;
         private readonly        string                              _expression;
-        private readonly        string[]                            _names;
-        private readonly        Regex                               _regex;
+        private readonly        string[]?                           _names;
+        private readonly        Regex?                               _regex;
 
         public                  string                              Prefix          => _prefix;
         public                  string                              Suffix          => _suffix;
         public                  string                              Expression      => _expression;
-        public                  IReadOnlyList<string>               Names           => _names;
+        public                  IReadOnlyList<string>?              Names           => _names;
 
         public                                                      WebCoreWildcardPathProcessor(string prefix, string suffix, string expression)
         {
@@ -243,8 +243,9 @@ namespace Jannesen.Web.Core.Impl
             _suffix     = suffix;
             _expression = expression;
 
-            if (expression.Length == 1 && expression == "*")
+            if (expression.Length == 1 && expression == "*") { 
                 return ; // Simple wildcard
+            }
 
             if (expression.Length >= 2 && expression[0] == '{' && expression[^1] == '}') {
                 var parser = new Parser(expression);
@@ -256,7 +257,7 @@ namespace Jannesen.Web.Core.Impl
             throw new FormatException("Invalid wildcard path.");
         }
 
-        public      static      WebCoreWildcardPathProcessor        GetProcessor(string path)
+        public      static      WebCoreWildcardPathProcessor?       GetProcessor(string path)
         {
             ArgumentNullException.ThrowIfNull(path);
 
@@ -295,12 +296,13 @@ namespace Jannesen.Web.Core.Impl
             return false;
         }
 
-        public                  Match                               RegexMatch(string path)
+        public                  Match?                              RegexMatch(string path)
         {
             ArgumentNullException.ThrowIfNull(path);
 
-            if (_regex != null)
+            if (_regex != null) {
                 return _regex.Match(path, _prefix.Length, path.Length - _prefix.Length - _suffix.Length);
+            }
 
             return null;
         }

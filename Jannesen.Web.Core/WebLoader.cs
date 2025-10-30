@@ -31,7 +31,7 @@ namespace Jannesen.Web.Core
             _loadModule(Assembly.Load(name));
         }
 
-        public                          WebCoreDataSource                   GetDataSource(string source, string name)
+        public                          WebCoreDataSource                   GetDataSource(string source, string? name)
         {
             ArgumentNullException.ThrowIfNull(source);
 
@@ -51,16 +51,16 @@ namespace Jannesen.Web.Core
 
             return (WebCoreDataSource)ConstructDynamicClass(new WebCoreDataSourceAttribute(source), name);
         }
-        public                          object                              ConstructDynamicClass(WebCoreDynamicClassAttribute className, params object[] args)
+        public                          object                              ConstructDynamicClass(WebCoreDynamicClassAttribute className, params object?[] args)
         {
             return ConstructDynamicClassArgs(className, args);
         }
-        public                          object                              ConstructDynamicClassArgs(WebCoreDynamicClassAttribute className, object[] args)
+        public                          object                              ConstructDynamicClassArgs(WebCoreDynamicClassAttribute className, object?[] args)
         {
             ArgumentNullException.ThrowIfNull(className);
             ArgumentNullException.ThrowIfNull(args);
 
-            ConstructorInfo constructorInfo = null;
+            ConstructorInfo? constructorInfo;
 
             lock(_lock) {
                 if (!_dynamicClasses.TryGetValue(className, out constructorInfo)) {
@@ -85,12 +85,15 @@ namespace Jannesen.Web.Core
                 return constructorInfo.Invoke(args);
             }
             catch (System.Reflection.TargetInvocationException ex) {
-                throw ex.InnerException;
+                if (ex.InnerException != null) {
+                    throw ex.InnerException;
+                }
+                throw;
             }
         }
         public                          IWebCoreErrorHandler                GetErrorHandler(string className)
         {
-            IWebCoreErrorHandler    errorHandler;
+            IWebCoreErrorHandler?  errorHandler;
 
             lock(_lock) {
                 if (!_errorHandlers.TryGetValue(className, out errorHandler)) {
@@ -108,17 +111,23 @@ namespace Jannesen.Web.Core
                     _loadedModules.Add(assembly);
 
                     foreach(var type in assembly.GetTypes()) {
-                        try {
-                            foreach(var attr in (WebCoreDynamicClassAttribute[])type.GetCustomAttributes(typeof(WebCoreDynamicClassAttribute), false)) {
-                                _dynamicClasses.Add(attr, attr.GetConstructor(type));
-                            }
+                        if (type != null && type.FullName != null) {
+                            try {
+                                foreach(var attr in (WebCoreDynamicClassAttribute[])type.GetCustomAttributes(typeof(WebCoreDynamicClassAttribute), false)) {
+                                    _dynamicClasses.Add(attr, attr.GetConstructor(type));
+                                }
 
-                            if (type.GetTypeInfo().IsClass && typeof(IWebCoreErrorHandler).IsAssignableFrom(type)) {
-                                _errorHandlers.Add(type.FullName, (IWebCoreErrorHandler)(type.GetConstructor([]).Invoke([])));
+                                if (type.GetTypeInfo().IsClass && typeof(IWebCoreErrorHandler).IsAssignableFrom(type)) {
+                                    var c = type.GetConstructor([]);
+
+                                    if (c != null) {
+                                        _errorHandlers.Add(type.FullName, (IWebCoreErrorHandler)(c.Invoke([])));
+                                    }
+                                }
                             }
-                        }
-                        catch(Exception err) {
-                            throw new WebInitializationException("Failed to process class '" + type.FullName + "'.", err);
+                            catch(Exception err) {
+                                throw new WebInitializationException("Failed to process class '" + type.FullName + "'.", err);
+                            }
                         }
                     }
                 }

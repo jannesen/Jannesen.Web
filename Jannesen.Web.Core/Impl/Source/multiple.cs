@@ -8,7 +8,7 @@ namespace Jannesen.Web.Core.Impl.Source
 
         private readonly            WebCoreDataSource[] _list;
 
-        public                                          multiple(string source, string name_args): base(source)
+        public                                          multiple(string source, string? name_args): base(source)
         {
             var sources = source.Split(SplitChar);
 

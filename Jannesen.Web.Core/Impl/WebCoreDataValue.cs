@@ -14,7 +14,7 @@ namespace Jannesen.Web.Core.Impl
     public readonly struct WebCoreDataValue
     {
         public          WebCoreDataValueType    Type        { get; private init; }
-        public          object                  Value       { get; private init; }
+        public          object?                 Value       { get; private init; }
 
         public          bool                    hasValue
         {
@@ -22,7 +22,7 @@ namespace Jannesen.Web.Core.Impl
                 return (Type == WebCoreDataValueType.ClrValue || Type == WebCoreDataValueType.StringValue);
             }
         }
-        public          string                  StringValue
+        public          string?                 StringValue
         {
             get {
                 switch(Type) {
@@ -37,10 +37,10 @@ namespace Jannesen.Web.Core.Impl
                     if (Value is Int32  vint32)  return vint32.ToString(CultureInfo.InvariantCulture);
                     if (Value is Int64  vint64)  return vint64.ToString(CultureInfo.InvariantCulture);
 
-                    throw new InvalidOperationException("No conversion possible from " + Value.GetType().FullName + " to StringValue.");
+                    throw new InvalidOperationException("No conversion possible from " + (Value != null ? Value.GetType().FullName : "[null]") + " to StringValue.");
 
                 case WebCoreDataValueType.StringValue:
-                    return (string)Value;
+                    return (string?)Value;
                 }
             }
         }
@@ -51,12 +51,12 @@ namespace Jannesen.Web.Core.Impl
             }
         }
 
-        public                                  WebCoreDataValue(string sValue)
+        public                                  WebCoreDataValue(string? sValue)
         {
             this.Type  = sValue != null ? WebCoreDataValueType.StringValue : WebCoreDataValueType.NoValue;
             this.Value = sValue;
         }
-        public                                  WebCoreDataValue(object clrValue)
+        public                                  WebCoreDataValue(object? clrValue)
         {
             if (clrValue != null) {
                 this.Type  = WebCoreDataValueType.ClrValue;
@@ -67,7 +67,7 @@ namespace Jannesen.Web.Core.Impl
                 this.Value = null;
             }
         }
-        public                                  WebCoreDataValue(WebCoreDataValueType type, object value)
+        public                                  WebCoreDataValue(WebCoreDataValueType type, object? value)
         {
             this.Type  = type;
             this.Value = value;

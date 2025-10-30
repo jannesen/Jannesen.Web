@@ -15,7 +15,7 @@ namespace Jannesen.Web.MSSql.Library.BaseTypes
         {
         }
 
-        public          override            object              ConvertClrToValue(object value)
+        public          override            object?             ConvertClrToValue(object? value)
         {
             if (value == null)             return null;
             if (value is DateTime)         return value;
@@ -23,7 +23,7 @@ namespace Jannesen.Web.MSSql.Library.BaseTypes
 
             return NoConversion(value);
         }
-        public          override            object              ConvertStringToValue(string sValue)
+        public          override            object?             ConvertStringToValue(string? sValue)
         {
             return ConvertStringToValue(sValue, true);
         }

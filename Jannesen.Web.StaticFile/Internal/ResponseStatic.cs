@@ -36,8 +36,8 @@ namespace Jannesen.Web.StaticFile.Internal
 
         public      override    void                Send(WebCoreCall call, HttpResponse response)
         {
-            string      etag            = null; ;
-            DateTime?   ifModifiedSince = null ;
+            var etag            = (string?)null;
+            var ifModifiedSince = (DateTime?)null;
 
             response.HttpContext.Features.Get<IHttpResponseBodyFeature>()?.DisableBuffering();
             response.ContentType = null;

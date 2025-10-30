@@ -32,12 +32,12 @@ namespace Jannesen.Web.ExcelExport.ExcelExport
         private sealed class ProcessConfigColumn
         {
             public      ConfigColumn                Config;
-            public      string                      ExcelColumnName;
+            public      string?                     ExcelColumnName;
             public      uint                        HeaderStyleIndex;
             public      uint                        DataStyleIndex;
             public      uint                        DataStyleIndexOdd;
             public      int                         FieldNr;
-            public      Type                        SqlType;
+            public      Type?                       SqlType;
 
             public                                  ProcessConfigColumn(ConfigColumn config)
             {
@@ -45,7 +45,7 @@ namespace Jannesen.Web.ExcelExport.ExcelExport
             }
         }
 
-        private                 SpreadsheetDocument         _document;
+        private                 SpreadsheetDocument         _document = null!;
 
         public      static      void                        Export(IReadOnlyList<ConfigSheet> configSheets, SqlDataReader dataReader, Stream outputStream)
         {
@@ -62,7 +62,7 @@ namespace Jannesen.Web.ExcelExport.ExcelExport
         {
             using (_document = SpreadsheetDocument.Create(outputStream, SpreadsheetDocumentType.Workbook)) {
                 _document.AddWorkbookPart();
-                _document.WorkbookPart.Workbook = new DocumentFormat.OpenXml.Spreadsheet.Workbook();
+                _document.WorkbookPart!.Workbook = new DocumentFormat.OpenXml.Spreadsheet.Workbook();
 
                 _createStyleSheet(config);
                 _createSheets(config, dataReader);
@@ -88,15 +88,15 @@ namespace Jannesen.Web.ExcelExport.ExcelExport
                 }
             }
 
-            excelStyleSheet.Save(_document.WorkbookPart);
+            excelStyleSheet.Save(_document.WorkbookPart!);
         }
         private                 void                        _createSheets(ProcessConfigSheet[] config, SqlDataReader dataReader)
         {
             var sheetNumber = (uint)0;
             var sheets      = new DocumentFormat.OpenXml.Spreadsheet.Sheets();
 
-            _document.WorkbookPart.Workbook.Append(new BookViews(new WorkbookView()));
-            _document.WorkbookPart.Workbook.AppendChild(sheets);
+            _document.WorkbookPart!.Workbook.Append(new BookViews(new WorkbookView()));
+            _document.WorkbookPart!.Workbook.AppendChild(sheets);
 
             do {
                 var sheetConfig   = config[sheetNumber++];
@@ -253,7 +253,7 @@ namespace Jannesen.Web.ExcelExport.ExcelExport
                                 textValue = dataReader.GetDouble(colcfg.FieldNr).ToString(CultureInfo.InvariantCulture);
                             }
                             else
-                                throw new NotImplementedException("Column type '" + colcfg.SqlType.Name + "' not implented.");
+                                throw new NotImplementedException("Column type '" + colcfg.SqlType?.Name + "' not implented.");
 
                             cell.CellValue     = new CellValue() { Text = textValue };
 

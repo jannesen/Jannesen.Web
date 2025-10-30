@@ -24,8 +24,10 @@ namespace Jannesen.Web.Core.Impl
             if (names != null) {
                 var match = httpCall.Handler.WildcardPathProcessor.RegexMatch(httpCall.Request.Path);
 
-                foreach(var name in names) {
-                    base.Add(name, match.Groups[name].Value);
+                if (match != null) {
+                    foreach(var name in names) {
+                        base.Add(name, match.Groups[name].Value);
+                    }
                 }
             }
         }

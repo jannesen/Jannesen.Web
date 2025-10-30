@@ -5,11 +5,11 @@ namespace Jannesen.Web.Core.Impl
 {
     public class WebCoreProcessorBasicAutorization : IWebCoreCallProcessor
     {
-        private                 string              _username;
-        private                 string              _passwd;
+        private                 string?             _username;
+        private                 string?             _passwd;
 
-        public                  string              UserName        => _username;
-        public                  string              Passwd          => _passwd;
+        public                  string?             UserName        => _username;
+        public                  string?             Passwd          => _passwd;
 
         public                  void                Proces(WebCoreCall httpCall)
         {
@@ -22,8 +22,8 @@ namespace Jannesen.Web.Core.Impl
                 var AuthStrPos  = AuthStr.IndexOf(':', StringComparison.Ordinal);
 
                 if (AuthStrPos>=0) {
-                    _username       = AuthStr.Substring(0, AuthStrPos);
-                    _passwd     = AuthStr.Substring(AuthStrPos+1);
+                    _username = AuthStr.Substring(0, AuthStrPos);
+                    _passwd   = AuthStr.Substring(AuthStrPos+1);
                     return ;
                 }
             }

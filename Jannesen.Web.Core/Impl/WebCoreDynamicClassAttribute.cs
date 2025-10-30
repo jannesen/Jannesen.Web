@@ -51,7 +51,7 @@ namespace Jannesen.Web.Core.Impl
         {
             return Type.GetHashCode(StringComparison.Ordinal) ^ _name.GetHashCode(StringComparison.Ordinal);
         }
-        public      override    bool                            Equals(object obj)
+        public      override    bool                            Equals(object? obj)
         {
             if (obj != null && obj.GetType() == this.GetType()) {
                 if (((WebCoreDynamicClassAttribute)obj)._name == _name)

@@ -10,13 +10,13 @@ namespace Jannesen.Web.Core.Impl
     {
         private readonly        IServiceProvider            _serviceProvider;
         private readonly        WebApplicationConfig        _applicationConfig;
-        private readonly        string                      _path;
+        private readonly        string?                     _path;
         private readonly        string                      _filename;
         private readonly        XmlTextReader               _xmlReader;
 
         public                  IServiceProvider            ServiceProvider         => _serviceProvider;
         public                  WebApplicationConfig        ApplicationConfig       => _applicationConfig;
-        public                  string                      Path                    => _path;
+        public                  string?                     Path                    => _path;
         public                  string                      Filename                => _filename;
         public                  int                         LineNumber              => _xmlReader.LineNumber;
         public                  string                      ElementName             => _xmlReader.Name;
@@ -31,7 +31,7 @@ namespace Jannesen.Web.Core.Impl
         }
         public                  bool                        isElement               => (_xmlReader.NodeType == XmlNodeType.Element);
 
-        public                                              WebCoreConfigReader(IServiceProvider serviceProvider, WebApplicationConfig application, string path, string filename)
+        public                                              WebCoreConfigReader(IServiceProvider serviceProvider, WebApplicationConfig application, string? path, string filename)
         {
             _serviceProvider   = serviceProvider;
             _applicationConfig = application;
@@ -163,7 +163,7 @@ namespace Jannesen.Web.Core.Impl
         {
             return _xmlReader.GetAttribute(name) ?? throw new WebConfigException("Missing attribute '" + name + "'.", this);
         }
-        public                  string                      GetValueString(string name, string defaultValue)
+        public                  string?                     GetValueString(string name, string? defaultValue)
         {
             return _xmlReader.GetAttribute(name) ?? defaultValue;
         }

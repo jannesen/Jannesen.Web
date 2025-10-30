@@ -82,7 +82,7 @@ namespace Jannesen.Web.MSSql.Library.Source
 
             xmlWriter.WriteEndElement();
         }
-        private     static          void                    _jsonToXmlAttribute(XmlWriter xmlWriter, string attributeName, object value)
+        private     static          void                    _jsonToXmlAttribute(XmlWriter xmlWriter, string attributeName, object? value)
         {
             if (value != null) {
                 if (value is string vstring)

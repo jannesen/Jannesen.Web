@@ -19,8 +19,8 @@ namespace Jannesen.Web.Core.Impl
         private readonly        HttpContext                         _context;
         private readonly        HttpRequest                         _request;
         private readonly        WebCoreHttpHandler                  _handler;
-        private                 byte[]                              _requestBodyData;
-        private                 List<object>                        _requestProcessors;
+        private                 byte[]?                             _requestBodyData;
+        private                 List<object>?                       _requestProcessors;
 
         public                  WebApplicationConfig                ApplicationConfig   => _applicationConfig;
         public                  DateTime                            Timestamp           => _timestamp;
@@ -28,9 +28,9 @@ namespace Jannesen.Web.Core.Impl
         public                  HttpRequest                         Request             => _request;
         public                  IMemoryCache                        Cache               => _applicationConfig.Application.Cache;
         public                  WebCoreHttpHandler                  Handler             => _handler;
-        internal                byte[]                              RequestBodyData     => _requestBodyData;
+        internal                byte[]?                             RequestBodyData     => _requestBodyData;
         public                  string                              HttpMethod          => _request.Method;
-        public                  string                              RequestContentType  => _request.ContentType;
+        public                  string?                             RequestContentType  => _request.ContentType;
         public                  int?                                RequestContentLength
         {
             get {
@@ -58,7 +58,7 @@ namespace Jannesen.Web.Core.Impl
                 return null;
             }
         }
-        public                  string                              RequestIfNoneMatch
+        public                  string?                             RequestIfNoneMatch
         {
             get {
                 var s = GetHeader("If-None-Match");
@@ -66,7 +66,7 @@ namespace Jannesen.Web.Core.Impl
                 return !string.IsNullOrEmpty(s) ? s : null;
             }
         }
-        public                  string                              RequestReferer
+        public                  string?                             RequestReferer
         {
             get {
                 var s = GetHeader("Referer");
@@ -74,7 +74,7 @@ namespace Jannesen.Web.Core.Impl
                 return !string.IsNullOrEmpty(s) ? s : null;
             }
         }
-        public                  string                              RequestUserAgent
+        public                  string?                             RequestUserAgent
         {
             get {
                 var s = GetHeader("User-Agent");
@@ -82,7 +82,7 @@ namespace Jannesen.Web.Core.Impl
                 return !string.IsNullOrEmpty(s) ? s : null;
             }
         }
-        public                  string                              RequestRemoteAddr
+        public                  string?                             RequestRemoteAddr
         {
             get {
                 var rtn = GetHeader("X-Forwarded-For");
@@ -136,7 +136,7 @@ namespace Jannesen.Web.Core.Impl
             _handler           = handler;
         }
 
-        public                  string                              GetHeader(string name)
+        public                  string?                             GetHeader(string name)
         {
             var h = _request.Headers[name];
             switch(h.Count) {
@@ -176,8 +176,9 @@ namespace Jannesen.Web.Core.Impl
             if (_requestBodyData == null) {
                 var length = RequestContentLength;
 
-                if (!length.HasValue)
+                if (!length.HasValue) {
                     throw new WebRequestException("Missing content-length header.");
+                }
 
                 var buf = new byte[length.Value];
 
@@ -197,18 +198,19 @@ namespace Jannesen.Web.Core.Impl
 
             return _requestBodyData;
         }
-        public                  StreamReader                        GetBodyText(string contenttype)
+        public                  StreamReader?                       GetBodyText(string contenttype)
         {
             var     requestContentType = RequestContentType;
 
             if (string.IsNullOrEmpty(requestContentType)) {
-                if (_request.ContentLength <= 0)
+                if (_request.ContentLength <= 0) {
                     return null;
+                }
 
                 throw new WebRequestException("Missing Content-Type.");
             }
 
-            var encoding         = (System.Text.Encoding)null;
+            var encoding         = (System.Text.Encoding?)null;
             var contentTypeParts = requestContentType.Split(';');
 
             for (var i = 1 ; i <contentTypeParts.Length ; ++i)
@@ -234,7 +236,7 @@ namespace Jannesen.Web.Core.Impl
 
             return new System.IO.StreamReader(new System.IO.MemoryStream(GetBodyData(), false), encoding, false, 4096, false);
         }
-        public                  string                              GetBodyString(string contenttype)
+        public                  string?                             GetBodyString(string contenttype)
         {
             using(var reader = GetBodyText(contenttype)) {
                 return reader?.ReadToEnd();

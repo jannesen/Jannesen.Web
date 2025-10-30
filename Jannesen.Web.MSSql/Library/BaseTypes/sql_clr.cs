@@ -24,10 +24,14 @@ namespace Jannesen.Web.MSSql.Library.BaseTypes
             if (parts.Length != 2)
                 throw new FormatException("Syntax error sql-type.");
 
-            _type = Assembly.Load(parts[0]).GetType(parts[1], true);
+            _type = Assembly.Load(parts[0]).GetType(parts[1], true) ?? throw new InvalidOperationException("Unknown type '" + s + "'.");
 
             var sqlUserAttr = _type.GetCustomAttribute<Microsoft.SqlServer.Server.SqlUserDefinedTypeAttribute>();
-            if (sqlUserAttr != null && sqlUserAttr.Format == Microsoft.SqlServer.Server.Format.Native && sqlUserAttr.IsByteOrdered && sqlUserAttr.IsFixedLength && _type.IsValueType) {
+
+            if (sqlUserAttr != null &&
+                sqlUserAttr.Format == Microsoft.SqlServer.Server.Format.Native &&
+                sqlUserAttr.IsByteOrdered && sqlUserAttr.IsFixedLength &&
+                _type.IsValueType) {
                 _size = Marshal.SizeOf(_type);
                 if (_size < 1 || _size > 8000)
                     throw new InvalidOperationException("Not a support type.");
@@ -35,25 +39,29 @@ namespace Jannesen.Web.MSSql.Library.BaseTypes
             else
                 throw new NotSupportedException("Not a support type '" + s + "'.");
 
-            _parse = _type.GetMethod("Parse", [ typeof(System.Data.SqlTypes.SqlString) ]);
+            var parse = _type.GetMethod("Parse", [ typeof(System.Data.SqlTypes.SqlString) ]);
 
-            if (!(_parse != null && _parse.IsStatic))
-                throw new InvalidOperationException("Missing parse method.");
+            if (!(parse != null && parse.IsStatic)) {
+                throw new InvalidOperationException("Missing Parse method.");
+            }
+
+            _parse = parse;
         }
 
-        public          override            object              ConvertClrToValue(object value)
+        public          override            object?             ConvertClrToValue(object? value)
         {
             if (value == null)           return null;
             if (value is string vstring) return ConvertStringToValue(vstring);
 
             return NoConversion(value);
         }
-        public          override            object              ConvertStringToValue(string sValue)
+        public          override            object?             ConvertStringToValue(string? sValue)
         {
             if (string.IsNullOrEmpty(sValue))
                 return null;
 
-            return _toByteArray(_parse.Invoke(null, [ new System.Data.SqlTypes.SqlString(sValue) ]));
+            return _toByteArray(_parse.Invoke(null, [ new System.Data.SqlTypes.SqlString(sValue) ]) ??
+                                    throw new InvalidOperationException(_type.FullName + ".Parse() returned null."));
         }
         public          override            void                ConvertXmlValueToJson(string sValue, Jannesen.FileFormat.Json.JsonWriter jsonWriter)
         {
@@ -98,7 +106,7 @@ namespace Jannesen.Web.MSSql.Library.BaseTypes
             var h = GCHandle.Alloc(binarydata, GCHandleType.Pinned);
 
             try {
-                return Marshal.PtrToStructure(h.AddrOfPinnedObject(), _type);
+                return Marshal.PtrToStructure(h.AddrOfPinnedObject(), _type)!;
             }
             finally {
                 h.Free();

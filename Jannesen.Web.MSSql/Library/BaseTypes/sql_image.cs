@@ -15,7 +15,7 @@ namespace Jannesen.Web.MSSql.Library.BaseTypes
         {
         }
 
-        public          override            object              ConvertClrToValue(object value)
+        public          override            object?             ConvertClrToValue(object? value)
         {
             if (value == null)           return null;
             if (value is byte[])         return value;
@@ -23,9 +23,9 @@ namespace Jannesen.Web.MSSql.Library.BaseTypes
 
             return NoConversion(value);
         }
-        public          override            object              ConvertStringToValue(string sValue)
+        public          override            object?             ConvertStringToValue(string? sValue)
         {
-            return System.Convert.FromBase64String(sValue);
+            return !string.IsNullOrEmpty(sValue) ? Convert.FromBase64String(sValue) : null;
         }
 
         public          override            string              ToString()

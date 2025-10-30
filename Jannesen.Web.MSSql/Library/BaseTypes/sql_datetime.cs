@@ -17,11 +17,11 @@ namespace Jannesen.Web.MSSql.Library.BaseTypes
                 throw new FormatException("Syntax error sql-type datetime.");
         }
 
-        public          override            object              ConvertStringToValue(string sValue)
+        public          override            object?             ConvertStringToValue(string? sValue)
         {
             return ConvertStringToValue(sValue, false);
         }
-        public          override            object              ConvertClrToValue(object value)
+        public          override            object?             ConvertClrToValue(object? value)
         {
             if (value == null)             return null;
             if (value is DateTime)         return value;
@@ -30,7 +30,7 @@ namespace Jannesen.Web.MSSql.Library.BaseTypes
             return NoConversion(value);
         }
 
-        internal        static              object              ConvertStringToValue(string sValue, bool small)
+        internal        static              object?             ConvertStringToValue(string? sValue, bool small)
         {
             if (string.IsNullOrEmpty(sValue))
                 return null;

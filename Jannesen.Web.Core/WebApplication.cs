@@ -12,19 +12,21 @@ namespace Jannesen.Web.Core
 {
     public sealed class WebApplication: IDisposable
     {
-        public                          string                              Directory           {  get; init; }
+        public  required                string                              Directory           {  get; init; }
         public                          string                              Realm               {  get; init; }
 
         private                         IServiceProvider                    _serviceProvider;
-        private                         IMemoryCache                        _cache;             
-        private                         WebApplicationConfig                _applicationConfig;
+        private                         IMemoryCache?                       _cache;             
+        private                         WebApplicationConfig?               _applicationConfig;
         private     readonly            Lock                                _configLock;
 
-        public                          IMemoryCache                        Cache => _cache;
+        public                          IMemoryCache                        Cache => _cache ?? throw new InvalidOperationException("WebApplication not Initialized.");
 
         public                          WebApplication()
         {
             Realm              = "website";
+            _serviceProvider   = null!;
+            _cache             = null;
             _applicationConfig = null;
             _configLock        = new Lock();
         }
@@ -75,7 +77,7 @@ namespace Jannesen.Web.Core
         {
             Console.WriteLine("wrn: " + message);
         }
-        public                          void                                LogError(string message, Exception exception=null)
+        public                          void                                LogError(string? message, Exception? exception=null)
         {
             while (exception != null) {
                 var exmsg = exception.Message;
@@ -93,6 +95,10 @@ namespace Jannesen.Web.Core
         private                         WebApplicationConfig                _getApplicationConfig()
         {
             lock(_configLock) {
+                if (_applicationConfig == null) {
+                    throw new InvalidOperationException("WebApplication not Initialized.");
+                }
+
                 if (_applicationConfig.NeedsReInitialize()) {
                     _loadApplicationConfig();
                 }

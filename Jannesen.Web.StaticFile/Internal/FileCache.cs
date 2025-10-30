@@ -10,22 +10,22 @@ namespace Jannesen.Web.StaticFile.Internal
     internal sealed class FileCache
     {
         private readonly        string                      _physicalPath;
-        private readonly        string                      _contentEncoding;
-        private readonly        byte[]                      _data;
+        private readonly        string?                     _contentEncoding;
+        private readonly        byte[]?                     _data;
         private readonly        DateTime                    _lastWriteTimeUtc;
         private readonly        string                      _eTag;
         private readonly        bool                        _decodeCharSet;
 
         public                  string                      PhysicalPath            => _physicalPath;
-        public                  string                      ContentEncoding         => _contentEncoding;
+        public                  string?                     ContentEncoding         => _contentEncoding;
         public                  bool                        DecodeCharSet           => _decodeCharSet;
         public                  bool                        HasData                 => _data != null;
-        public                  byte[]                      Data                    => _data;
-        public                  int                         FileLength              => _data.Length;
+        public                  byte[]                      Data                    => _data ?? throw new InvalidOperationException("FileCache has with data.");
+        public                  int                         FileLength              => Data.Length;
         public                  DateTime                    LastWriteTimeUtc        => _lastWriteTimeUtc;
         public                  string                      ETag                    => _eTag;
 
-        public                                              FileCache(string physicalPath, string contentEncoding, FileInfo fileinfo, bool decodeCharSet)
+        public                                              FileCache(string physicalPath, string? contentEncoding, FileInfo fileinfo, bool decodeCharSet)
         {
             _physicalPath    = physicalPath;
             _contentEncoding = contentEncoding;
@@ -50,8 +50,9 @@ namespace Jannesen.Web.StaticFile.Internal
                         compressStream.Close();
                 }
 
-                if (outBuffer.Length < fileinfo.Length || decodeCharSet)
+                if (outBuffer.Length < fileinfo.Length || decodeCharSet) {
                     _data = outBuffer.ToArray();
+                }
             }
 
             _lastWriteTimeUtc = fileinfo.LastWriteTimeUtc;

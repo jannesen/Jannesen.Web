@@ -44,14 +44,14 @@ namespace Jannesen.Web.Core.Impl.Source
         {
             switch(_name) {
             case "method":              return new WebCoreDataValue((object)httpCall.HttpMethod);
-            case "if-modified-since":   return new WebCoreDataValue((object)httpCall.RequestIfModifiedSince);
-            case "if-none-match":       return new WebCoreDataValue((object)httpCall.RequestIfNoneMatch);
-            case "referer":             return new WebCoreDataValue((object)httpCall.RequestReferer);
-            case "user-agent":          return new WebCoreDataValue((object)httpCall.RequestUserAgent);
-            case "remote-addr":         return new WebCoreDataValue((object)httpCall.RequestRemoteAddr);
-            case "basic-username":      return new WebCoreDataValue((object)httpCall.RequestBasicAutorization.UserName);
-            case "basic-passwd":        return new WebCoreDataValue((object)httpCall.RequestBasicAutorization.Passwd);
-            default:                    return new WebCoreDataValue((object)httpCall.GetHeader(_name));
+            case "if-modified-since":   return new WebCoreDataValue((object?)httpCall.RequestIfModifiedSince);
+            case "if-none-match":       return new WebCoreDataValue((object?)httpCall.RequestIfNoneMatch);
+            case "referer":             return new WebCoreDataValue((object?)httpCall.RequestReferer);
+            case "user-agent":          return new WebCoreDataValue((object?)httpCall.RequestUserAgent);
+            case "remote-addr":         return new WebCoreDataValue((object?)httpCall.RequestRemoteAddr);
+            case "basic-username":      return new WebCoreDataValue((object?)httpCall.RequestBasicAutorization.UserName);
+            case "basic-passwd":        return new WebCoreDataValue((object?)httpCall.RequestBasicAutorization.Passwd);
+            default:                    return new WebCoreDataValue((object?)httpCall.GetHeader(_name));
             }
         }
 

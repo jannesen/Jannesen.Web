@@ -5,9 +5,9 @@ namespace Jannesen.Web.Core.Impl
 {
     public class WebCoreProcessorTextJson : IWebCoreCallProcessor
     {
-        private                 object              _document;
+        private                 object?             _document;
 
-        public                  object              Document        => _document;
+        public                  object?             Document        => _document;
 
         public                  void                Proces(WebCoreCall httpCall)
         {
@@ -26,7 +26,7 @@ namespace Jannesen.Web.Core.Impl
             }
         }
 
-        public                  bool                GetValue(string name, out object rtn)
+        public                  bool                GetValue(string name, out object? rtn)
         {
             ArgumentNullException.ThrowIfNull(name);
 

@@ -90,7 +90,7 @@ namespace Jannesen.Web.Core
             return false;
         }
 
-        public                          WebCoreHttpHandler                  GetHttpHandler(string path, string verb)
+        public                          WebCoreHttpHandler?                 GetHttpHandler(string path, string verb)
         {
             return _httpHandlers.GetHandler(path, verb);
         }
@@ -100,7 +100,7 @@ namespace Jannesen.Web.Core
             return (T)_resources.GetWebResource(typeof(T), name);
         }
 
-        private                         int                                 _loadConfig(IServiceProvider serviceProvider, string path, string filename)
+        private                         int                                 _loadConfig(IServiceProvider serviceProvider, string? path, string filename)
         {
             var rtn = 0;
 
@@ -137,7 +137,7 @@ namespace Jannesen.Web.Core
 
                             case "include": {
                                     var file    = configReader.GetValueString("file").Replace("\\", "/", StringComparison.Ordinal);
-                                    var incpath = (string)null;
+                                    var incpath = (string?)null;
 
                                     configReader.NoChildElements();
 
@@ -157,8 +157,9 @@ namespace Jannesen.Web.Core
                             }
                         }
                         catch(Exception err) {
-                            while (err is System.Reflection.TargetInvocationException)
+                            while (err is System.Reflection.TargetInvocationException && err.InnerException != null) { 
                                 err = err.InnerException;
+                            }
 
                             if (err is not WebConfigException)
                                 err = new WebConfigException("Parsing configuration entry failed.", err, configReader);

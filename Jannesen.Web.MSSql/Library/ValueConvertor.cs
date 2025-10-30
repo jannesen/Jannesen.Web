@@ -19,12 +19,12 @@ namespace Jannesen.Web.MSSql.Library
         {
             ArgumentNullException.ThrowIfNull(nameparameter);
 
-            ValueConvertor   valueType;
+            ValueConvertor?   valueType;
 
             lock(_cache) {
                 if (!_cache.TryGetValue(nameparameter, out valueType)) {
                     string  name;
-                    string  parm;
+                    string? parm;
                     var b = nameparameter.IndexOf('(', StringComparison.Ordinal);
 
                     if (b > 0) {
@@ -49,17 +49,17 @@ namespace Jannesen.Web.MSSql.Library
             return valueType;
         }
 
-        public      virtual             object              ConvertToSqlParameterValue(WebCoreDataValue value)
+        public      virtual             object?             ConvertToSqlParameterValue(WebCoreDataValue value)
         {
             switch (value.Type) {
             case WebCoreDataValueType.ClrValue:     return ConvertClrToValue(value.Value);
-            case WebCoreDataValueType.StringValue:  return ConvertStringToValue((string)(value.Value));
+            case WebCoreDataValueType.StringValue:  return ConvertStringToValue((string?)(value.Value));
             default:                                return null;
             }
         }
 
-        public      abstract            object              ConvertClrToValue(object value);
-        public      abstract            object              ConvertStringToValue(string sValue);
+        public      abstract            object?             ConvertClrToValue(object? value);
+        public      abstract            object?             ConvertStringToValue(string? sValue);
         public      virtual             void                ConvertXmlValueToJson(string sValue, Jannesen.FileFormat.Json.JsonWriter jsonWriter)
         {
             ArgumentNullException.ThrowIfNull(jsonWriter);
