@@ -17,7 +17,6 @@ namespace Jannesen.Web.StaticFile
         private readonly        bool                _compress;
         private readonly        int                 _cacheMaxAge;
         private readonly        int                 _versionCacheMaxAge;
-        private readonly        bool                _decodeCharSet;
 
         public  override        string              Mimetype            => _mimetype;
 
@@ -30,7 +29,6 @@ namespace Jannesen.Web.StaticFile
             _compress            = configReader.GetValueBool("compress", false);
             _cacheMaxAge         = configReader.GetValueInt("cache-max-age",         -1, 0, 30*24*60*60);
             _versionCacheMaxAge  = configReader.GetValueInt("version-cache-max-age", -1, 0, 30*24*60*60);
-            _decodeCharSet       = configReader.GetValueBool("decode-charset", false);
 
             configReader.NoChildElements();
         }
@@ -43,8 +41,7 @@ namespace Jannesen.Web.StaticFile
             var physicalPath = _mapPhysicalPath(httpCall);
             var fileinfo     = _getFileInfo(physicalPath);
 
-            if ((_compress || _decodeCharSet) && fileinfo.Length < 10000000) // Only public and <10 M files are compressed
-            {
+            if (_compress && fileinfo.Length < 10000000) { // Only public and <10 M files are compressed
                 var compressEncoding = WebCoreResponse.GetResponseCompressionEncoding(httpCall);
                 var cacheKey         = (compressEncoding != null ? "TextFile/" + compressEncoding + "/" : "StaticFileUTF8//" ) + physicalPath;
                 var webFileCache     = (Internal.FileCache?)httpCall.Cache.Get(cacheKey);
@@ -57,7 +54,7 @@ namespace Jannesen.Web.StaticFile
                 }
 
                 if (webFileCache == null) {
-                    webFileCache = new Internal.FileCache(physicalPath, compressEncoding, fileinfo, _decodeCharSet);
+                    webFileCache = new Internal.FileCache(physicalPath, compressEncoding, fileinfo);
 
                     if (this.Public) {
                         httpCall.Cache.Set(cacheKey, webFileCache,
