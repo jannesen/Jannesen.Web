@@ -40,7 +40,6 @@ namespace Jannesen.Web.StaticFile.Internal
             var ifModifiedSince = (DateTime?)null;
 
             response.HttpContext.Features.Get<IHttpResponseBodyFeature>()?.DisableBuffering();
-            response.ContentType = null;
 
             if (_lastModified.HasValue) {
                 response.Headers.LastModified = _lastModified.Value.ToString("R", System.Globalization.DateTimeFormatInfo.InvariantInfo);
@@ -64,8 +63,9 @@ namespace Jannesen.Web.StaticFile.Internal
             }
 
             response.StatusCode = (int)HttpStatusCode.OK;
-            if (call.HttpMethod != "HEAD")
+            if (call.HttpMethod != "HEAD") {
                 SendBodyData(response);
+            }
         }
 
         protected   abstract    void                SendBodyData(HttpResponse response);

@@ -8,17 +8,16 @@ namespace Jannesen.Web.StaticFile.Internal
     internal sealed class ResponseStaticFile: ResponseStatic
     {
         private readonly        string          _physicalPath;
-        private readonly        long            _length;
 
         public                                  ResponseStaticFile(string contentType, bool cachepublic, string physicalPath, FileInfo fileinfo): base(contentType, cachepublic, fileinfo.LastWriteTimeUtc, "W/\"" + fileinfo.LastWriteTimeUtc.ToFileTimeUtc().ToString("x8", CultureInfo.InvariantCulture) + "\"")
         {
             _physicalPath = physicalPath;
-            _length       = fileinfo.Length;
         }
 
         protected   override    void            SendBodyData(HttpResponse response)
         {
             using(var stream = File.Open(_physicalPath, FileMode.Open, FileAccess.Read, FileShare.Read)) {
+                response.ContentLength = stream.Length;
                 stream.CopyTo(response.Body);
             }
         }

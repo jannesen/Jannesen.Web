@@ -42,36 +42,37 @@ namespace Jannesen.Web.StaticFile
             var fileinfo     = _getFileInfo(physicalPath);
 
             if (_compress && fileinfo.Length < 10000000) { // Only public and <10 M files are compressed
-                var compressEncoding = WebCoreResponse.GetResponseCompressionEncoding(httpCall);
-                var cacheKey         = (compressEncoding != null ? "TextFile/" + compressEncoding + "/" : "StaticFileUTF8//" ) + physicalPath;
-                var webFileCache     = (Internal.FileCache?)httpCall.Cache.Get(cacheKey);
+                var compressEncoding = WebCoreResponseCompressor.GetResponseCompressionEncoding(httpCall.Request.Headers.AcceptEncoding);
 
-                if (webFileCache != null && webFileCache.HasData) {
-                    if (fileinfo.Length           != webFileCache.FileLength ||
-                        fileinfo.LastWriteTimeUtc != webFileCache.LastWriteTimeUtc) {
-                        webFileCache = null;
+                if (compressEncoding != null) {
+                    var cacheKey         = "StaticFile/" + compressEncoding +"/" + physicalPath;
+                    var webFileCache     = (Internal.FileCache?)httpCall.Cache.Get(cacheKey);
+
+                    if (webFileCache != null && webFileCache.HasData) {
+                        if (fileinfo.LastWriteTimeUtc != webFileCache.LastWriteTimeUtc) {
+                            webFileCache = null;
+                        }
                     }
-                }
 
-                if (webFileCache == null) {
-                    webFileCache = new Internal.FileCache(physicalPath, compressEncoding, fileinfo);
-
-                    if (this.Public) {
-                        httpCall.Cache.Set(cacheKey, webFileCache,
+                    if (webFileCache == null) {
+                        webFileCache = new Internal.FileCache(physicalPath, fileinfo, compressEncoding);
+                        httpCall.Cache.Set(cacheKey,
+                                           webFileCache,
                                            new MemoryCacheEntryOptions() {
                                                AbsoluteExpiration = DateTime.UtcNow.AddSeconds(15*60),
                                                Size               = webFileCache.FileLength
                                            });
                     }
-                }
 
-                if (webFileCache.HasData) {
-                    response = webFileCache.GetCompressedResponse(this.Mimetype, this.Public);
+                    if (webFileCache.HasData) {
+                        response = webFileCache.GetCompressedResponse(this.Mimetype, this.Public);
+                    }
                 }
             }
 
-            if (response == null)
+            if (response == null) {
                 response = new Internal.ResponseStaticFile(this.Mimetype, this.Public, physicalPath, fileinfo);
+            }
 
             if (_versionCacheMaxAge >= 0 && !string.IsNullOrEmpty(httpCall.Request.Query["v"])) {
                 response.CacheMaxAge = _versionCacheMaxAge;

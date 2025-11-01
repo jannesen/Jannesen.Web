@@ -1,6 +1,6 @@
 ﻿using System;
 using System.IO;
-using System.Text;
+using System.Security.Cryptography;
 using Jannesen.Web.Core.Impl;
 
 #pragma warning disable CA5350 // Do Not Use Weak Cryptographic Algorithms (SHA1 used for etag)
@@ -10,52 +10,44 @@ namespace Jannesen.Web.StaticFile.Internal
     internal sealed class FileCache
     {
         private readonly        string                      _physicalPath;
-        private readonly        string?                     _contentEncoding;
-        private readonly        byte[]?                     _data;
         private readonly        DateTime                    _lastWriteTimeUtc;
         private readonly        string                      _eTag;
+        private readonly        string?                     _encoding;
+        private readonly        byte[]?                     _data;
 
         public                  string                      PhysicalPath            => _physicalPath;
-        public                  string?                     ContentEncoding         => _contentEncoding;
-        public                  bool                        HasData                 => _data != null;
-        public                  byte[]                      Data                    => _data ?? throw new InvalidOperationException("FileCache has with data.");
-        public                  int                         FileLength              => Data.Length;
         public                  DateTime                    LastWriteTimeUtc        => _lastWriteTimeUtc;
         public                  string                      ETag                    => _eTag;
+        public                  bool                        HasData                 => _data != null;
+        public                  string?                     ContentEncoding         => _encoding;
+        public                  byte[]                      Data                    => _data ?? throw new InvalidOperationException("FileCache has with data.");
+        public                  int                         FileLength              => Data.Length;
 
-        public                                              FileCache(string physicalPath, string? contentEncoding, FileInfo fileinfo)
+        public                                              FileCache(string physicalPath, FileInfo fileinfo, string encoding)
         {
-            _physicalPath    = physicalPath;
-            _contentEncoding = contentEncoding;
+            _physicalPath     = physicalPath;
+            _lastWriteTimeUtc = fileinfo.LastWriteTimeUtc;
 
-            using (var outBuffer = new MemoryStream((int)fileinfo.Length)) {
-                using (var inStream = new FileStream(physicalPath, FileMode.Open, FileAccess.Read, FileShare.Read)) {
-                    using (var sha = System.Security.Cryptography.SHA1.Create()) {
-                        _eTag = Convert.ToBase64String(sha.ComputeHash(inStream)).Substring(0, 26).Replace('/','-');
-
-                        inStream.Seek(0, SeekOrigin.Begin);
-                    }
-
-                    var compressStream = WebCoreResponse.GetCompressor(contentEncoding, outBuffer);
-
-                    inStream.CopyTo(compressStream);
-
-                    if (compressStream != outBuffer)
-                        compressStream.Close();
+            using (var inStream = new FileStream(physicalPath, FileMode.Open, FileAccess.Read, FileShare.Read)) {
+                using (var sha = SHA1.Create()) {
+                    _eTag = Convert.ToBase64String(sha.ComputeHash(inStream)).Substring(0, 26).Replace('/','-');
+                    inStream.Seek(0, SeekOrigin.Begin);
                 }
 
-                if (outBuffer.Length < fileinfo.Length) {
-                    _data = outBuffer.ToArray();
+                var compressData = WebCoreResponseCompressor.Compress(encoding, inStream);
+
+                if (compressData.Length < inStream.Length) {
+                    _encoding = encoding;
+                    _data     = compressData;
                 }
             }
-
-            _lastWriteTimeUtc = fileinfo.LastWriteTimeUtc;
         }
 
         public                  ResponseStaticCache         GetCompressedResponse(string contentType, bool publicCache)
         {
-            if (_data == null)
+            if (_data == null) {
                 throw new InternalErrorException("Compressed data not available.");
+            }
 
             return new ResponseStaticCache(contentType, publicCache, this);
         }

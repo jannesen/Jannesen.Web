@@ -178,26 +178,7 @@ namespace Jannesen.Web.Core.Impl
                 response.Headers.ContentType = _contentType;
 
                 if (call.HttpMethod != "HEAD") {
-                    if (_compression && _length > 512) {
-                        var contentEncoding = GetResponseCompressionEncoding(call);
-
-                        if (contentEncoding != null) {
-                            response.Headers.ContentEncoding = contentEncoding;
-
-                            using (var buffer = new MemoryStream(_length > 0x4000 ? _length / 4 : 0x1000)) {
-                                using (var stream = GetCompressor(contentEncoding, buffer))
-                                    stream.Write(_data, 0, _length);
-
-                                response.Headers["Content-Length"] = buffer.Length.ToString(CultureInfo.InvariantCulture);
-                                response.Body.Write(buffer.GetBuffer(), 0, (int)buffer.Length);
-                            }
-
-                            return;
-                        }
-                    }
-
-                    response.Headers["Content-Length"] = _length.ToString(CultureInfo.InvariantCulture);
-                    response.Body.Write(_data, 0, _length);
+                    (new WebCoreResponseCompressor(call.Request, new ReadOnlyMemory<byte>(_data, 0, _length))).WriteTo(response);
                 }
             }
             else {

@@ -17,8 +17,9 @@ namespace Jannesen.Web.StaticFile.Internal
         protected   override    void            SendBodyData(HttpResponse response)
         {
             response.Headers.ContentEncoding = _fileCache.ContentEncoding;
-            response.Headers.ContentLength   = _fileCache.Data.Length;
-            response.Body.Write(_fileCache.Data, 0, _fileCache.Data.Length);
+            var data = _fileCache.Data;
+            response.Headers.ContentLength   = data.Length;
+            response.Body.Write(_fileCache.Data, 0, data.Length);
         }
 
         public      override    void            WriteLoggingData(StreamWriter writer)
