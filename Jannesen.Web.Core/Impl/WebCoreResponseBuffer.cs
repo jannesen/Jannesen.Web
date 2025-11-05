@@ -185,7 +185,6 @@ namespace Jannesen.Web.Core.Impl
                 response.Headers["Content-Length"] = "0";
             }
         }
-
         public      override    void                WriteLoggingData(StreamWriter writer)
         {
             ArgumentNullException.ThrowIfNull(writer);

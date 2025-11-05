@@ -6,32 +6,49 @@ using System.Xml;
 using System.Text;
 using Jannesen.FileFormat.Json;
 using Microsoft.AspNetCore.Http;
+using Microsoft.AspNetCore.Http.Features;
 
 namespace Jannesen.Web.Core.Impl
 {
-    public class WebCoreResponseError: WebCoreResponseBuffer
+    public class WebCoreResponseError: WebCoreResponse
     {
         private readonly        WebCoreHttpHandler      _handler;
         private readonly        Exception               _err;
         private                 string?                 _code;
 
-        public                                          WebCoreResponseError(WebCoreHttpHandler handler, Exception err, string? contentType): base(contentType, false, true)
+        private readonly         HttpStatusCode         _statusCode;
+        private readonly         string                 _contentType;
+        private readonly         ReadOnlyMemory<byte>   _data;
+
+        public                                          WebCoreResponseError(WebCoreHttpHandler handler, Exception err, string? contentType)
         {
             _handler = handler;
             _err     = err;
 
-            StatusCode = _processErrorCode();
+            _statusCode  = _processErrorCode();
+            _contentType = contentType ?? "text/plain";
 
             using (var buffer = new MemoryStream()) {
                 using (var streamWriter = new StreamWriter(buffer, new UTF8Encoding(false, false), 0x1000, true)) {
-                    switch (ContentType) {
-                    case "text/xml":            _writeXml(streamWriter);    break;
-                    case "application/json":    _writeJson(streamWriter);   break;
-                    default:                    _writeText(streamWriter);   break;
+                    switch (_contentType) {
+                    case "text/xml":
+                        _contentType = "text/xml; charset=utf-8";
+                        _writeXml(streamWriter);
+                        break;
+
+                    case "application/json":
+                        _contentType = "application/json; charset=utf-8";
+                        _writeJson(streamWriter);
+                        break;
+
+                    default:
+                        _contentType = "text/plain; charset=utf-8";
+                        _writeText(streamWriter);
+                        break;
                     }
                 }
 
-                SetData(buffer);
+                _data = buffer.GetReadOnlyData();
             }
         }
 
@@ -40,11 +57,22 @@ namespace Jannesen.Web.Core.Impl
             ArgumentNullException.ThrowIfNull(call);
             ArgumentNullException.ThrowIfNull(response);
 
-            if (StatusCode == HttpStatusCode.Unauthorized) {
+            if (_statusCode == HttpStatusCode.Unauthorized) {
                 response.Headers.Append("WWW-Authenticate", "Basic realm=\"" + call.ApplicationConfig.Application.Realm + "\"");
             }
 
-            base.Send(call, response);
+            response.StatusCode    = (int)_statusCode;
+            response.ContentType   = _contentType;
+            response.SendBuffer(_data.Span);
+        }
+        public      override    void                    WriteLoggingData(StreamWriter writer)
+        {
+            ArgumentNullException.ThrowIfNull(writer);
+
+            writer.WriteLine();
+            writer.Flush();
+            writer.BaseStream.Write(_data.Span);
+            writer.WriteLine();
         }
 
         private                 HttpStatusCode          _processErrorCode()
@@ -99,8 +127,6 @@ namespace Jannesen.Web.Core.Impl
         }
         private                 void                    _writeText(StreamWriter streamWriter)
         {
-            ContentType = "text/plain; charset=utf-8";
-
             streamWriter.WriteLine("ERROR PROCESSING REQUEST");
             streamWriter.WriteLine("ERROR-CODE: " + _code);
             if (_withDetails()) {
@@ -115,8 +141,6 @@ namespace Jannesen.Web.Core.Impl
         }
         private                 void                    _writeXml(StreamWriter streamWriter)
         {
-            ContentType = "text/xml; charset=utf-8";
-
             using (var xmlWriter = new XmlTextWriter(streamWriter)) {
                 xmlWriter.WriteStartElement("error");
                 xmlWriter.WriteAttributeString("code", _code);
@@ -135,8 +159,6 @@ namespace Jannesen.Web.Core.Impl
         }
         private                 void                    _writeJson(StreamWriter streamWriter)
         {
-            ContentType = "application/json; charset=utf-8";
-
             using (var jsonWriter = new JsonWriter(streamWriter, false)) {
                 jsonWriter.WriteStartObject();
 
@@ -161,7 +183,7 @@ namespace Jannesen.Web.Core.Impl
 
         private                 bool                    _withDetails()
         {
-            switch(StatusCode) {
+            switch(_statusCode) {
             case HttpStatusCode.OK:
             case HttpStatusCode.Created:
             case HttpStatusCode.InternalServerError:
