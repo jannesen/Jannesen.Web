@@ -10,14 +10,12 @@ namespace Jannesen.Web.Core.Impl
     {
         private readonly        string                              _path;
         private readonly        string                              _verb;
-        private readonly        bool                                _public;
         private readonly        WebCoreWildcardPathProcessor?       _wildcardPathProcessor;
         private readonly        WebCoreErrorHandler                 _errorHandler;
         private readonly        ResourceLogging?                    _logging;
 
         public                  string                              Path                    => _path;
         public                  string                              Verb                    => _verb;
-        public      virtual     bool                                Public                  => _public;
         public                  WebCoreWildcardPathProcessor?       WildcardPathProcessor   => _wildcardPathProcessor;
         public                  ResourceLogging?                    Logging                 => _logging;
         public      virtual     string?                             Mimetype                => null;
@@ -28,7 +26,6 @@ namespace Jannesen.Web.Core.Impl
 
             _path   = configReader.GetValuePathName("path");
             _verb   = string.Intern(configReader.GetValueString("verb", "GET")!.ToUpperInvariant());
-            _public = configReader.GetValueBool("public", false);
             _errorHandler = WebLoader.Instance.GetErrorHandler(configReader.GetValueString("error-handler", null));
 
             var logging = configReader.GetValueString("logging", null);

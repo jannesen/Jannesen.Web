@@ -10,7 +10,6 @@ namespace Jannesen.Web.Core.Impl
     public class WebCoreResponseBuffer: WebCoreResponse
     {
         private                 string?             _contentType;
-        private readonly        bool                _cachepublic;
         private readonly        bool                _compression;
         private                 DateTime            _lastModified;
         private                 string?             _eTag;
@@ -27,12 +26,6 @@ namespace Jannesen.Web.Core.Impl
             }
             set {
                 _contentType = value;
-            }
-        }
-        public                  bool                CachePublic
-        {
-            get {
-                return _cachepublic;
             }
         }
         public                  DateTime            LastModified
@@ -87,13 +80,9 @@ namespace Jannesen.Web.Core.Impl
             }
         }
 
-        public                                      WebCoreResponseBuffer(): this("", false, false)
-        {
-        }
-        public                                      WebCoreResponseBuffer(string? contentType, bool pub, bool compression)
+        public                                      WebCoreResponseBuffer(string? contentType, bool compression)
         {
             _contentType     = contentType;
-            _cachepublic     = pub;
             _compression     = compression;
             _lastModified    = DateTime.MaxValue;
             _eTag            = null;
@@ -128,8 +117,6 @@ namespace Jannesen.Web.Core.Impl
             ArgumentNullException.ThrowIfNull(call);
             ArgumentNullException.ThrowIfNull(response);
 
-            response.HttpContext.Features.Get<IHttpResponseBodyFeature>()?.DisableBuffering();
-
             if (_statusCode == HttpStatusCode.OK && _data != null) {
                 if (_disposition != null) {
                     response.Headers.ContentDisposition = _disposition;
@@ -153,8 +140,8 @@ namespace Jannesen.Web.Core.Impl
                     }
 
                     response.Headers.CacheControl = _cacheMaxAge >= 0
-                                                        ? ((_cachepublic ? "public, max-age=" : "private, max-age=") + _cacheMaxAge.ToString(CultureInfo.InvariantCulture) + ", must-revalidate")
-                                                        : ((_cachepublic ? "public"           : "private"          ));
+                                                        ? ("private, max-age=" + _cacheMaxAge.ToString(CultureInfo.InvariantCulture) + ", must-revalidate")
+                                                        : ("private"          );
 
                     if ((req_etag != null             && _eTag == req_etag                   ) ||
                         (req_ifModifiedSince.HasValue && _lastModified == req_ifModifiedSince))
@@ -165,7 +152,7 @@ namespace Jannesen.Web.Core.Impl
                 }
                 else
                 if (_cacheMaxAge > 0)
-                    response.Headers.CacheControl = (_cachepublic ? "public, max-age=" : "private, max-age=") + _cacheMaxAge.ToString(CultureInfo.InvariantCulture);
+                    response.Headers.CacheControl = "private, max-age=" + _cacheMaxAge.ToString(CultureInfo.InvariantCulture);
                 else
                     response.Headers.CacheControl = "no-cache, no-store";
             }
@@ -178,11 +165,19 @@ namespace Jannesen.Web.Core.Impl
                 response.Headers.ContentType = _contentType;
 
                 if (call.HttpMethod != "HEAD") {
-                    (new WebCoreResponseCompressor(call.Request, new ReadOnlyMemory<byte>(_data, 0, _length))).WriteTo(response);
+                    response.HttpContext.Features.Get<IHttpResponseBodyFeature>()?.DisableBuffering();
+
+                    if (_compression) {
+                        (new WebCoreResponseCompressor(call.Request, new ReadOnlyMemory<byte>(_data, 0, _length))).WriteTo(response);
+                    }
+                    else {
+                        response.Headers.ContentLength = _length;
+                        response.Body.Write(_data, 0, _length);
+                    }
                 }
             }
             else {
-                response.Headers["Content-Length"] = "0";
+                response.Headers.ContentLength = 0;
             }
         }
         public      override    void                WriteLoggingData(StreamWriter writer)

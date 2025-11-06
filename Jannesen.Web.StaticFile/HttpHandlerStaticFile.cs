@@ -65,13 +65,13 @@ namespace Jannesen.Web.StaticFile
                     }
 
                     if (webFileCache.HasData) {
-                        response = webFileCache.GetCompressedResponse(this.Mimetype, this.Public);
+                        response = webFileCache.GetCompressedResponse(this.Mimetype);
                     }
                 }
             }
 
             if (response == null) {
-                response = new Internal.ResponseStaticFile(this.Mimetype, this.Public, physicalPath, fileinfo);
+                response = new Internal.ResponseStaticFile(this.Mimetype, physicalPath, fileinfo);
             }
 
             if (_versionCacheMaxAge >= 0 && !string.IsNullOrEmpty(httpCall.Request.Query["v"])) {

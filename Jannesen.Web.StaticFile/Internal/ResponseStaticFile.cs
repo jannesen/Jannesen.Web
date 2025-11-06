@@ -9,7 +9,7 @@ namespace Jannesen.Web.StaticFile.Internal
     {
         private readonly        string          _physicalPath;
 
-        public                                  ResponseStaticFile(string contentType, bool cachepublic, string physicalPath, FileInfo fileinfo): base(contentType, cachepublic, fileinfo.LastWriteTimeUtc, "W/\"" + fileinfo.LastWriteTimeUtc.ToFileTimeUtc().ToString("x8", CultureInfo.InvariantCulture) + "\"")
+        public                                  ResponseStaticFile(string contentType, string physicalPath, FileInfo fileinfo): base(contentType, fileinfo.LastWriteTimeUtc, "W/\"" + fileinfo.LastWriteTimeUtc.ToFileTimeUtc().ToString("x8", CultureInfo.InvariantCulture) + "\"")
         {
             _physicalPath = physicalPath;
         }

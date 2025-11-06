@@ -282,7 +282,7 @@ next:               pos = p + 1;
             ArgumentNullException.ThrowIfNull(httpCall);
             ArgumentNullException.ThrowIfNull(sqlCommand);
 
-            var responseBuffer = new WebCoreResponseBuffer(Mimetype + "; charset=utf-8", this.Public, true);
+            var responseBuffer = new WebCoreResponseBuffer(Mimetype + "; charset=utf-8", true);
 
             if (_responses == null) {
                 sqlCommand.ExecuteNonQuery();

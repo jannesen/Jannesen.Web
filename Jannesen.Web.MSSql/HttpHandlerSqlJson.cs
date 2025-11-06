@@ -31,7 +31,7 @@ namespace Jannesen.Web.MSSql
 
         protected   override    WebCoreResponse             Process(WebCoreCall httpCall, SqlDataReader dataReader)
         {
-            var   webResponseBuffer = new WebCoreResponseBuffer("application/json; charset=utf-8", this.Public, true);
+            var   webResponseBuffer = new WebCoreResponseBuffer("application/json; charset=utf-8", true);
 
             if (HandleResponseOptions(webResponseBuffer, dataReader) == HttpStatusCode.OK) {
                 object? json;

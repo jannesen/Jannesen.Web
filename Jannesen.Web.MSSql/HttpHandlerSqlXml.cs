@@ -48,7 +48,7 @@ namespace Jannesen.Web.MSSql
 
         protected   override    WebCoreResponse             Process(WebCoreCall httpCall, SqlDataReader dataReader)
         {
-            var webResponseBuffer = new WebCoreResponseBuffer("text/xml; charset=" + _charset.BodyName, this.Public, true);
+            var webResponseBuffer = new WebCoreResponseBuffer("text/xml; charset=" + _charset.BodyName, true);
 
             if (HandleResponseOptions(webResponseBuffer, dataReader) == HttpStatusCode.OK) {
                 try {

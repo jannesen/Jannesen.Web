@@ -26,7 +26,7 @@ namespace Jannesen.Web.MSSql
 
         protected   override    WebCoreResponse             Process(WebCoreCall httpCall, SqlDataReader dataReader)
         {
-            var webResponseBuffer = new WebCoreResponseBuffer(null, this.Public, false);
+            var webResponseBuffer = new WebCoreResponseBuffer(null, false);
 
             if (HandleResponseOptions(webResponseBuffer, dataReader) == HttpStatusCode.OK) {
                 if (dataReader.Read()) {

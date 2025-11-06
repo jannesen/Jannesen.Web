@@ -43,13 +43,13 @@ namespace Jannesen.Web.StaticFile.Internal
             }
         }
 
-        public                  ResponseStaticCache         GetCompressedResponse(string contentType, bool publicCache)
+        public                  ResponseStaticCache         GetCompressedResponse(string contentType)
         {
             if (_data == null) {
                 throw new InternalErrorException("Compressed data not available.");
             }
 
-            return new ResponseStaticCache(contentType, publicCache, this);
+            return new ResponseStaticCache(contentType, this);
         }
     }
 }

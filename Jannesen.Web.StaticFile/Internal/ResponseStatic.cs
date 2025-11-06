@@ -10,7 +10,6 @@ namespace Jannesen.Web.StaticFile.Internal
     abstract class ResponseStatic: WebCoreResponse
     {
         private readonly        string              _contentType;
-        private readonly        bool                _cachepublic;
         private readonly        DateTime?           _lastModified;
         private readonly        string              _eTag;
         private                 int                 _cacheMaxAge;
@@ -25,10 +24,9 @@ namespace Jannesen.Web.StaticFile.Internal
             }
         }
 
-        public                                      ResponseStatic(string contentType, bool cachepublic, DateTime? lastModified, string eTag)
+        public                                      ResponseStatic(string contentType, DateTime? lastModified, string eTag)
         {
             _contentType  = contentType;
-            _cachepublic  = cachepublic;
             _lastModified = lastModified;
             _eTag         = eTag;
             _cacheMaxAge  = -1;
@@ -51,9 +49,13 @@ namespace Jannesen.Web.StaticFile.Internal
                 etag = call.RequestIfNoneMatch;
             }
 
-            response.Headers.CacheControl = (_cachepublic ? "public" : "private" ) +
-                                                (_cacheMaxAge > 0 ? ", max-age=" + _cacheMaxAge.ToString(CultureInfo.InvariantCulture) : (_cacheMaxAge == 0 ? ", max-age=0, must-revalidate" : ""));
             response.Headers.ContentType  = _contentType;
+
+            response.Headers.CacheControl = _cacheMaxAge switch {
+                                                             0   => "private, max-age=0, must-revalidate",
+                                                             > 0 => "private, max-age=" + _cacheMaxAge.ToString(CultureInfo.InvariantCulture),
+                                                             < 0 => "private"
+                                                         };
 
             if ((etag != null             && _eTag == etag                   ) ||
                 (ifModifiedSince.HasValue && _lastModified == ifModifiedSince))

@@ -9,7 +9,7 @@ namespace Jannesen.Web.StaticFile.Internal
     {
         private readonly        FileCache       _fileCache;
 
-        public                                  ResponseStaticCache(string contentType, bool publicCache, FileCache fileCache) : base(contentType, publicCache, null, fileCache.ETag)
+        public                                  ResponseStaticCache(string contentType, FileCache fileCache) : base(contentType, null, fileCache.ETag)
         {
             _fileCache = fileCache;
         }
