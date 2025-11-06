@@ -13,22 +13,28 @@ namespace Jannesen.Web.Core
 
         private     readonly            List<Assembly>                                              _loadedModules;
         private     readonly            Dictionary<WebCoreDynamicClassAttribute, ConstructorInfo>   _dynamicClasses;
-        private     readonly            Dictionary<string, IWebCoreErrorHandler>                    _errorHandlers;
+        private     readonly            Dictionary<string, WebCoreErrorHandler>                     _errorHandlers;
         private     readonly            Lock                                                        _lock;
 
         public                          WebLoader()
         {
             _loadedModules  = new List<Assembly>();
             _dynamicClasses = new Dictionary<WebCoreDynamicClassAttribute, ConstructorInfo>(256);
-            _errorHandlers  = new Dictionary<string, IWebCoreErrorHandler>(16);
+            _errorHandlers  = new Dictionary<string, WebCoreErrorHandler>(16);
             _lock           = new Lock();
 
-            _loadModule(typeof(WebLoader).Assembly);
         }
-
+        public                          void                                Init()
+        {
+            // Load a
+            _loadAssembly(this.GetType().Assembly);
+            _loadAssembly(Assembly.GetEntryAssembly());
+            // make sure standard is loaded.
+            GetErrorHandler(null);
+        }
         public                          void                                LoadModule(string name)
         {
-            _loadModule(Assembly.Load(name));
+            _loadAssembly(Assembly.Load(name));
         }
 
         public                          WebCoreDataSource                   GetDataSource(string source, string? name)
@@ -65,14 +71,8 @@ namespace Jannesen.Web.Core
             lock(_lock) {
                 if (!_dynamicClasses.TryGetValue(className, out constructorInfo)) {
                     if (className.Name.IndexOf('.', StringComparison.Ordinal) > 0) {
-                        for (var i = 0 ; i < _loadedModules.Count ; ++i) {
-                            var classType = _loadedModules[i].GetType(className.Name);
-
-                            if (classType != null) {
-                                constructorInfo = className.GetConstructor(classType);
-                                break;
-                            }
-                        }
+                        constructorInfo = className.GetConstructor(_getTypeByClassFullName(className.Name));
+                        _dynamicClasses.Add(className, constructorInfo);
                     }
                 }
             }
@@ -84,54 +84,72 @@ namespace Jannesen.Web.Core
             try {
                 return constructorInfo.Invoke(args);
             }
-            catch (System.Reflection.TargetInvocationException ex) {
+            catch (TargetInvocationException ex) {
                 if (ex.InnerException != null) {
                     throw ex.InnerException;
                 }
                 throw;
             }
         }
-        public                          IWebCoreErrorHandler                GetErrorHandler(string className)
+        public                          WebCoreErrorHandler                 GetErrorHandler(string? handlerClassName)
         {
-            IWebCoreErrorHandler?  errorHandler;
+            if (handlerClassName == null) handlerClassName = typeof(WebCoreStdErrorHandler).FullName!;
+            WebCoreErrorHandler?  errorHandler;
 
             lock(_lock) {
-                if (!_errorHandlers.TryGetValue(className, out errorHandler)) {
-                    throw new KeyNotFoundException("Unknown error handler " + className + ".");
+                if (!_errorHandlers.TryGetValue(handlerClassName, out errorHandler)) {
+                    var createMethod = _getTypeByClassFullName(handlerClassName)
+                                       .GetMethod("Create", BindingFlags.Static|BindingFlags.Public, [ typeof(WebCoreHttpHandler), typeof(Exception) ]) ??
+                                            throw new InvalidOperationException("Error handler class '" + handlerClassName + "' has nog static Create.");
+
+                    try {
+                        errorHandler = (WebCoreErrorHandler)Delegate.CreateDelegate(typeof(WebCoreErrorHandler), createMethod);
+                    }
+                    catch(Exception err) {
+                        throw new InvalidOperationException("Can't create delegate for handler class '" + handlerClassName + ".Create()'.", err);
+                    }
+
+                    _errorHandlers.Add(handlerClassName, errorHandler);
                 }
             }
 
             return errorHandler;
         }
 
-        private                         void                                _loadModule(Assembly assembly)
+        private                         void                                _loadAssembly(Assembly? assembly)
         {
-            lock(_lock) {
-                if (!_loadedModules.Contains(assembly)) {
-                    _loadedModules.Add(assembly);
+            if (assembly != null) {
+                lock(_lock) {
+                    if (!_loadedModules.Contains(assembly)) {
+                        _loadedModules.Add(assembly);
 
-                    foreach(var type in assembly.GetTypes()) {
-                        if (type != null && type.FullName != null) {
-                            try {
-                                foreach(var attr in (WebCoreDynamicClassAttribute[])type.GetCustomAttributes(typeof(WebCoreDynamicClassAttribute), false)) {
-                                    _dynamicClasses.Add(attr, attr.GetConstructor(type));
-                                }
-
-                                if (type.GetTypeInfo().IsClass && typeof(IWebCoreErrorHandler).IsAssignableFrom(type)) {
-                                    var c = type.GetConstructor([]);
-
-                                    if (c != null) {
-                                        _errorHandlers.Add(type.FullName, (IWebCoreErrorHandler)(c.Invoke([])));
+                        foreach(var type in assembly.GetTypes()) {
+                            if (type != null && type.FullName != null) {
+                                try {
+                                    foreach(var attr in (WebCoreDynamicClassAttribute[])type.GetCustomAttributes(typeof(WebCoreDynamicClassAttribute), false)) {
+                                        _dynamicClasses.Add(attr, attr.GetConstructor(type));
                                     }
                                 }
-                            }
-                            catch(Exception err) {
-                                throw new WebInitializationException("Failed to process class '" + type.FullName + "'.", err);
+                                catch(Exception err) {
+                                    throw new WebInitializationException("Failed to process class '" + type.FullName + "'.", err);
+                                }
                             }
                         }
                     }
                 }
             }
+        }
+        private                         Type                                _getTypeByClassFullName(string name)
+        {
+            for (var i = 0 ; i < _loadedModules.Count ; ++i) {
+                var classType = _loadedModules[i].GetType(name);
+
+                if (classType != null) {
+                    return classType;
+                }
+            }
+
+            throw new KeyNotFoundException("Unknown class " + name + ".");
         }
     }
 }

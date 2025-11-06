@@ -11,6 +11,8 @@ namespace Jannesen.Web.Core
         {
             ArgumentNullException.ThrowIfNull(webHostBuilder);
 
+            WebLoader.Instance.Init();
+
             webHostBuilder.ConfigureServices((services) => {
                 services.AddSingleton(createAppl());
                 services.AddMemoryCache();

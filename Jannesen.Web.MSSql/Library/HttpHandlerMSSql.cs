@@ -36,7 +36,7 @@ namespace Jannesen.Web.MSSql.Library
             _parameters.Add(parameter);
         }
 
-        public       override   WebCoreResponse             Process(WebCoreCall httpCall)
+        public      override    WebCoreResponse             Process(WebCoreCall httpCall)
         {
             var retry_count = 0;
 
@@ -61,53 +61,44 @@ retry:      using (var sqlConnection = GetConnection(httpCall))
                 }
             }
         }
-        public      override    int                         ProcessErrorCode(Exception err, out string? code, out string? message)
+        public      override    WebCoreErrorData?           ProcessError(Exception err)
         {
             if (err is SqlException sqlErr) {
                 var msg = err.Message;
                 int i;
 
                 if (msg.Length > 2 && msg[0] == '[' && msg[^1] == ']') {
-                    code     = msg.Substring(1, msg.Length - 2);
-                    message  = code;
-                }
-                else if (msg.Length > 2 && msg[0] == '[' && (i = msg.IndexOf("] ", StringComparison.Ordinal)) > 0) {
-                    code     = msg.Substring(1, i - 1);
-                    message  = msg.Substring(i+2);
-                }
-                else {
-                    switch(sqlErr.Number) {
-                    case -2:
-                        code    = "DATABASE-TIMEOUT";
-                        message = "Database timeout";
-                        break;
-                    default:
-                        code    = "DATABASE-ERROR";
-                        message = msg;
-                        break;
-                    }
+                    return _createErrorData(msg.Substring(1, msg.Length - 2), msg.Substring(1, msg.Length - 2));
                 }
 
-                switch(code) {
-                case "REQUEST-ERROR":                       return 400;
-                case "INVALID-AUTHENTICATION":              return 401;
-                case "INVALID-BASIC-AUTHENTICATION":        return 401;
-                case "NOT-FOUND":                           return 404;
-                case "HTTP-401":                            return 401;
-                case "HTTP-404":                            return 404;
-                default:                                    return 500;
+                if (msg.Length > 2 && msg[0] == '[' && (i = msg.IndexOf("] ", StringComparison.Ordinal)) > 0) {
+                    return _createErrorData(msg.Substring(1, i - 1), msg.Substring(i+2));
                 }
+
+                if (sqlErr.Number == -2) {
+                    return new WebCoreErrorData() {
+                                Status  = HttpStatusCode.InternalServerError,
+                                Code    = "DATABASE-TIMEOUT",
+                                Message = "Database timeout"
+                            };
+                }
+
+                return new WebCoreErrorData() {
+                           Status  = HttpStatusCode.InternalServerError,
+                           Code    = "DATABASE-ERROR",
+                           Message = msg
+                       };
             }
 
             if (err is NoDataException) {
-                code    = "NO-DATA";
-                message = "No data retrieved";
-                return 500;
+                return new WebCoreErrorData() {
+                           Status  = HttpStatusCode.InternalServerError,
+                           Code    = "NO-DATA",
+                           Message = "No data retrieved"
+                       };
             }
 
-            code    = null;
-            message = null;
-            return 0;
+            return null;
         }
 
         protected   virtual     WebCoreResponse             Process(WebCoreCall httpCall, SqlCommand sqlCommand)
@@ -184,6 +175,22 @@ retry:      using (var sqlConnection = GetConnection(httpCall))
                 err = err.InnerException;
 
             return err is SqlException sqlErr &&  sqlErr.Number == 1205;
+        }
+        private     static      WebCoreErrorData            _createErrorData(string code, string message)
+        {
+            return new WebCoreErrorData() {
+                       Status  = code switch {
+                                      "REQUEST-ERROR"                   => HttpStatusCode.BadRequest,
+                                      "INVALID-AUTHENTICATION"          => HttpStatusCode.Unauthorized,
+                                      "INVALID-BASIC-AUTHENTICATION"    => HttpStatusCode.Unauthorized,
+                                      "NOT-FOUND"                       => HttpStatusCode.NotFound,
+                                      "HTTP-401"                        => HttpStatusCode.Unauthorized,
+                                      "HTTP-404"                        => HttpStatusCode.NotFound,
+                                      _                                 => HttpStatusCode.InternalServerError                            
+                                 },
+                       Code    = code,
+                       Message = message
+                   };
         }
     }
 }

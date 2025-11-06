@@ -12,7 +12,7 @@ namespace Jannesen.Web.Core.Impl
         private readonly        string                              _verb;
         private readonly        bool                                _public;
         private readonly        WebCoreWildcardPathProcessor?       _wildcardPathProcessor;
-        private readonly        IWebCoreErrorHandler?               _errorHandler;
+        private readonly        WebCoreErrorHandler                 _errorHandler;
         private readonly        ResourceLogging?                    _logging;
 
         public                  string                              Path                    => _path;
@@ -29,12 +29,7 @@ namespace Jannesen.Web.Core.Impl
             _path   = configReader.GetValuePathName("path");
             _verb   = string.Intern(configReader.GetValueString("verb", "GET")!.ToUpperInvariant());
             _public = configReader.GetValueBool("public", false);
-
-            var errorHandler = configReader.GetValueString("error-handler", null);
-
-            if (errorHandler != null) {
-                _errorHandler = WebLoader.Instance.GetErrorHandler(errorHandler);
-            }
+            _errorHandler = WebLoader.Instance.GetErrorHandler(configReader.GetValueString("error-handler", null));
 
             var logging = configReader.GetValueString("logging", null);
 
@@ -53,11 +48,9 @@ namespace Jannesen.Web.Core.Impl
         }
 
         public      abstract    WebCoreResponse                     Process(WebCoreCall httpCall);
-        public      virtual     int                                 ProcessErrorCode(Exception err, out string? code, out string? message)
+        public      virtual     WebCoreErrorData?                   ProcessError(Exception err)
         {
-            code    = null;
-            message = null;
-            return 0;
+            return null;
         }
 
         private                 void                                _processRequest(WebApplicationConfig applicationConfig, HttpContext context)
@@ -79,7 +72,7 @@ namespace Jannesen.Web.Core.Impl
                 case HttpStatusCode.BadGateway:
                 case HttpStatusCode.ServiceUnavailable:
                 case HttpStatusCode.GatewayTimeout:
-                    webResponse = _errorHandler != null ? _errorHandler.GetErrorResponse(this, err) : new WebCoreResponseError(this, err, Mimetype);
+                    webResponse = _errorHandler(this, err);
                     break;
 
                 default:
@@ -92,7 +85,7 @@ namespace Jannesen.Web.Core.Impl
                     applicationConfig.Application.LogError("Error in handler: " + Path + " Url: " + httpCall.Request.GetDisplayUrl(), err);
                 }
 
-                webResponse = _errorHandler != null ? _errorHandler.GetErrorResponse(this, err) : new WebCoreResponseError(this, err, Mimetype);
+                webResponse = _errorHandler(this, err);
             }
 
             if (webResponse != null) {
