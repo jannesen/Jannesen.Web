@@ -18,7 +18,7 @@ namespace Jannesen.Web.Core.Impl
         public                  string                  Code        { get; init; }
         public                  string                  Message     { get; init; }
 
-        public  static          WebCoreErrorData        Create(WebCoreHttpHandler? handler, Exception exception)
+        public  static          WebCoreErrorData        Create(WebCoreHttpHandler? handler, Exception? exception)
         {
             for (var err = exception ; err != null ; err = err.InnerException) {
                 if (err is WebHttpException httpException) {
@@ -81,7 +81,7 @@ namespace Jannesen.Web.Core.Impl
             return new WebCoreErrorData() {
                        Status    = HttpStatusCode.InternalServerError,
                        Code      = "GENERAL-ERROR",
-                       Message   = exception.Message
+                       Message   = exception?.Message ?? "[exception=NULL]"
                    };
         }
     }
