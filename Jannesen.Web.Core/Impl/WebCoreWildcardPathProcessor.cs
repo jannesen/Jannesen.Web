@@ -243,7 +243,7 @@ namespace Jannesen.Web.Core.Impl
             _suffix     = suffix;
             _expression = expression;
 
-            if (expression.Length == 1 && expression == "*") { 
+            if (expression.Length == 1 && expression == "*") {
                 return ; // Simple wildcard
             }
 

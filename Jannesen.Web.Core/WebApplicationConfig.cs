@@ -61,11 +61,11 @@ namespace Jannesen.Web.Core
             try {
                 var rtn = 0;
 
-                if (_loadConfig(serviceProvider, "/", directory + "\\jannesen.web.config") < 0) { 
+                if (_loadConfig(serviceProvider, "/", directory + "\\jannesen.web.config") < 0) {
                     rtn = -1;
                 }
 
-                if (rtn != 0) { 
+                if (rtn != 0) {
                     _application.LogError("Initialized with errors");
                 }
                 else {
@@ -157,7 +157,7 @@ namespace Jannesen.Web.Core
                             }
                         }
                         catch(Exception err) {
-                            while (err is System.Reflection.TargetInvocationException && err.InnerException != null) { 
+                            while (err is System.Reflection.TargetInvocationException && err.InnerException != null) {
                                 err = err.InnerException;
                             }
 

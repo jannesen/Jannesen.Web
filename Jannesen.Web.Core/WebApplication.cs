@@ -16,7 +16,7 @@ namespace Jannesen.Web.Core
         public                          string                              Realm               {  get; init; }
 
         private                         IServiceProvider                    _serviceProvider;
-        private                         IMemoryCache?                       _cache;             
+        private                         IMemoryCache?                       _cache;
         private                         WebApplicationConfig?               _applicationConfig;
         private     readonly            Lock                                _configLock;
 

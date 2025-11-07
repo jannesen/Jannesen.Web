@@ -27,7 +27,7 @@
         <EnforceCodeStyleInBuild>true</EnforceCodeStyleInBuild>
         <WarningLevel>4</WarningLevel>
     </PropertyGroup>
-	
+
     <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
         <DebugSymbols>true</DebugSymbols>
         <DebugType>full</DebugType>
