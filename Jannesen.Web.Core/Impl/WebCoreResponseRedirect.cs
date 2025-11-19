@@ -4,7 +4,7 @@ using Microsoft.AspNetCore.Http;
 
 namespace Jannesen.Web.Core.Impl
 {
-    public class WebCoreResponseRedirect: WebCoreResponse
+    public class WebCoreResponseRedirect: IWebCoreResponse
     {
         public                  string              Target          { get; init; }
 
@@ -13,14 +13,14 @@ namespace Jannesen.Web.Core.Impl
             Target = target;
         }
 
-        public      override    void                Send(WebCoreCall call, HttpResponse response)
+        public                  void                Send(WebCoreCall call, HttpResponse response)
         {
             ArgumentNullException.ThrowIfNull(response);
 
             response.Redirect(Target);
         }
 
-        public      override    void                WriteLoggingData(StreamWriter writer)
+        public                  void                WriteLoggingData(StreamWriter writer)
         {
             ArgumentNullException.ThrowIfNull(writer);
 

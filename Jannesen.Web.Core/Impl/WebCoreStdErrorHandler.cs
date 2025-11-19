@@ -12,7 +12,7 @@ namespace Jannesen.Web.Core.Impl
 {
     public static class WebCoreStdErrorHandler
     {
-        public  static          WebCoreResponse         Create(WebCoreHttpHandler? handler, Exception exception)
+        public  static          IWebCoreResponse            Create(WebCoreHttpHandler? handler, Exception exception)
         {
             var errorData = WebCoreErrorData.Create(handler, exception);
 

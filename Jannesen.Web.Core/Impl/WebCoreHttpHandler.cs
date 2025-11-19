@@ -44,7 +44,7 @@ namespace Jannesen.Web.Core.Impl
             _processRequest(applicationConfig, context);
         }
 
-        public      abstract    WebCoreResponse                     Process(WebCoreCall httpCall);
+        public      abstract    IWebCoreResponse                    Process(WebCoreCall httpCall);
         public      virtual     WebCoreErrorData?                   ProcessError(Exception err)
         {
             return null;
@@ -53,7 +53,7 @@ namespace Jannesen.Web.Core.Impl
         private                 void                                _processRequest(WebApplicationConfig applicationConfig, HttpContext context)
         {
             var             httpCall    = new WebCoreCall(applicationConfig, context, this);
-            WebCoreResponse webResponse;
+            IWebCoreResponse webResponse;
 
             try {
                 webResponse = Process(httpCall);

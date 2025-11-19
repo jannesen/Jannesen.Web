@@ -24,7 +24,7 @@ namespace Jannesen.Web.MSSql
             }
         }
 
-        protected   override    WebCoreResponse             Process(WebCoreCall httpCall, SqlDataReader dataReader)
+        protected   override    IWebCoreResponse            Process(WebCoreCall httpCall, SqlDataReader dataReader)
         {
             var webResponseBuffer = new WebCoreResponseBuffer(null, false);
 

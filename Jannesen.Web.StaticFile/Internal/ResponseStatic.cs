@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Globalization;
+using System.IO;
 using System.Net;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Http.Features;
@@ -7,7 +8,7 @@ using Jannesen.Web.Core.Impl;
 
 namespace Jannesen.Web.StaticFile.Internal
 {
-    abstract class ResponseStatic: WebCoreResponse
+    abstract class ResponseStatic: IWebCoreResponse
     {
         private readonly        string              _contentType;
         private readonly        DateTime?           _lastModified;
@@ -32,7 +33,7 @@ namespace Jannesen.Web.StaticFile.Internal
             _cacheMaxAge  = -1;
         }
 
-        public      override    void                Send(WebCoreCall call, HttpResponse response)
+        public                  void                Send(WebCoreCall call, HttpResponse response)
         {
             var etag            = (string?)null;
             var ifModifiedSince = (DateTime?)null;
@@ -69,6 +70,7 @@ namespace Jannesen.Web.StaticFile.Internal
                 SendBodyData(response);
             }
         }
+        public      abstract    void                WriteLoggingData(StreamWriter writer);
 
         protected   abstract    void                SendBodyData(HttpResponse response);
     }

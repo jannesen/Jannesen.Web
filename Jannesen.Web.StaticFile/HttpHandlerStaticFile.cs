@@ -33,7 +33,7 @@ namespace Jannesen.Web.StaticFile
             configReader.NoChildElements();
         }
 
-        public  override        WebCoreResponse     Process(WebCoreCall httpCall)
+        public  override        IWebCoreResponse    Process(WebCoreCall httpCall)
         {
             ArgumentNullException.ThrowIfNull(httpCall);
 

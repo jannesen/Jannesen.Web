@@ -5,7 +5,7 @@ using Microsoft.AspNetCore.Http;
 
 namespace Jannesen.Web.Core.Impl
 {
-    public class WebCoreResponseSimple: WebCoreResponse
+    public class WebCoreResponseSimple: IWebCoreResponse
     {
         private readonly        HttpStatusCode          _status;
         private readonly        string                  _contentType;
@@ -18,7 +18,7 @@ namespace Jannesen.Web.Core.Impl
             _data        = data;
         }
 
-        public      override    void                    Send(WebCoreCall call, HttpResponse response)
+        public                  void                    Send(WebCoreCall call, HttpResponse response)
         {
             ArgumentNullException.ThrowIfNull(call);
             ArgumentNullException.ThrowIfNull(response);
@@ -43,7 +43,7 @@ namespace Jannesen.Web.Core.Impl
             response.ContentType   = _contentType;
             response.SendBuffer(_data.Span);
         }
-        public      override    void                    WriteLoggingData(StreamWriter writer)
+        public                  void                    WriteLoggingData(StreamWriter writer)
         {
             ArgumentNullException.ThrowIfNull(writer);
 

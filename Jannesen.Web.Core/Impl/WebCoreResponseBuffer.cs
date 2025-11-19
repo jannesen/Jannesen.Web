@@ -7,7 +7,7 @@ using Microsoft.AspNetCore.Http.Features;
 
 namespace Jannesen.Web.Core.Impl
 {
-    public class WebCoreResponseBuffer: WebCoreResponse
+    public class WebCoreResponseBuffer: IWebCoreResponse
     {
         private                 string?             _contentType;
         private readonly        bool                _compression;
@@ -112,7 +112,7 @@ namespace Jannesen.Web.Core.Impl
             _length = length;
         }
 
-        public      override    void                Send(WebCoreCall call, HttpResponse response)
+        public                  void                Send(WebCoreCall call, HttpResponse response)
         {
             ArgumentNullException.ThrowIfNull(call);
             ArgumentNullException.ThrowIfNull(response);
@@ -180,7 +180,7 @@ namespace Jannesen.Web.Core.Impl
                 response.Headers.ContentLength = 0;
             }
         }
-        public      override    void                WriteLoggingData(StreamWriter writer)
+        public                  void                WriteLoggingData(StreamWriter writer)
         {
             ArgumentNullException.ThrowIfNull(writer);
 

@@ -36,7 +36,7 @@ namespace Jannesen.Web.MSSql.Library
             _parameters.Add(parameter);
         }
 
-        public      override    WebCoreResponse             Process(WebCoreCall httpCall)
+        public      override    IWebCoreResponse            Process(WebCoreCall httpCall)
         {
             var retry_count = 0;
 
@@ -101,7 +101,7 @@ retry:      using (var sqlConnection = GetConnection(httpCall))
             return null;
         }
 
-        protected   virtual     WebCoreResponse             Process(WebCoreCall httpCall, SqlCommand sqlCommand)
+        protected   virtual     IWebCoreResponse            Process(WebCoreCall httpCall, SqlCommand sqlCommand)
         {
             ArgumentNullException.ThrowIfNull(httpCall);
             ArgumentNullException.ThrowIfNull(sqlCommand);
@@ -110,7 +110,7 @@ retry:      using (var sqlConnection = GetConnection(httpCall))
                 return Process(httpCall, dataReader);
             }
         }
-        protected   virtual     WebCoreResponse             Process(WebCoreCall httpCall, SqlDataReader dataReader)
+        protected   virtual     IWebCoreResponse            Process(WebCoreCall httpCall, SqlDataReader dataReader)
         {
             throw new NotImplementedException("Not implemented HttpHandlerMSSql.Process");
         }

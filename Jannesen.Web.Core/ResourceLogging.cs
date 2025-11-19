@@ -40,7 +40,7 @@ namespace Jannesen.Web.Core
             base.Dispose(disposing);
         }
 
-        public                  void                Logging(WebCoreCall call, WebCoreResponse response, HttpResponse httpResponse)
+        public                  void                Logging(WebCoreCall call, IWebCoreResponse response, HttpResponse httpResponse)
         {
             ArgumentNullException.ThrowIfNull(call);
 
@@ -139,7 +139,7 @@ namespace Jannesen.Web.Core
                     writer.WriteLine("[BINARY-DATA]");
             }
         }
-        private     static      void                _logResponse(StreamWriter writer, WebCoreResponse response, HttpResponse httpResponse)
+        private     static      void                _logResponse(StreamWriter writer, IWebCoreResponse response, HttpResponse httpResponse)
         {
             ArgumentNullException.ThrowIfNull(writer);
             ArgumentNullException.ThrowIfNull(response);

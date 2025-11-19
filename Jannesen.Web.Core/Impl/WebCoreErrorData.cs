@@ -10,7 +10,7 @@ using Microsoft.AspNetCore.Http.Features;
 
 namespace Jannesen.Web.Core.Impl
 {
-    public delegate WebCoreResponse    WebCoreErrorHandler(WebCoreHttpHandler? httpHandler, Exception err);
+    public delegate IWebCoreResponse    WebCoreErrorHandler(WebCoreHttpHandler? httpHandler, Exception err);
 
     public readonly struct WebCoreErrorData
     {

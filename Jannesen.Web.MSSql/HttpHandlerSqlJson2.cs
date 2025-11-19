@@ -277,7 +277,7 @@ next:               pos = p + 1;
             }
         }
 
-        protected   override    WebCoreResponse             Process(WebCoreCall httpCall, SqlCommand sqlCommand)
+        protected   override    IWebCoreResponse            Process(WebCoreCall httpCall, SqlCommand sqlCommand)
         {
             ArgumentNullException.ThrowIfNull(httpCall);
             ArgumentNullException.ThrowIfNull(sqlCommand);

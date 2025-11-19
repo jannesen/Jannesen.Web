@@ -38,7 +38,7 @@ namespace Jannesen.Web.ExcelExport
             }
         }
 
-        protected   override    WebCoreResponse             Process(WebCoreCall httpCall, SqlDataReader dataReader)
+        protected   override    IWebCoreResponse            Process(WebCoreCall httpCall, SqlDataReader dataReader)
         {
             var webResponseBuffer = new WebCoreResponseBuffer("application/vnd.openxmlformats-officedocument.spreadsheetml.sheet", false);
 
