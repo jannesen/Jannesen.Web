@@ -22,7 +22,7 @@ namespace Jannesen.Web.Core.Impl
         {
             for (var err = exception ; err != null ; err = err.InnerException) {
                 if (err is WebHttpException httpException) {
-                    return new WebCoreErrorData() { 
+                    return new WebCoreErrorData() {
                                StatusCode = httpException.StatusCode,
                                Code       = "HTTP-ERROR-CODE-" + ((int)httpException.StatusCode).ToString(CultureInfo.InvariantCulture),
                                Message    = err.Message
@@ -30,7 +30,7 @@ namespace Jannesen.Web.Core.Impl
                 }
 
                 if (err is WebResourceDownException) {
-                    return new WebCoreErrorData() { 
+                    return new WebCoreErrorData() {
                                StatusCode = HttpStatusCode.ServiceUnavailable,
                                Code       = "SERVICE-DOWN",
                                Message    = "Service down"
@@ -38,7 +38,7 @@ namespace Jannesen.Web.Core.Impl
                 }
 
                 if (err is InternalErrorException || err is WebResponseException) {
-                    return new WebCoreErrorData() { 
+                    return new WebCoreErrorData() {
                                StatusCode = HttpStatusCode.InternalServerError,
                                Code       = "INTERNAL-ERROR",
                                Message    = err.Message
@@ -46,7 +46,7 @@ namespace Jannesen.Web.Core.Impl
                 }
 
                 if (err is WebConfigException || err is WebAppNotInitialized || err is WebInitializationException || err is WebResourceNotFoundException) {
-                    return new WebCoreErrorData() { 
+                    return new WebCoreErrorData() {
                                StatusCode = HttpStatusCode.InternalServerError,
                                Code       = "CONFIG-ERROR",
                                Message    = err.Message
@@ -54,7 +54,7 @@ namespace Jannesen.Web.Core.Impl
                 }
 
                 if (err is WebRequestException) {
-                    return new WebCoreErrorData() { 
+                    return new WebCoreErrorData() {
                                StatusCode = HttpStatusCode.BadRequest,
                                Code       = "REQUEST-ERROR",
                                Message    = err.Message

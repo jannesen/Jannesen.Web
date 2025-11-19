@@ -49,7 +49,7 @@ namespace Jannesen.Web.Core.Impl
                 streamWriter.WriteLine();
                 streamWriter.WriteLine("============================================================");
                 streamWriter.WriteLine("DETAILS:");
-                for (var ex = exception ; ex != null ; ex = ex.InnerException) { 
+                for (var ex = exception ; ex != null ; ex = ex.InnerException) {
                     streamWriter.WriteLine(ex.Message);
                 }
                 streamWriter.WriteLine("============================================================");
@@ -62,7 +62,7 @@ namespace Jannesen.Web.Core.Impl
                 xmlWriter.WriteAttributeString("code", errorData.Code);
 
                 if (_withDetails(errorData)) {
-                    for (var ex = exception ; ex != null ; ex = ex.InnerException) { 
+                    for (var ex = exception ; ex != null ; ex = ex.InnerException) {
                         xmlWriter.WriteStartElement("error-detail");
                         xmlWriter.WriteAttributeString("class",   ex.GetType().FullName);
                         xmlWriter.WriteAttributeString("message", ex.Message);
@@ -83,7 +83,7 @@ namespace Jannesen.Web.Core.Impl
                     if (_withDetails(errorData)) {
                         jsonWriter.WriteStartArray("detail");
 
-                        for (var ex = exception ; ex != null ; ex = ex.InnerException) { 
+                        for (var ex = exception ; ex != null ; ex = ex.InnerException) {
                             jsonWriter.WriteStartObject();
                             jsonWriter.WriteNameValue("class",   ex.GetType().FullName);
                             jsonWriter.WriteNameValue("message", ex.Message);

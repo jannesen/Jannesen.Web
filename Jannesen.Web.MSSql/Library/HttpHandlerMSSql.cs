@@ -186,7 +186,7 @@ retry:      using (var sqlConnection = GetConnection(httpCall))
                                          "NOT-FOUND"                       => HttpStatusCode.NotFound,
                                          "HTTP-401"                        => HttpStatusCode.Unauthorized,
                                          "HTTP-404"                        => HttpStatusCode.NotFound,
-                                         _                                 => HttpStatusCode.InternalServerError                            
+                                         _                                 => HttpStatusCode.InternalServerError
                                     },
                        Code       = code,
                        Message    = message
