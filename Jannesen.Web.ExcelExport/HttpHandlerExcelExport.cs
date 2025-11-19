@@ -45,9 +45,8 @@ namespace Jannesen.Web.ExcelExport
             HandleResponseOptions(webResponseBuffer, dataReader);
 
             lock(_singleLock) {
-                using (var buffer = new MemoryStream(4096000)) {
-                    ExportToExcel.Export(_sheets, dataReader, buffer);
-                    webResponseBuffer.SetData(buffer);
+                using (var stream = webResponseBuffer.GetStream()) {
+                    ExportToExcel.Export(_sheets, dataReader, stream);
                 }
             }
 

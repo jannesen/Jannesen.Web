@@ -1,7 +1,9 @@
 ﻿using System;
+using System.Buffers;
 using System.Globalization;
 using System.IO;
 using System.Net;
+using Jannesen.FileFormat.Json;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Http.Features;
 
@@ -9,190 +11,165 @@ namespace Jannesen.Web.Core.Impl
 {
     public class WebCoreResponseBuffer: IWebCoreResponse
     {
-        private                 string?             _contentType;
-        private readonly        bool                _compression;
-        private                 DateTime            _lastModified;
-        private                 string?             _eTag;
-        private                 int                 _cacheMaxAge;
-        private                 string?             _disposition;
-        private                 HttpStatusCode      _statusCode;
-        private                 byte[]?             _data;
-        private                 int                 _length;
-
-        public                  string?             ContentType
+        private sealed class BufferStreamWriter: WebCoreArraryBufferStream
         {
-            get {
-                return _contentType;
-            }
-            set {
-                _contentType = value;
-            }
-        }
-        public                  DateTime            LastModified
-        {
-            get {
-                return _lastModified;
-            }
-            set {
-                if (value < DateTime.MaxValue) {
-                    var ticks = value.ToUniversalTime().Ticks;
+            private                     WebCoreResponseBuffer?          _response;
 
-                    _lastModified = new DateTime(ticks - ticks % TimeSpan.TicksPerSecond, DateTimeKind.Utc);;
+            public                                                      BufferStreamWriter(WebCoreResponseBuffer response, int initialCapacity): base(new ArrayBufferWriter<byte>(initialCapacity))
+            {
+                _response     = response;
+            }
+
+            protected   override        void                            Dispose(bool disposing)
+            {
+                if (_response != null) {
+                    if (disposing) {
+                        _response.Data = BufferWriter.WrittenMemory;
+                    }
+
+                    _response = null;
                 }
-                else
-                    _lastModified = DateTime.MaxValue;
-            }
-        }
-        public                  string?             ETag
-        {
-            get {
-                return _eTag;
-            }
-            set {
-                _eTag = value;
-            }
-        }
-        public                  string?             Disposition
-        {
-            get {
-                return _disposition;
-            }
-            set {
-                _disposition = value;
-            }
-        }
-        public                  int                 CacheMaxAge
-        {
-            get {
-                return _cacheMaxAge;
-            }
-            set {
-                _cacheMaxAge = value;
-            }
-        }
-        public                  HttpStatusCode      StatusCode
-        {
-            get {
-                return _statusCode;
-            }
-            set {
-                _statusCode = value;
+
+                base.Dispose(disposing);
             }
         }
 
-        public                                      WebCoreResponseBuffer(string? contentType, bool compression)
+        public                  string?                 ContentType         { get; set; }
+        public                  DateTime                LastModified        { get; set; }
+        public                  string?                 ETag                { get; set; }
+        public                  string?                 Disposition         { get; set; }
+        public                  int                     CacheMaxAge         { get; set; }
+        public                  HttpStatusCode          StatusCode          { get; set; }
+        public                  bool                    Compression         { get; set; }
+        public                  ReadOnlyMemory<byte>?   Data                { get; set; }
+
+        public                                          WebCoreResponseBuffer(string? contentType, bool compression)
         {
-            _contentType     = contentType;
-            _compression     = compression;
-            _lastModified    = DateTime.MaxValue;
-            _eTag            = null;
-            _cacheMaxAge     = -1;
-            _statusCode      = HttpStatusCode.OK;
+            ContentType  = contentType;
+            LastModified = DateTime.MaxValue;
+            ETag         = null;
+            CacheMaxAge  = -1;
+            StatusCode   = HttpStatusCode.OK;
+            Compression  = compression;
         }
 
-        public                  void                SetData(MemoryStream stream)
+        public      static      WebCoreResponseBuffer   CreateJson()
         {
-            ArgumentNullException.ThrowIfNull(stream);
-
-            _data   = stream.GetBuffer();
-            _length = (int)stream.Length;
+            return new WebCoreResponseBuffer("application/json; charset=utf-8", true);
         }
-        public                  void                SetData(byte[] data)
+        public                  Stream                  GetStream(int initialCapacity=0x1000)
         {
-            ArgumentNullException.ThrowIfNull(data);
-
-            _data   = data;
-            _length = data.Length;
+            return new BufferStreamWriter(this, initialCapacity);
         }
-        public                  void                SetData(byte[] data, int length)
+        public                  StreamWriter            GetStreamWriter(int initialCapacity=0x1000)
         {
-            ArgumentNullException.ThrowIfNull(data);
-
-            _data   = data;
-            _length = length;
+            return new StreamWriter(GetStream(initialCapacity), new System.Text.UTF8Encoding(false), 256);
         }
-
-        public                  void                Send(WebCoreCall call, HttpResponse response)
+        public                  JsonWriter              GetJsonWriter(int initialCapacity=0x1000)
+        {
+            return new JsonWriter(GetStreamWriter(initialCapacity), false);
+        }
+        public                  void                    Send(WebCoreCall call, HttpResponse response)
         {
             ArgumentNullException.ThrowIfNull(call);
             ArgumentNullException.ThrowIfNull(response);
 
-            if (_statusCode == HttpStatusCode.OK && _data != null) {
-                if (_disposition != null) {
-                    response.Headers.ContentDisposition = _disposition;
-                }
-
-                if (_lastModified < DateTime.MaxValue &&  _lastModified > DateTime.UtcNow)
-                    _lastModified = DateTime.MaxValue;
-
-                if (_lastModified < DateTime.MaxValue || _eTag != null) {
-                    var req_etag            = (string?)null;
-                    var req_ifModifiedSince = (DateTime?)null;
-
-                    if (_lastModified < DateTime.MaxValue) {
-                        response.Headers.LastModified = LastModified.ToString("R", System.Globalization.DateTimeFormatInfo.InvariantInfo);
-                        req_ifModifiedSince = call.RequestIfModifiedSince;
+            switch(StatusCode) {
+            case HttpStatusCode.OK:
+                if (Data.HasValue) {
+                    if (Disposition != null) {
+                        response.Headers.ContentDisposition = Disposition;
                     }
 
-                    if (_eTag != null) {
-                        response.Headers.ETag = _eTag;
-                        req_etag = call.RequestIfNoneMatch;
+                    if (LastModified < DateTime.MaxValue &&  LastModified > DateTime.UtcNow) {
+                        LastModified = DateTime.MaxValue;
                     }
 
-                    response.Headers.CacheControl = _cacheMaxAge >= 0
-                                                        ? ("private, max-age=" + _cacheMaxAge.ToString(CultureInfo.InvariantCulture) + ", must-revalidate")
-                                                        : ("private"          );
+                    if (LastModified < DateTime.MaxValue || ETag != null) {
+                        var req_etag            = (string?)null;
+                        var req_ifModifiedSince = (DateTime?)null;
 
-                    if ((req_etag != null             && _eTag == req_etag                   ) ||
-                        (req_ifModifiedSince.HasValue && _lastModified == req_ifModifiedSince))
-                    {
-                        response.StatusCode = (int)HttpStatusCode.NotModified;
-                        return;
+                        if (LastModified < DateTime.MaxValue) {
+                            response.Headers.LastModified = LastModified.ToString("R", System.Globalization.DateTimeFormatInfo.InvariantInfo);
+                            req_ifModifiedSince = call.RequestIfModifiedSince;
+                        }
+
+                        if (ETag != null) {
+                            response.Headers.ETag = ETag;
+                            req_etag              = call.RequestIfNoneMatch;
+                        }
+
+                        response.Headers.CacheControl = CacheMaxAge >= 0
+                                                            ? ("private, max-age=" + CacheMaxAge.ToString(CultureInfo.InvariantCulture) + ", must-revalidate")
+                                                            : ("private"          );
+
+                        if ((req_etag != null             && ETag == req_etag                   ) ||
+                            (req_ifModifiedSince.HasValue && LastModified == req_ifModifiedSince))
+                        {
+                            response.StatusCode = (int)HttpStatusCode.NotModified;
+                            return;
+                        }
                     }
-                }
-                else
-                if (_cacheMaxAge > 0)
-                    response.Headers.CacheControl = "private, max-age=" + _cacheMaxAge.ToString(CultureInfo.InvariantCulture);
-                else
-                    response.Headers.CacheControl = "no-cache, no-store";
-            }
-            else
-                response.StatusCode = (int)_statusCode;
-
-            response.ContentType = null;
-
-            if (_data != null) {
-                response.Headers.ContentType = _contentType;
-
-                if (call.HttpMethod != "HEAD") {
-                    response.HttpContext.Features.Get<IHttpResponseBodyFeature>()?.DisableBuffering();
-
-                    if (_compression) {
-                        (new WebCoreResponseCompressor(call.Request, new ReadOnlyMemory<byte>(_data, 0, _length))).WriteTo(response);
+                    else
+                    if (CacheMaxAge > 0) {
+                        response.Headers.CacheControl = "private, max-age=" + CacheMaxAge.ToString(CultureInfo.InvariantCulture);
                     }
                     else {
-                        response.Headers.ContentLength = _length;
-                        response.Body.Write(_data, 0, _length);
+                        response.Headers.CacheControl = "no-cache, no-store";
                     }
+                }
+                break;
+
+            case HttpStatusCode.Unauthorized:
+                response.Headers.Append("WWW-Authenticate", "Basic realm=\"" + call.ApplicationConfig.Application.Realm + "\"");
+                break;
+
+            case HttpStatusCode.BadRequest:
+            case HttpStatusCode.Forbidden:
+            case HttpStatusCode.NotFound:
+            case HttpStatusCode.MethodNotAllowed:
+            case HttpStatusCode.NotAcceptable:
+            case HttpStatusCode.Gone:
+                response.Headers.Append("Cache-Control", "private, max-age=300");
+                break;
+            }
+
+            response.StatusCode = (int)StatusCode;
+
+            if (ContentType != null) {
+                response.Headers.ContentType = ContentType;
+            }
+
+            if (call.HttpMethod == "HEAD" && StatusCode == HttpStatusCode.OK) {
+                return;
+            }
+
+            if (Data.HasValue && Data.Value.Length > 0) {
+                if (Compression) {
+                    (new WebCoreResponseCompressor(call.Request, Data.Value)).WriteTo(response);
+                }
+                else {
+                    response.SendBuffer(Data.Value.Span);
                 }
             }
             else {
                 response.Headers.ContentLength = 0;
             }
         }
-        public                  void                WriteLoggingData(StreamWriter writer)
+        public                  void                    WriteLoggingData(StreamWriter writer)
         {
             ArgumentNullException.ThrowIfNull(writer);
 
-            if (_data != null) {
-                if (_contentType != null && _contentType.Contains("charset=utf-8", StringComparison.OrdinalIgnoreCase)) {
+            if (Data.HasValue && Data.Value.Length > 0) {
+                if (ContentType != null && ContentType.Contains("charset=utf-8", StringComparison.OrdinalIgnoreCase)) {
                     writer.WriteLine();
                     writer.Flush();
-                    writer.BaseStream.Write(_data, 0, _length);
+                    writer.BaseStream.Write(Data.Value.Span);
                     writer.WriteLine();
                 }
-                else
+                else {
                     writer.WriteLine("[BINARY-DATA]");
+                }
             }
         }
     }

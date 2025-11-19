@@ -306,9 +306,7 @@ next:               pos = p + 1;
                             responseformat = _findResponseMsg(null);
 
                         try {
-                            using (var buffer = new MemoryStream(0x10000)) {
-                                var streamBuffer = new StreamWriter(buffer, new System.Text.UTF8Encoding(false), 1024, true);
-
+                            using (var streamBuffer = responseBuffer.GetStreamWriter()) {
                                 if (_jsmodule) {
                                     streamBuffer.Write("define([], function() { return ");
                                 }
@@ -328,9 +326,6 @@ next:               pos = p + 1;
                                 if (_jsmodule) {
                                     streamBuffer.Write(" });");
                                 }
-
-                                streamBuffer.Flush();
-                                responseBuffer.SetData(buffer);
                             }
                         }
                         catch(NoDataException) {

@@ -15,31 +15,30 @@ namespace Jannesen.Web.Core.Impl
         public  static          IWebCoreResponse            Create(WebCoreHttpHandler? handler, Exception exception)
         {
             var errorData = WebCoreErrorData.Create(handler, exception);
+            var response  = new WebCoreResponseBuffer(null, true) {
+                                StatusCode = errorData.StatusCode
+                            };
 
-            using (var buffer = new MemoryStream()) {
-                string contentType;
+            using (var streamWriter = response.GetStreamWriter()) {
+                switch (handler?.Mimetype) {
+                case "text/xml":
+                    response.ContentType = "text/xml; charset=utf-8";
+                    _writeXml(streamWriter, errorData, exception);
+                    break;
 
-                using (var streamWriter = new StreamWriter(buffer, new UTF8Encoding(false, false), 0x1000, true)) {
-                    switch (handler?.Mimetype) {
-                    case "text/xml":
-                        contentType = "text/xml; charset=utf-8";
-                        _writeXml(streamWriter, errorData, exception);
-                        break;
+                case "application/json":
+                    response.ContentType = "application/json; charset=utf-8";
+                    _writeJson(streamWriter, errorData, exception);
+                    break;
 
-                    case "application/json":
-                        contentType = "application/json; charset=utf-8";
-                        _writeJson(streamWriter, errorData, exception);
-                        break;
-
-                    default:
-                        contentType = "text/plain; charset=utf-8";
-                        _writeText(streamWriter, errorData, exception);
-                        break;
-                    }
+                default:
+                    response.ContentType = "text/plain; charset=utf-8";
+                    _writeText(streamWriter, errorData, exception);
+                    break;
                 }
-                return new WebCoreResponseSimple(errorData.StatusCode, contentType, buffer.GetReadOnlyData());
-
             }
+
+            return response;
         }
 
         private static          void                    _writeText(StreamWriter streamWriter, WebCoreErrorData errorData, Exception exception)

@@ -31,7 +31,7 @@ namespace Jannesen.Web.MSSql
 
         protected   override    IWebCoreResponse            Process(WebCoreCall httpCall, SqlDataReader dataReader)
         {
-            var   webResponseBuffer = new WebCoreResponseBuffer("application/json; charset=utf-8", true);
+            var   webResponseBuffer = WebCoreResponseBuffer.CreateJson();
 
             if (HandleResponseOptions(webResponseBuffer, dataReader) == HttpStatusCode.OK) {
                 object? json;
@@ -43,12 +43,8 @@ namespace Jannesen.Web.MSSql
                     throw new WebResponseException("Convertion from XML to JSON failed.", err);
                 }
 
-                using (var buffer = new MemoryStream(0x10000)) {
-                    using (var jsonWriter = new JsonWriter(new StreamWriter(buffer, new System.Text.UTF8Encoding(false), 1024, true), true)) {
-                        jsonWriter.WriteValue(json);
-                    }
-
-                    webResponseBuffer.SetData(buffer);
+                using (var jsonWriter = webResponseBuffer.GetJsonWriter()) {
+                    jsonWriter.WriteValue(json);
                 }
             }
 

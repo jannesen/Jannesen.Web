@@ -35,8 +35,9 @@ namespace Jannesen.Web.MSSql
                         case "content-type": {
                                 var String = dataReader.GetSqlString(col);
 
-                                if (!String.IsNull)
+                                if (!String.IsNull) {
                                     webResponseBuffer.ContentType = String.Value;
+                                }
                             }
                             break;
 
@@ -44,7 +45,7 @@ namespace Jannesen.Web.MSSql
                                 var text = dataReader.GetSqlString(col);
 
                                 if (!text.IsNull) {
-                                    webResponseBuffer.SetData(System.Text.Encoding.UTF8.GetBytes(text.Value));
+                                    webResponseBuffer.Data = System.Text.Encoding.UTF8.GetBytes(text.Value);
                                 }
                             }
                             break;
@@ -52,8 +53,9 @@ namespace Jannesen.Web.MSSql
                         case "data": {
                                 var data = dataReader.GetSqlBinary(col);
 
-                                if (!data.IsNull)
-                                    webResponseBuffer.SetData(data.Value, data.Length);
+                                if (!data.IsNull) {
+                                    webResponseBuffer.Data = new ReadOnlyMemory<byte>(data.Value, 0, data.Length);
+                                }
                             }
                             break;
                         }

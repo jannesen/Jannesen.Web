@@ -52,17 +52,13 @@ namespace Jannesen.Web.MSSql
 
             if (HandleResponseOptions(webResponseBuffer, dataReader) == HttpStatusCode.OK) {
                 try {
-                    using (var buffer = new MemoryStream(0x10000)) {
-                        using (var textStream  = new StreamWriter(buffer, _charset, 1024, true)) {
-                            if (_xmlIdent) {
-                                _fetchXmlIdent(textStream, dataReader);
-                            }
-                            else {
-                                _fetchData(textStream, dataReader);
-                            }
+                    using (var textStream  = webResponseBuffer.GetStreamWriter()) {
+                        if (_xmlIdent) {
+                            _fetchXmlIdent(textStream, dataReader);
                         }
-
-                        webResponseBuffer.SetData(buffer);
+                        else {
+                            _fetchData(textStream, dataReader);
+                        }
                     }
                 }
                 catch(Exception err) {
