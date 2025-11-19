@@ -14,7 +14,7 @@ namespace Jannesen.Web.Core.Impl
 
     public readonly struct WebCoreErrorData
     {
-        public                  HttpStatusCode          Status      { get; init; }
+        public                  HttpStatusCode          StatusCode  { get; init; }
         public                  string                  Code        { get; init; }
         public                  string                  Message     { get; init; }
 
@@ -23,49 +23,49 @@ namespace Jannesen.Web.Core.Impl
             for (var err = exception ; err != null ; err = err.InnerException) {
                 if (err is WebHttpException httpException) {
                     return new WebCoreErrorData() { 
-                               Status    = httpException.StatusCode,
-                               Code      = "HTTP-ERROR-CODE-" + ((int)httpException.StatusCode).ToString(CultureInfo.InvariantCulture),
-                               Message   = err.Message
+                               StatusCode = httpException.StatusCode,
+                               Code       = "HTTP-ERROR-CODE-" + ((int)httpException.StatusCode).ToString(CultureInfo.InvariantCulture),
+                               Message    = err.Message
                            };
                 }
 
                 if (err is WebResourceDownException) {
                     return new WebCoreErrorData() { 
-                               Status    = HttpStatusCode.ServiceUnavailable,
-                               Code      = "SERVICE-DOWN",
-                               Message   = "Service down"
+                               StatusCode = HttpStatusCode.ServiceUnavailable,
+                               Code       = "SERVICE-DOWN",
+                               Message    = "Service down"
                            };
                 }
 
                 if (err is InternalErrorException || err is WebResponseException) {
                     return new WebCoreErrorData() { 
-                               Status    = HttpStatusCode.InternalServerError,
-                               Code      = "INTERNAL-ERROR",
-                               Message   = err.Message
+                               StatusCode = HttpStatusCode.InternalServerError,
+                               Code       = "INTERNAL-ERROR",
+                               Message    = err.Message
                            };
                 }
 
                 if (err is WebConfigException || err is WebAppNotInitialized || err is WebInitializationException || err is WebResourceNotFoundException) {
                     return new WebCoreErrorData() { 
-                               Status    = HttpStatusCode.InternalServerError,
-                               Code      = "CONFIG-ERROR",
-                               Message   = err.Message
+                               StatusCode = HttpStatusCode.InternalServerError,
+                               Code       = "CONFIG-ERROR",
+                               Message    = err.Message
                            };
                 }
 
                 if (err is WebRequestException) {
                     return new WebCoreErrorData() { 
-                               Status    = HttpStatusCode.BadRequest,
-                               Code      = "REQUEST-ERROR",
-                               Message   = err.Message
+                               StatusCode = HttpStatusCode.BadRequest,
+                               Code       = "REQUEST-ERROR",
+                               Message    = err.Message
                            };
                 }
 
                 if (err is WebBasicAutorizationException) {
                     return new WebCoreErrorData() {
-                               Status    = HttpStatusCode.Unauthorized,
-                               Code      = "BASIC-AUTORIZATION-NEEDED",
-                               Message   = err.Message
+                               StatusCode = HttpStatusCode.Unauthorized,
+                               Code       = "BASIC-AUTORIZATION-NEEDED",
+                               Message    = err.Message
                            };
                 }
 
@@ -79,9 +79,9 @@ namespace Jannesen.Web.Core.Impl
             }
 
             return new WebCoreErrorData() {
-                       Status    = HttpStatusCode.InternalServerError,
-                       Code      = "GENERAL-ERROR",
-                       Message   = exception?.Message ?? "[exception=NULL]"
+                       StatusCode = HttpStatusCode.InternalServerError,
+                       Code       = "GENERAL-ERROR",
+                       Message    = exception?.Message ?? "[exception=NULL]"
                    };
         }
     }

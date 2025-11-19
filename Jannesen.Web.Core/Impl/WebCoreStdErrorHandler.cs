@@ -37,7 +37,7 @@ namespace Jannesen.Web.Core.Impl
                         break;
                     }
                 }
-                return new WebCoreResponseSimple(errorData.Status, contentType, buffer.GetReadOnlyData());
+                return new WebCoreResponseSimple(errorData.StatusCode, contentType, buffer.GetReadOnlyData());
 
             }
         }
@@ -99,7 +99,7 @@ namespace Jannesen.Web.Core.Impl
         }
         private static          bool                    _withDetails(WebCoreErrorData errorData)
         {
-            switch(errorData.Status) {
+            switch(errorData.StatusCode) {
             case HttpStatusCode.OK:
             case HttpStatusCode.Created:
             case HttpStatusCode.InternalServerError:

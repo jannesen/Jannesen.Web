@@ -77,24 +77,24 @@ retry:      using (var sqlConnection = GetConnection(httpCall))
 
                 if (sqlErr.Number == -2) {
                     return new WebCoreErrorData() {
-                                Status  = HttpStatusCode.InternalServerError,
-                                Code    = "DATABASE-TIMEOUT",
-                                Message = "Database timeout"
+                                StatusCode = HttpStatusCode.InternalServerError,
+                                Code       = "DATABASE-TIMEOUT",
+                                Message    = "Database timeout"
                             };
                 }
 
                 return new WebCoreErrorData() {
-                           Status  = HttpStatusCode.InternalServerError,
-                           Code    = "DATABASE-ERROR",
-                           Message = msg
+                           StatusCode = HttpStatusCode.InternalServerError,
+                           Code       = "DATABASE-ERROR",
+                           Message    = msg
                        };
             }
 
             if (err is NoDataException) {
                 return new WebCoreErrorData() {
-                           Status  = HttpStatusCode.InternalServerError,
-                           Code    = "NO-DATA",
-                           Message = "No data retrieved"
+                           StatusCode = HttpStatusCode.InternalServerError,
+                           Code       = "NO-DATA",
+                           Message    = "No data retrieved"
                        };
             }
 
@@ -179,17 +179,17 @@ retry:      using (var sqlConnection = GetConnection(httpCall))
         private     static      WebCoreErrorData            _createErrorData(string code, string message)
         {
             return new WebCoreErrorData() {
-                       Status  = code switch {
-                                      "REQUEST-ERROR"                   => HttpStatusCode.BadRequest,
-                                      "INVALID-AUTHENTICATION"          => HttpStatusCode.Unauthorized,
-                                      "INVALID-BASIC-AUTHENTICATION"    => HttpStatusCode.Unauthorized,
-                                      "NOT-FOUND"                       => HttpStatusCode.NotFound,
-                                      "HTTP-401"                        => HttpStatusCode.Unauthorized,
-                                      "HTTP-404"                        => HttpStatusCode.NotFound,
-                                      _                                 => HttpStatusCode.InternalServerError                            
-                                 },
-                       Code    = code,
-                       Message = message
+                       StatusCode = code switch {
+                                         "REQUEST-ERROR"                   => HttpStatusCode.BadRequest,
+                                         "INVALID-AUTHENTICATION"          => HttpStatusCode.Unauthorized,
+                                         "INVALID-BASIC-AUTHENTICATION"    => HttpStatusCode.Unauthorized,
+                                         "NOT-FOUND"                       => HttpStatusCode.NotFound,
+                                         "HTTP-401"                        => HttpStatusCode.Unauthorized,
+                                         "HTTP-404"                        => HttpStatusCode.NotFound,
+                                         _                                 => HttpStatusCode.InternalServerError                            
+                                    },
+                       Code       = code,
+                       Message    = message
                    };
         }
     }
