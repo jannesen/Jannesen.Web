@@ -73,6 +73,10 @@ namespace Jannesen.Web.MSSql
             }
             else
                 _connectString += ";Trusted_Connection=true";
+
+            // Make sure SqlClient is initialized.
+            using (var _ = new SqlConnection()) {
+            }
         }
 
         public                  string              GetConnectString()
