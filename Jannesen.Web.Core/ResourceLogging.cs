@@ -32,10 +32,8 @@ namespace Jannesen.Web.Core
         protected   override    void                Dispose(bool disposing)
         {
             lock(_logLock) {
-                if (_filestream != null) {
-                    _filestream.Dispose();
-                    _filestream = null;
-                }
+                _filestream?.Dispose();
+                _filestream = null;
             }
             base.Dispose(disposing);
         }
@@ -80,10 +78,8 @@ namespace Jannesen.Web.Core
             var now = DateTime.Now;
 
             if (_filestream == null || now > _nextFile) {
-                if (_filestream != null) {
-                    _filestream.Dispose();
-                    _filestream = null;
-                }
+                _filestream?.Dispose();
+                _filestream = null;
 
                 var fileName = _directory + "\\weblog-" + now.ToString("yyyy-MM-dd", CultureInfo.InvariantCulture) + ".log";
                 Application.LogInfo("New logfile: " + fileName);

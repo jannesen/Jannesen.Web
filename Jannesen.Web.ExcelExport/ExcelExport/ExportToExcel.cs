@@ -95,8 +95,8 @@ namespace Jannesen.Web.ExcelExport.ExcelExport
             var sheetNumber = (uint)0;
             var sheets      = new DocumentFormat.OpenXml.Spreadsheet.Sheets();
 
-            _document.WorkbookPart!.Workbook.Append(new BookViews(new WorkbookView()));
-            _document.WorkbookPart!.Workbook.AppendChild(sheets);
+            _document.WorkbookPart!.Workbook!.Append(new BookViews(new WorkbookView()));
+            _document.WorkbookPart!.Workbook!.AppendChild(sheets);
 
             do {
                 var sheetConfig   = config[sheetNumber++];

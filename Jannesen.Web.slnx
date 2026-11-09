@@ -1,0 +1,14 @@
+<Solution>
+  <Folder Name="/Solution Items/">
+    <File Path=".editorconfig" />
+    <File Path=".gitattributes" />
+    <File Path=".gitignore" />
+    <File Path="LICENSE.txt" />
+    <File Path="README.md" />
+  </Folder>
+  <Project Path="../Jannesen.FileFormat.Json/Jannesen.FileFormat.Json.csproj" />
+  <Project Path="Jannesen.Web.Core/Jannesen.Web.Core.csproj" />
+  <Project Path="Jannesen.Web.ExcelExport/Jannesen.Web.ExcelExport.csproj" />
+  <Project Path="Jannesen.Web.MSSql/Jannesen.Web.MSSql.csproj" />
+  <Project Path="Jannesen.Web.StaticFile/Jannesen.Web.StaticFile.csproj" />
+</Solution>

@@ -2,7 +2,7 @@
 
     <PropertyGroup>
         <OutputType>Library</OutputType>
-        <TargetFrameworks>net9.0</TargetFrameworks>
+        <TargetFrameworks>net10.0</TargetFrameworks>
         <AppendTargetFrameworkToOutputPath>false</AppendTargetFrameworkToOutputPath>
 
         <Nullable>Enable</Nullable>
@@ -40,10 +40,17 @@
     </PropertyGroup>
 
     <ItemGroup>
-        <PackageReference Include="DocumentFormat.OpenXml" Version="3.3.0" />
-        <PackageReference Include="Microsoft.Data.SqlClient" Version="6.1.2" />
-        <PackageReference Include="Microsoft.SqlServer.Server" Version="1.0.0" />
-    </ItemGroup>
+		<PackageReference Include="Microsoft.Data.SqlClient" Version="7.1.1" />
+		<PackageReference Include="DocumentFormat.OpenXml" Version="3.5.1" />
+		<PackageReference Include="Microsoft.SqlServer.Server" Version="1.0.0" />
+
+		<!-- Workaround dat Microsoft.Data.SqlClient include 9.X versions -->
+		<PackageReference Include="System.Configuration.ConfigurationManager" Version="10.0.14" />
+		<PackageReference Include="System.Security.Cryptography.Pkcs" Version="10.0.14" />
+		<PackageReference Include="Microsoft.Bcl.Cryptography" Version="10.0.14" />
+		<PackageReference Include="System.IO.Packaging" Version="10.0.14" />
+        <!-- Workaround dat Microsoft.Data.SqlClient include 9.X versions -->
+	</ItemGroup>
 
     <ItemGroup>
         <ProjectReference Include="..\Jannesen.Web.Core\Jannesen.Web.Core.csproj" />
