@@ -135,20 +135,22 @@ public class WebCoreResponseBuffer: IWebCoreResponse
 
         response.StatusCode = (int)StatusCode;
 
-        if (ContentType != null) {
-            response.Headers.ContentType = ContentType;
-        }
-
-        if (call.HttpMethod == "HEAD" && StatusCode == HttpStatusCode.OK) {
-            return;
-        }
-
-        if (Data.HasValue && Data.Value.Length > 0) {
-            if (Compression) {
-                (new WebCoreResponseCompressor(call.Request, Data.Value)).WriteTo(response);
+        if (Data.HasValue) {
+            if (ContentType != null) {
+                response.Headers.ContentType = ContentType;
             }
-            else {
-                response.SendBuffer(Data.Value.Span);
+
+            if (call.HttpMethod == "HEAD" && StatusCode == HttpStatusCode.OK) {
+                return;
+            }
+
+            if (Data.Value.Length > 0) {
+                if (Compression) {
+                    (new WebCoreResponseCompressor(call.Request, Data.Value)).WriteTo(response);
+                }
+                else {
+                    response.SendBuffer(Data.Value.Span);
+                }
             }
         }
         else {

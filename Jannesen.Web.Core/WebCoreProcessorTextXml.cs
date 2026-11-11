@@ -26,7 +26,7 @@ public class WebCoreProcessorTextXml
     {
         try {
 
-            using(var reader = httpCall.GetBodyText("text/xml")) {
+            using(var reader = httpCall.RequestBody.GetStreamReader("text/xml")) {
                 if (reader != null) {
                     _document = new XmlDocument() { XmlResolver=null } ;
 #pragma warning disable CA2000 // CA2000: Dispose objects before losing scope

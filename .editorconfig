@@ -43,14 +43,18 @@ dotnet_diagnostic.IDE0306.severity = none
 # IDE1006: Code-style naming rules
 dotnet_diagnostic.IDE1006.severity = none
 
+# CA1024: Use properties where appropriate
+dotnet_diagnostic.CA1024.severity = none
+
 # CA1031: Do not catch general exception types
 dotnet_diagnostic.CA1031.severity = none
+
+# CA1032: Implement standard exception constructors
+dotnet_diagnostic.CA1032.severity = none
 
 # CA1056: URI properties should not be strings
 dotnet_diagnostic.CA1056.severity = none
 
-# CA1032: Implement standard exception constructors
-dotnet_diagnostic.CA1032.severity = none
 
 # CA1308: Normalize strings to uppercase
 dotnet_diagnostic.CA1308.severity = none

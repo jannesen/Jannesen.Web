@@ -21,7 +21,6 @@ public class WebCoreCall
     private readonly        HttpRequest                         _request;
     private readonly        WebCoreHttpHandler                  _handler;
     private readonly        List<ProcessorInstance>             _processors;
-    private                 byte[]?                             _requestBodyData;
 
     public                  WebApplicationConfig                ApplicationConfig   => _applicationConfig;
     public                  DateTime                            Timestamp           => _timestamp;
@@ -29,7 +28,6 @@ public class WebCoreCall
     public                  HttpRequest                         Request             => _request;
     public                  IMemoryCache                        Cache               => _applicationConfig.Application.Cache;
     public                  WebCoreHttpHandler                  Handler             => _handler;
-    internal                byte[]?                             RequestBodyData     => _requestBodyData;
     public                  string                              HttpMethod          => _request.Method;
     public                  string?                             RequestContentType  => _request.ContentType;
     public                  int?                                RequestContentLength
@@ -101,30 +99,11 @@ public class WebCoreCall
             return !string.IsNullOrEmpty(rtn) ? rtn : null;
         }
     }
-    public                  WebCoreProcessorBasicAutorization   RequestBasicAutorization
-    {
-        get {
-            return GetProcessor<WebCoreProcessorBasicAutorization>(WebCoreProcessorBasicAutorization.Definition);
-        }
-    }
-    public                  WebCoreProcessorUrlPathData         RequestUrlPathData
-    {
-        get {
-            return GetProcessor<WebCoreProcessorUrlPathData>(WebCoreProcessorUrlPathData.Definition);
-        }
-    }
-    public                  WebCoreProcessorTextXml             RequestTextXml
-    {
-        get {
-            return GetProcessor<WebCoreProcessorTextXml>(WebCoreProcessorTextXml.Definition);
-        }
-    }
-    public                  WebCoreProcessorTextJson            RequestTextJson
-    {
-        get {
-            return GetProcessor<WebCoreProcessorTextJson>(WebCoreProcessorTextJson.Definition);
-        }
-    }
+    public                  WebCoreProcessorBody                RequestBody                 => GetProcessor<WebCoreProcessorBody>(WebCoreProcessorBody.Definition);
+    public                  WebCoreProcessorBasicAutorization   RequestBasicAutorization    => GetProcessor<WebCoreProcessorBasicAutorization>(WebCoreProcessorBasicAutorization.Definition);
+    public                  WebCoreProcessorUrlPathData         RequestUrlPathData          => GetProcessor<WebCoreProcessorUrlPathData>(WebCoreProcessorUrlPathData.Definition);
+    public                  WebCoreProcessorTextXml             RequestTextXml              => GetProcessor<WebCoreProcessorTextXml>(WebCoreProcessorTextXml.Definition);
+    public                  WebCoreProcessorTextJson            RequestTextJson             => GetProcessor<WebCoreProcessorTextJson>(WebCoreProcessorTextJson.Definition);
 
     public                                                      WebCoreCall(WebApplicationConfig applicationConfig, HttpContext httpCall, WebCoreHttpHandler handler)
     {
@@ -165,75 +144,16 @@ public class WebCoreCall
 
         return (T)newInstance;
     }
-    public                  byte[]                              GetBodyData()
+    public                  T?                                  GetProcessorOptional<T>(IWebCoreProcessorDefinition definition)
     {
-        if (_requestBodyData == null) {
-            var length = RequestContentLength;
+        ArgumentNullException.ThrowIfNull(definition);
 
-            if (!length.HasValue) {
-                throw new WebRequestException("Missing content-length header.");
-            }
-
-            var buf = new byte[length.Value];
-
-            using (var inputStream = _request.Body) {
-                var size = 0;
-                int rs;
-
-                while (size < buf.Length && (rs = inputStream.Read(buf, size, buf.Length - size)) > 0)
-                    size += rs;
-
-                if (size != buf.Length)
-                    throw new WebRequestException("BODY is incomplete.");
-            }
-
-            _requestBodyData = buf;
-        }
-
-        return _requestBodyData;
-    }
-    public                  StreamReader?                       GetBodyText(string contenttype)
-    {
-        var     requestContentType = RequestContentType;
-
-        if (string.IsNullOrEmpty(requestContentType)) {
-            if (_request.ContentLength <= 0) {
-                return null;
-            }
-
-            throw new WebRequestException("Missing Content-Type.");
-        }
-
-        var encoding         = (System.Text.Encoding?)null;
-        var contentTypeParts = requestContentType.Split(';');
-
-        for (var i = 1 ; i <contentTypeParts.Length ; ++i)
-            contentTypeParts[i] = contentTypeParts[i].TrimStart();
-
-        if (contenttype != null && contentTypeParts[0] != contenttype)
-            throw new WebRequestException("Expect " + contenttype + " body.");
-
-        for (var i = 1 ; i < contentTypeParts.Length ; ++i) {
-            if (contentTypeParts[i].StartsWith("charset=", StringComparison.Ordinal)) {
-                var charset     = contentTypeParts[i].Substring(8);
-
-                switch(charset.ToLowerInvariant()) {
-                case "unicode": encoding = System.Text.Encoding.Unicode;    break;
-                case "utf-8":   encoding = System.Text.Encoding.UTF8;       break;
-                default:        throw new NotImplementedException("Invalid characterset '" + charset + "'.");
-                }
+        foreach(var p in _processors) {
+            if (p.Definition == definition) {
+                return (T)p.Instance;
             }
         }
 
-        if (encoding == null)
-            throw new WebRequestException("Missing charset in Content-Type " + requestContentType + ".");
-
-        return new System.IO.StreamReader(new System.IO.MemoryStream(GetBodyData(), false), encoding, false, 4096, false);
-    }
-    public                  string?                             GetBodyString(string contenttype)
-    {
-        using(var reader = GetBodyText(contenttype)) {
-            return reader?.ReadToEnd();
-        }
+        return default;
     }
 }

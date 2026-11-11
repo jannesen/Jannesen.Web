@@ -25,7 +25,7 @@ public class WebCoreProcessorTextJson
     internal                                    WebCoreProcessorTextJson(WebCoreCall httpCall)
     {
         try {
-            var stream = httpCall.GetBodyText("application/json");
+            var stream = httpCall.RequestBody.GetStreamReader("application/json");
             if (stream != null) {
                 using(var reader = new JsonReader(stream)) {
                     _document = reader.ParseDocument();

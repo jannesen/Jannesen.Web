@@ -97,8 +97,6 @@ public class ResourceLogging: WebCoreResource
         writer.Write(" ");
         writer.WriteLine(call.Request.GetEncodedPathAndQuery());
 
-        var textbody = false;
-
         foreach(var h in call.Request.Headers) {
             var key = h.Key;
 
@@ -109,12 +107,6 @@ public class ResourceLogging: WebCoreResource
                 case "Authorization":
                     value = "*****";
                     break;
-
-                case "Content-Type":
-                    if (value != null && value.Contains("charset=utf-8", StringComparison.OrdinalIgnoreCase)) {
-                        textbody = true;
-                    }
-                    break;
                 }
 
                 writer.Write(h.Key);
@@ -123,15 +115,17 @@ public class ResourceLogging: WebCoreResource
             }
         }
 
-        if (call.RequestBodyData != null) {
-            if (textbody) {
+        var body = call.GetProcessorOptional<WebCoreProcessorBody>(WebCoreProcessorBody.Definition);
+        if (body != null) {
+            if (body.ContentType != null && body.ContentType.Contains("charset=utf-8", StringComparison.OrdinalIgnoreCase)) {
                 writer.WriteLine();
                 writer.Flush();
-                writer.BaseStream.Write(call.RequestBodyData, 0, call.RequestBodyData.Length);
+                writer.BaseStream.Write(body.Data, 0, body.Data.Length);
                 writer.WriteLine();
             }
-            else
+            else {
                 writer.WriteLine("[BINARY-DATA]");
+            }
         }
     }
     private     static      void                _logResponse(StreamWriter writer, IWebCoreResponse response, HttpResponse httpResponse)
