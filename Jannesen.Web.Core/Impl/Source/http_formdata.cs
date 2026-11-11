@@ -2,26 +2,25 @@
 
 #pragma warning disable CA1812 // Avoid uninstantiated internal classes (created using reflection)
 
-namespace Jannesen.Web.Core.Impl.Source
+namespace Jannesen.Web.Core.Impl.Source;
+
+[WebCoreDataSourceAttribute("formdata")]
+sealed class http_formdata: WebCoreDataSource
 {
-    [WebCoreDataSourceAttribute("formdata")]
-    sealed class http_formdata: WebCoreDataSource
+    public                                          http_formdata(string name_args): base(name_args)
     {
-        public                                          http_formdata(string name_args): base(name_args)
-        {
-        }
+    }
 
-        public      override        WebCoreDataValue    GetValue(WebCoreCall httpCall)
-        {
-            if (httpCall.Request.Method == "GET" || httpCall.Request.Method == "HEAD")
-                throw new WebHandlerConfigException("FORMDATA-BODY not available for HTTP/GET.");
+    public      override        WebCoreDataValue    GetValue(WebCoreCall httpCall)
+    {
+        if (httpCall.Request.Method == "GET" || httpCall.Request.Method == "HEAD")
+            throw new WebHandlerConfigException("FORMDATA-BODY not available for HTTP/GET.");
 
-            return new WebCoreDataValue(httpCall.Request.Form[Name]);
-        }
+        return new WebCoreDataValue(httpCall.Request.Form[Name]);
+    }
 
-        public      override        string              ToString()
-        {
-            return "formdata:" + Name;
-        }
+    public      override        string              ToString()
+    {
+        return "formdata:" + Name;
     }
 }

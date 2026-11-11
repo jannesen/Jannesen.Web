@@ -1,79 +1,78 @@
 ﻿using System;
 using System.Collections.Generic;
 
-namespace Jannesen.Web.Core.Impl
+namespace Jannesen.Web.Core.Impl;
+
+public abstract class WebCoreResource: IDisposable
 {
-    public abstract class WebCoreResource: IDisposable
+    private readonly        WebApplication      _application;
+    private readonly        string              _name;
+    private readonly        bool                _down;
+
+    public      abstract    string              Type            {  get; }
+    public                  WebApplication      Application     => _application;
+    public                  string              Name            => _name;
+    public                  bool                Down            => _down;
+
+    protected                                   WebCoreResource(WebCoreConfigReader configReader)
     {
-        private readonly        WebApplication      _application;
-        private readonly        string              _name;
-        private readonly        bool                _down;
+        ArgumentNullException.ThrowIfNull(configReader);
 
-        public      abstract    string              Type            {  get; }
-        public                  WebApplication      Application     => _application;
-        public                  string              Name            => _name;
-        public                  bool                Down            => _down;
+        _application = configReader.ApplicationConfig.Application;
+        _name        = configReader.GetValueString("name");
+        _down        = configReader.GetValueBool  ("down", false);
+    }
+                                                ~WebCoreResource()
+    {
+        Dispose(false);
+    }
+    public                  void                Dispose()
+    {
+        Dispose(true);
+        GC.SuppressFinalize(this);
+    }
+    protected   virtual     void                Dispose(bool disposing)
+    {
+    }
+}
 
-        protected                                   WebCoreResource(WebCoreConfigReader configReader)
-        {
-            ArgumentNullException.ThrowIfNull(configReader);
+public sealed class CoreResourceDictionary: IDisposable
+{
+    private readonly        Dictionary<string, WebCoreResource>     _dictionary;
 
-            _application = configReader.ApplicationConfig.Application;
-            _name        = configReader.GetValueString("name");
-            _down        = configReader.GetValueBool  ("down", false);
+    public                                                          CoreResourceDictionary()
+    {
+        _dictionary = new Dictionary<string,WebCoreResource>(256);
+    }
+
+    public                  WebCoreResource                         GetWebResource(Type type, string name)
+    {
+        ArgumentNullException.ThrowIfNull(type);
+        ArgumentNullException.ThrowIfNull(name);
+
+        if (_dictionary.TryGetValue(type.Name + "/" + name, out var rtn)) {
+            if (rtn.GetType() == type && rtn.Name == name)
+                return rtn;
         }
-                                                    ~WebCoreResource()
-        {
-            Dispose(false);
-        }
-        public                  void                Dispose()
-        {
-            Dispose(true);
-            GC.SuppressFinalize(this);
-        }
-        protected   virtual     void                Dispose(bool disposing)
-        {
+
+        throw new WebResourceNotFoundException("Unknown resource '" + type.Name + "/" + name + "'.");
+    }
+    public                  void                                    Dispose()
+    {
+        foreach(var resource in _dictionary.Values) {
+            try {
+                resource.Dispose();
+            }
+            catch(Exception err) {
+                resource.Application.LogError("Unloading resource '" + resource.Name + "' failed.", err);
+            }
         }
     }
 
-    public sealed class CoreResourceDictionary: IDisposable
+    public                  void                                    Add(WebCoreResource resource)
     {
-        private readonly        Dictionary<string, WebCoreResource>     _dictionary;
+        ArgumentNullException.ThrowIfNull(resource);
 
-        public                                                          CoreResourceDictionary()
-        {
-            _dictionary = new Dictionary<string,WebCoreResource>(256);
-        }
-
-        public                  WebCoreResource                         GetWebResource(Type type, string name)
-        {
-            ArgumentNullException.ThrowIfNull(type);
-            ArgumentNullException.ThrowIfNull(name);
-
-            if (_dictionary.TryGetValue(type.Name + "/" + name, out var rtn)) {
-                if (rtn.GetType() == type && rtn.Name == name)
-                    return rtn;
-            }
-
-            throw new WebResourceNotFoundException("Unknown resource '" + type.Name + "/" + name + "'.");
-        }
-        public                  void                                    Dispose()
-        {
-            foreach(var resource in _dictionary.Values) {
-                try {
-                    resource.Dispose();
-                }
-                catch(Exception err) {
-                    resource.Application.LogError("Unloading resource '" + resource.Name + "' failed.", err);
-                }
-            }
-        }
-
-        public                  void                                    Add(WebCoreResource resource)
-        {
-            ArgumentNullException.ThrowIfNull(resource);
-
-            _dictionary.Add(resource.GetType().Name + "/" + resource.Name, resource);
-        }
+        _dictionary.Add(resource.GetType().Name + "/" + resource.Name, resource);
     }
 }

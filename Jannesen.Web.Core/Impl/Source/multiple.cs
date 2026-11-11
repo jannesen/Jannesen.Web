@@ -1,41 +1,40 @@
 ﻿using System;
 
-namespace Jannesen.Web.Core.Impl.Source
+namespace Jannesen.Web.Core.Impl.Source;
+
+sealed class multiple: WebCoreDataSource
 {
-    sealed class multiple: WebCoreDataSource
+    public      const           char                SplitChar = '|';
+
+    private readonly            WebCoreDataSource[] _list;
+
+    public                                          multiple(string source, string? name_args): base(source)
     {
-        public      const           char                SplitChar = '|';
+        var sources = source.Split(SplitChar);
 
-        private readonly            WebCoreDataSource[] _list;
+        _list = new WebCoreDataSource[sources.Length];
 
-        public                                          multiple(string source, string? name_args): base(source)
-        {
-            var sources = source.Split(SplitChar);
+        for (var i = 0 ; i < sources.Length ; ++i) {
+            _list[i] = WebLoader.Instance.GetDataSource(sources[i], name_args);
+        }
+    }
 
-            _list = new WebCoreDataSource[sources.Length];
+    public      override        WebCoreDataValue    GetValue(WebCoreCall httpCall)
+    {
+        var rtn = WebCoreDataValue.NoValue;
 
-            for (var i = 0 ; i < sources.Length ; ++i) {
-                _list[i] = WebLoader.Instance.GetDataSource(sources[i], name_args);
-            }
+        for (var i = 0 ; i < _list.Length ; ++i) {
+            rtn = _list[i].GetValue(httpCall);
+
+            if (rtn.Type != WebCoreDataValueType.NoValue)
+                break;
         }
 
-        public      override        WebCoreDataValue    GetValue(WebCoreCall httpCall)
-        {
-            var rtn = WebCoreDataValue.NoValue;
+        return rtn;
+    }
 
-            for (var i = 0 ; i < _list.Length ; ++i) {
-                rtn = _list[i].GetValue(httpCall);
-
-                if (rtn.Type != WebCoreDataValueType.NoValue)
-                    break;
-            }
-
-            return rtn;
-        }
-
-        public      override        string              ToString()
-        {
-            return "multiple:" + Name;
-        }
+    public      override        string              ToString()
+    {
+        return "multiple:" + Name;
     }
 }

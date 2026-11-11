@@ -3,27 +3,26 @@ using System.Collections.Generic;
 using Microsoft.Data.SqlClient;
 using Jannesen.Web.Core.Impl;
 
-namespace Jannesen.Web.MSSql.Library
+namespace Jannesen.Web.MSSql.Library;
+
+public abstract class Parameter
 {
-    public abstract class Parameter
+    public                      string           Name       { get; private init; }
+
+    protected                                    Parameter(WebCoreConfigReader configReader)
     {
-        public                      string           Name       { get; private init; }
+        ArgumentNullException.ThrowIfNull(configReader);
 
-        protected                                    Parameter(WebCoreConfigReader configReader)
-        {
-            ArgumentNullException.ThrowIfNull(configReader);
-
-            Name = configReader.GetValueString("name");
-        }
-        public  abstract            void             AddToCommand(SqlCommand sqlCommand, WebCoreCall httpCall);
+        Name = configReader.GetValueString("name");
     }
+    public  abstract            void             AddToCommand(SqlCommand sqlCommand, WebCoreCall httpCall);
+}
 
-    public class ParameterList: List<Parameter>
+public class ParameterList: List<Parameter>
+{
+    public                  void                AddParametersToCommand(SqlCommand sqlCommand, WebCoreCall httpCall)
     {
-        public                  void                AddParametersToCommand(SqlCommand sqlCommand, WebCoreCall httpCall)
-        {
-            foreach(var parameter in this)
-                parameter.AddToCommand(sqlCommand, httpCall);
-        }
+        foreach(var parameter in this)
+            parameter.AddToCommand(sqlCommand, httpCall);
     }
 }

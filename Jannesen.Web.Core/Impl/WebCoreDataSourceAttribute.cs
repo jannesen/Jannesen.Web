@@ -1,20 +1,19 @@
 ﻿using System;
 using System.Reflection;
 
-namespace Jannesen.Web.Core.Impl
+namespace Jannesen.Web.Core.Impl;
+
+[AttributeUsage(AttributeTargets.Class)]
+public sealed class WebCoreDataSourceAttribute: WebCoreDynamicClassAttribute
 {
-    [AttributeUsage(AttributeTargets.Class)]
-    public sealed class WebCoreDataSourceAttribute: WebCoreDynamicClassAttribute
+    public      override    string                          Type        => "data-source";
+
+    public                                                  WebCoreDataSourceAttribute(string name): base(name)
     {
-        public      override    string                          Type        => "data-source";
+    }
 
-        public                                                  WebCoreDataSourceAttribute(string name): base(name)
-        {
-        }
-
-        public      override    ConstructorInfo                 GetConstructor(Type classType)
-        {
-            return GetConstructorFor(classType, typeof(WebCoreDataSource), typeof(string));
-        }
+    public      override    ConstructorInfo                 GetConstructor(Type classType)
+    {
+        return GetConstructorFor(classType, typeof(WebCoreDataSource), typeof(string));
     }
 }

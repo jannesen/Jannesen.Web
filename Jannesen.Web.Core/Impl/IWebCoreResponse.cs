@@ -2,11 +2,10 @@
 using System.IO;
 using Microsoft.AspNetCore.Http;
 
-namespace Jannesen.Web.Core.Impl
+namespace Jannesen.Web.Core.Impl;
+
+public interface IWebCoreResponse
 {
-    public interface IWebCoreResponse
-    {
-        void            Send(WebCoreCall call, HttpResponse response);
-        void            WriteLoggingData(StreamWriter writer);
-    }
+    void            Send(WebCoreCall call, HttpResponse response);
+    void            WriteLoggingData(StreamWriter writer);
 }

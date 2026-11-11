@@ -8,281 +8,280 @@ using Jannesen.FileFormat.Json;
 using Jannesen.Web.Core.Impl;
 using Jannesen.Web.MSSql.Library;
 
-namespace Jannesen.Web.MSSql
+namespace Jannesen.Web.MSSql;
+
+[WebCoreHttpHandlerAttribute("sql-json")]
+public class HttpHandlerSqlXmlJson: HttpHandlerMSSql
 {
-    [WebCoreHttpHandlerAttribute("sql-json")]
-    public class HttpHandlerSqlXmlJson: HttpHandlerMSSql
+    public      override    string                      Mimetype            => "application/json";
+
+    public                                              HttpHandlerSqlXmlJson(WebCoreConfigReader configReader): base(configReader)
     {
-        public      override    string                      Mimetype            => "application/json";
+        ArgumentNullException.ThrowIfNull(configReader);
 
-        public                                              HttpHandlerSqlXmlJson(WebCoreConfigReader configReader): base(configReader)
-        {
-            ArgumentNullException.ThrowIfNull(configReader);
-
-            if (configReader.hasChildren) {
-                while (configReader.ReadNextElement()) {
-                    switch(configReader.ElementName) {
-                    case    "parameter":    ParseParameter(configReader);               break;
-                    default:                configReader.InvalidElement();              break;
-                    }
+        if (configReader.hasChildren) {
+            while (configReader.ReadNextElement()) {
+                switch(configReader.ElementName) {
+                case    "parameter":    ParseParameter(configReader);               break;
+                default:                configReader.InvalidElement();              break;
                 }
             }
         }
+    }
 
-        protected   override    IWebCoreResponse            Process(WebCoreCall httpCall, SqlDataReader dataReader)
-        {
-            var   webResponseBuffer = WebCoreResponseBuffer.CreateJson();
+    protected   override    IWebCoreResponse            Process(WebCoreCall httpCall, SqlDataReader dataReader)
+    {
+        var   webResponseBuffer = WebCoreResponseBuffer.CreateJson();
 
-            if (HandleResponseOptions(webResponseBuffer, dataReader) == HttpStatusCode.OK) {
-                object? json;
+        if (HandleResponseOptions(webResponseBuffer, dataReader) == HttpStatusCode.OK) {
+            object? json;
 
-                try {
-                    json = _xmlToJson(dataReader);
-                }
-                catch(Exception err) {
-                    throw new WebResponseException("Convertion from XML to JSON failed.", err);
-                }
-
-                using (var jsonWriter = webResponseBuffer.GetJsonWriter()) {
-                    jsonWriter.WriteValue(json);
-                }
+            try {
+                json = _xmlToJson(dataReader);
+            }
+            catch(Exception err) {
+                throw new WebResponseException("Convertion from XML to JSON failed.", err);
             }
 
-            return webResponseBuffer;
+            using (var jsonWriter = webResponseBuffer.GetJsonWriter()) {
+                jsonWriter.WriteValue(json);
+            }
         }
 
-        private                 object?                     _xmlToJson(SqlDataReader dataReader)
-        {
-            using (var memoryStream = new MemoryStream()) {
-                var fempty = true;
+        return webResponseBuffer;
+    }
 
-                using (var textStream  = new StreamWriter(memoryStream, new System.Text.UTF8Encoding(false), 1024, true)) {
-                    do {
-                        while(dataReader.Read()) {
-                            if (!dataReader.IsDBNull(0)) {
-                                textStream.Write(dataReader.GetString(0));
-                                fempty = false;
-                            }
-                        }
-                    }
-                    while (dataReader.NextResult());
-                }
+    private                 object?                     _xmlToJson(SqlDataReader dataReader)
+    {
+        using (var memoryStream = new MemoryStream()) {
+            var fempty = true;
 
-                if (!fempty) {
-                    memoryStream.Seek(0, SeekOrigin.Begin);
-
-                    using (var xmlReader = new XmlTextReader(new StreamReader(memoryStream, System.Text.Encoding.UTF8, false, 4096, true)){ DtdProcessing = DtdProcessing.Prohibit, XmlResolver = null }) {
-                        while (xmlReader.NodeType != XmlNodeType.Element)
-                            _parseReadNode(xmlReader);
-
-                        if (xmlReader.Name=="json-array") {
-                            return _parseToJsonArray(xmlReader);
-                        }
-                        else
-                        if (xmlReader.Name.Length >= 3 && xmlReader.Name[0] == '_' && xmlReader.Name[2] == '_') {
-                            switch(xmlReader.Name[1]) {
-                            case 'a':       return _parseToJsonArray(xmlReader);
-                            case 'o':       return _parseToJsonObject(xmlReader);
-                            case 'c':       return _parseToJsonChild(xmlReader);
-                            default:        return _jsonConvertValue(xmlReader.Name[1], _parseElementValue(xmlReader));
-                            }
-                        }
-                        else {
-                            return _parseToJsonObject(xmlReader);
+            using (var textStream  = new StreamWriter(memoryStream, new System.Text.UTF8Encoding(false), 1024, true)) {
+                do {
+                    while(dataReader.Read()) {
+                        if (!dataReader.IsDBNull(0)) {
+                            textStream.Write(dataReader.GetString(0));
+                            fempty = false;
                         }
                     }
                 }
-                else {
-                    return (Verb != "GET" ? "OK" : null);
-                }
+                while (dataReader.NextResult());
             }
-        }
-        private                 object?                     _parseToJsonChild(XmlTextReader xmlReader)
-        {
-            var rtn = (object?)null;
 
-            if (!xmlReader.IsEmptyElement) {
-                _parseReadNode(xmlReader);
+            if (!fempty) {
+                memoryStream.Seek(0, SeekOrigin.Begin);
 
-                if (xmlReader.NodeType != XmlNodeType.Element) {
-                    throw new WebConversionException("Unexpected node '" + xmlReader.NodeType + "' in child.");
-                }
+                using (var xmlReader = new XmlTextReader(new StreamReader(memoryStream, System.Text.Encoding.UTF8, false, 4096, true)){ DtdProcessing = DtdProcessing.Prohibit, XmlResolver = null }) {
+                    while (xmlReader.NodeType != XmlNodeType.Element)
+                        _parseReadNode(xmlReader);
 
-                var name = xmlReader.Name;
-
-                try {
-                    if (name.Length > 3 && name[0] == '_' && name[2] == '_') {
-                        switch(name[1]) {
-                        case 'a':   rtn = _parseToJsonArray(xmlReader);                                 break;
-                        case 'o':   rtn = _parseToJsonObject(xmlReader);                                break;
-                        case 'c':   rtn = _parseToJsonChild(xmlReader);                                 break;
-                        default:    rtn = _jsonConvertValue(name[1], _parseElementValue(xmlReader));    break;
+                    if (xmlReader.Name=="json-array") {
+                        return _parseToJsonArray(xmlReader);
+                    }
+                    else
+                    if (xmlReader.Name.Length >= 3 && xmlReader.Name[0] == '_' && xmlReader.Name[2] == '_') {
+                        switch(xmlReader.Name[1]) {
+                        case 'a':       return _parseToJsonArray(xmlReader);
+                        case 'o':       return _parseToJsonObject(xmlReader);
+                        case 'c':       return _parseToJsonChild(xmlReader);
+                        default:        return _jsonConvertValue(xmlReader.Name[1], _parseElementValue(xmlReader));
                         }
                     }
                     else {
-                        throw new WebConversionException("Missing type in child name.");
+                        return _parseToJsonObject(xmlReader);
                     }
                 }
-                catch(Exception err) {
-                    throw new WebConversionException("Conversie failed in element '" + name + "'.", err);
-                }
+            }
+            else {
+                return (Verb != "GET" ? "OK" : null);
+            }
+        }
+    }
+    private                 object?                     _parseToJsonChild(XmlTextReader xmlReader)
+    {
+        var rtn = (object?)null;
 
-                _parseReadNode(xmlReader);
+        if (!xmlReader.IsEmptyElement) {
+            _parseReadNode(xmlReader);
 
-                if (xmlReader.NodeType != XmlNodeType.EndElement) {
-                    throw new WebConversionException("Unexpected node '" + xmlReader.NodeType + "' in child.");
-                }
+            if (xmlReader.NodeType != XmlNodeType.Element) {
+                throw new WebConversionException("Unexpected node '" + xmlReader.NodeType + "' in child.");
             }
 
-            return rtn;
+            var name = xmlReader.Name;
+
+            try {
+                if (name.Length > 3 && name[0] == '_' && name[2] == '_') {
+                    switch(name[1]) {
+                    case 'a':   rtn = _parseToJsonArray(xmlReader);                                 break;
+                    case 'o':   rtn = _parseToJsonObject(xmlReader);                                break;
+                    case 'c':   rtn = _parseToJsonChild(xmlReader);                                 break;
+                    default:    rtn = _jsonConvertValue(name[1], _parseElementValue(xmlReader));    break;
+                    }
+                }
+                else {
+                    throw new WebConversionException("Missing type in child name.");
+                }
+            }
+            catch(Exception err) {
+                throw new WebConversionException("Conversie failed in element '" + name + "'.", err);
+            }
+
+            _parseReadNode(xmlReader);
+
+            if (xmlReader.NodeType != XmlNodeType.EndElement) {
+                throw new WebConversionException("Unexpected node '" + xmlReader.NodeType + "' in child.");
+            }
         }
-        private                 JsonObject                  _parseToJsonObject(XmlTextReader xmlReader)
-        {
-            var jsonObject = new JsonObject();
 
-            if (xmlReader.MoveToFirstAttribute()) {
-                do {
-                    if (string.IsNullOrEmpty(xmlReader.NamespaceURI)) {
-                        var name   = xmlReader.Name;
-                        var svalue = xmlReader.Value;
+        return rtn;
+    }
+    private                 JsonObject                  _parseToJsonObject(XmlTextReader xmlReader)
+    {
+        var jsonObject = new JsonObject();
 
+        if (xmlReader.MoveToFirstAttribute()) {
+            do {
+                if (string.IsNullOrEmpty(xmlReader.NamespaceURI)) {
+                    var name   = xmlReader.Name;
+                    var svalue = xmlReader.Value;
+
+                    if (name.Length > 3 && name[0] == '_' && name[2] == '_') {
+                        try {
+                            jsonObject.Add(name.Substring(3), _jsonConvertValue(name[1], svalue));
+                        }
+                        catch(Exception err) {
+                            throw new WebConversionException("Invalid attribute value '" + name + "' value='" + svalue + "'.", err);
+                        }
+                    }
+                    else
+                        jsonObject.Add(name, svalue);
+                }
+            }
+            while (xmlReader.MoveToNextAttribute());
+
+            xmlReader.MoveToElement();
+        }
+
+        if (xmlReader.IsEmptyElement)
+            return jsonObject;
+
+        for (;;) {
+            _parseReadNode(xmlReader);
+
+            switch(xmlReader.NodeType) {
+            case XmlNodeType.EndElement:
+                return jsonObject;
+
+            case XmlNodeType.Element: {
+                    var name = xmlReader.Name;
+
+                    try {
                         if (name.Length > 3 && name[0] == '_' && name[2] == '_') {
-                            try {
-                                jsonObject.Add(name.Substring(3), _jsonConvertValue(name[1], svalue));
-                            }
-                            catch(Exception err) {
-                                throw new WebConversionException("Invalid attribute value '" + name + "' value='" + svalue + "'.", err);
+                            switch(name[1]) {
+                            case 'a':       jsonObject.Add(name.Substring(3), _parseToJsonArray(xmlReader));                                    break;
+                            case 'o':       jsonObject.Add(name.Substring(3), _parseToJsonObject(xmlReader));                                   break;
+                            case 'c':       jsonObject.Add(name.Substring(3), _parseToJsonChild(xmlReader));                                    break;
+                            default:        jsonObject.Add(name.Substring(3), _jsonConvertValue(name[1], _parseElementValue(xmlReader)));       break;
                             }
                         }
-                        else
-                            jsonObject.Add(name, svalue);
+                        else {
+                            if (jsonObject.TryGetValue(name, out var obj)) {
+                                if (!(obj is JsonArray))
+                                    throw new WebConversionException("Variable already defined as a non-array.");
+                            }
+                            else
+                                jsonObject.Add(xmlReader.Name, obj = new JsonArray());
+
+                            ((JsonArray)obj).Add(_parseToJsonObject(xmlReader));
+                        }
+                    }
+                    catch(Exception err) {
+                        throw new WebConversionException("Conversie failed in element '" + name + "'.", err);
                     }
                 }
-                while (xmlReader.MoveToNextAttribute());
-
-                xmlReader.MoveToElement();
+                break;
             }
+        }
+    }
+    private                 JsonArray                   _parseToJsonArray(XmlTextReader xmlReader)
+    {
+        var rtn = new JsonArray();
 
-            if (xmlReader.IsEmptyElement)
-                return jsonObject;
+        if (!xmlReader.IsEmptyElement) {
+            for (;;) {
+                _parseReadNode(xmlReader);
+
+                switch(xmlReader.NodeType) {
+                case XmlNodeType.EndElement:
+                    return rtn;
+
+                case XmlNodeType.Element:
+                    if (xmlReader.Name != "row")
+                        throw new WebConversionException("Expect 'row' element.");
+
+                    rtn.Add(_parseToJsonObject(xmlReader));
+                    break;
+                }
+            }
+        }
+
+        return rtn;
+    }
+    private     static      string?                     _parseElementValue(XmlTextReader xmlReader)
+    {
+        if (!xmlReader.IsEmptyElement) {
+            var rtn = "";
 
             for (;;) {
                 _parseReadNode(xmlReader);
 
                 switch(xmlReader.NodeType) {
                 case XmlNodeType.EndElement:
-                    return jsonObject;
+                    return rtn;
 
-                case XmlNodeType.Element: {
-                        var name = xmlReader.Name;
-
-                        try {
-                            if (name.Length > 3 && name[0] == '_' && name[2] == '_') {
-                                switch(name[1]) {
-                                case 'a':       jsonObject.Add(name.Substring(3), _parseToJsonArray(xmlReader));                                    break;
-                                case 'o':       jsonObject.Add(name.Substring(3), _parseToJsonObject(xmlReader));                                   break;
-                                case 'c':       jsonObject.Add(name.Substring(3), _parseToJsonChild(xmlReader));                                    break;
-                                default:        jsonObject.Add(name.Substring(3), _jsonConvertValue(name[1], _parseElementValue(xmlReader)));       break;
-                                }
-                            }
-                            else {
-                                if (jsonObject.TryGetValue(name, out var obj)) {
-                                    if (!(obj is JsonArray))
-                                        throw new WebConversionException("Variable already defined as a non-array.");
-                                }
-                                else
-                                    jsonObject.Add(xmlReader.Name, obj = new JsonArray());
-
-                                ((JsonArray)obj).Add(_parseToJsonObject(xmlReader));
-                            }
-                        }
-                        catch(Exception err) {
-                            throw new WebConversionException("Conversie failed in element '" + name + "'.", err);
-                        }
-                    }
+                case XmlNodeType.CDATA:
+                case XmlNodeType.Text:
+                case XmlNodeType.Whitespace:
+                case XmlNodeType.SignificantWhitespace:
+                    rtn += xmlReader.Value;
                     break;
+
+                default:
+                    throw new WebConversionException("Value element has a child element ('" + xmlReader.NodeType.ToString() + "').");
                 }
             }
         }
-        private                 JsonArray                   _parseToJsonArray(XmlTextReader xmlReader)
-        {
-            var rtn = new JsonArray();
+        else {
+            if (xmlReader.GetAttribute("nil", "http://www.w3.org/2001/XMLSchema-instance") == "true")
+                return null;
 
-            if (!xmlReader.IsEmptyElement) {
-                for (;;) {
-                    _parseReadNode(xmlReader);
-
-                    switch(xmlReader.NodeType) {
-                    case XmlNodeType.EndElement:
-                        return rtn;
-
-                    case XmlNodeType.Element:
-                        if (xmlReader.Name != "row")
-                            throw new WebConversionException("Expect 'row' element.");
-
-                        rtn.Add(_parseToJsonObject(xmlReader));
-                        break;
-                    }
-                }
-            }
-
-            return rtn;
+            return "";
         }
-        private     static      string?                     _parseElementValue(XmlTextReader xmlReader)
-        {
-            if (!xmlReader.IsEmptyElement) {
-                var rtn = "";
+    }
+    private     static      void                        _parseReadNode(XmlTextReader xmlReader)
+    {
+        if (!xmlReader.Read())
+            throw new WebConversionException("Reading EOF on xml-document.");
+    }
+    private     static      object?                     _jsonConvertValue(char t, string? svalue)
+    {
+        switch(t) {
+        case 's':   return svalue;
+        case 'i':   return !string.IsNullOrEmpty(svalue) ? (object?)int.Parse(svalue, CultureInfo.InvariantCulture)   : null;
+        case 'n':   return !string.IsNullOrEmpty(svalue) ? (object?)float.Parse(svalue, CultureInfo.InvariantCulture) : null;
 
-                for (;;) {
-                    _parseReadNode(xmlReader);
-
-                    switch(xmlReader.NodeType) {
-                    case XmlNodeType.EndElement:
-                        return rtn;
-
-                    case XmlNodeType.CDATA:
-                    case XmlNodeType.Text:
-                    case XmlNodeType.Whitespace:
-                    case XmlNodeType.SignificantWhitespace:
-                        rtn += xmlReader.Value;
-                        break;
-
-                    default:
-                        throw new WebConversionException("Value element has a child element ('" + xmlReader.NodeType.ToString() + "').");
-                    }
-                }
+        case 'b':
+            switch(svalue) {
+            case null:      return null;
+            case "":        return null;
+            case "0":       return false;
+            case "1":       return true;
+            default:        throw new WebInvalidValueException("Invalid boolean value '" + svalue + "'.");
             }
-            else {
-                if (xmlReader.GetAttribute("nil", "http://www.w3.org/2001/XMLSchema-instance") == "true")
-                    return null;
 
-                return "";
-            }
-        }
-        private     static      void                        _parseReadNode(XmlTextReader xmlReader)
-        {
-            if (!xmlReader.Read())
-                throw new WebConversionException("Reading EOF on xml-document.");
-        }
-        private     static      object?                     _jsonConvertValue(char t, string? svalue)
-        {
-            switch(t) {
-            case 's':   return svalue;
-            case 'i':   return !string.IsNullOrEmpty(svalue) ? (object?)int.Parse(svalue, CultureInfo.InvariantCulture)   : null;
-            case 'n':   return !string.IsNullOrEmpty(svalue) ? (object?)float.Parse(svalue, CultureInfo.InvariantCulture) : null;
-
-            case 'b':
-                switch(svalue) {
-                case null:      return null;
-                case "":        return null;
-                case "0":       return false;
-                case "1":       return true;
-                default:        throw new WebInvalidValueException("Invalid boolean value '" + svalue + "'.");
-                }
-
-            default:
-                throw new WebConversionException("Invalid json-typeinfo in '" + t + "'.");
-            }
+        default:
+            throw new WebConversionException("Invalid json-typeinfo in '" + t + "'.");
         }
     }
 }

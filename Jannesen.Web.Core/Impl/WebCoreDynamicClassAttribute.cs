@@ -1,68 +1,67 @@
 ﻿using System;
 using System.Reflection;
 
-namespace Jannesen.Web.Core.Impl
+namespace Jannesen.Web.Core.Impl;
+
+[AttributeUsage(AttributeTargets.Class)]
+public abstract class WebCoreDynamicClassAttribute: Attribute
 {
-    [AttributeUsage(AttributeTargets.Class)]
-    public abstract class WebCoreDynamicClassAttribute: Attribute
+    private readonly        string                          _name;
+
+    public      abstract    string                          Type            { get ; }
+    public                  string                          Name            => _name;
+
+    protected                                               WebCoreDynamicClassAttribute(string name)
     {
-        private readonly        string                          _name;
+        _name  = name;
+    }
 
-        public      abstract    string                          Type            { get ; }
-        public                  string                          Name            => _name;
+    public      abstract    ConstructorInfo                 GetConstructor(Type classType);
 
-        protected                                               WebCoreDynamicClassAttribute(string name)
-        {
-            _name  = name;
-        }
+    protected   static      ConstructorInfo                 GetConstructorFor(Type type, Type baseClass, params Type[] argTypes)
+    {
+        ArgumentNullException.ThrowIfNull(type);
+        ArgumentNullException.ThrowIfNull(baseClass);
+        ArgumentNullException.ThrowIfNull(argTypes);
 
-        public      abstract    ConstructorInfo                 GetConstructor(Type classType);
+        if (baseClass != null && !type.IsSubclassOf(baseClass))
+            throw new InternalErrorException("Internal error, " + type.FullName + " is not a subclass of " + baseClass.FullName + ".");
 
-        protected   static      ConstructorInfo                 GetConstructorFor(Type type, Type baseClass, params Type[] argTypes)
-        {
-            ArgumentNullException.ThrowIfNull(type);
-            ArgumentNullException.ThrowIfNull(baseClass);
-            ArgumentNullException.ThrowIfNull(argTypes);
+        var constructorInfo = type.GetConstructor(argTypes);
 
-            if (baseClass != null && !type.IsSubclassOf(baseClass))
-                throw new InternalErrorException("Internal error, " + type.FullName + " is not a subclass of " + baseClass.FullName + ".");
+        if (constructorInfo == null) {
+            var msg = "Internal error, missing constructor " + type.FullName + "(";
 
-            var constructorInfo = type.GetConstructor(argTypes);
+            for (var i = 0 ; i < argTypes.Length ; ++i) {
+                if (i > 0)
+                    msg += ",";
 
-            if (constructorInfo == null) {
-                var msg = "Internal error, missing constructor " + type.FullName + "(";
-
-                for (var i = 0 ; i < argTypes.Length ; ++i) {
-                    if (i > 0)
-                        msg += ",";
-
-                    msg += argTypes[i].Name;
-                }
-
-                msg += ").";
-
-                throw new InternalErrorException(msg);
+                msg += argTypes[i].Name;
             }
 
-            return constructorInfo;
+            msg += ").";
+
+            throw new InternalErrorException(msg);
         }
 
-        public      override    int                             GetHashCode()
-        {
-            return Type.GetHashCode(StringComparison.Ordinal) ^ _name.GetHashCode(StringComparison.Ordinal);
-        }
-        public      override    bool                            Equals(object? obj)
-        {
-            if (obj != null && obj.GetType() == this.GetType()) {
-                if (((WebCoreDynamicClassAttribute)obj)._name == _name)
-                    return true;
-            }
+        return constructorInfo;
+    }
 
-            return false;
+    public      override    int                             GetHashCode()
+    {
+        return Type.GetHashCode(StringComparison.Ordinal) ^ _name.GetHashCode(StringComparison.Ordinal);
+    }
+    public      override    bool                            Equals(object? obj)
+    {
+        if (obj != null && obj.GetType() == this.GetType()) {
+            if (((WebCoreDynamicClassAttribute)obj)._name == _name)
+                return true;
         }
-        public      override    string                          ToString()
-        {
-            return Type + ": " + Name;
-        }
+
+        return false;
+    }
+    public      override    string                          ToString()
+    {
+        return Type + ": " + Name;
     }
 }

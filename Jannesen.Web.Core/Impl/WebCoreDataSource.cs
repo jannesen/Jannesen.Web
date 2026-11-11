@@ -1,18 +1,17 @@
 ﻿using System;
 
-namespace Jannesen.Web.Core.Impl
+namespace Jannesen.Web.Core.Impl;
+
+public abstract class WebCoreDataSource
 {
-    public abstract class WebCoreDataSource
+    private readonly            string                  _name;
+
+    public                      string                  Name        => _name;
+
+    protected                                           WebCoreDataSource(string name)
     {
-        private readonly            string                  _name;
-
-        public                      string                  Name        => _name;
-
-        protected                                           WebCoreDataSource(string name)
-        {
-            _name = name;
-        }
-
-        public      abstract        WebCoreDataValue        GetValue(WebCoreCall call);
+        _name = name;
     }
+
+    public      abstract        WebCoreDataValue        GetValue(WebCoreCall call);
 }

@@ -1,24 +1,22 @@
 ﻿using System;
 
-#pragma warning disable CA1812 // Avoid uninstantiated internal classes (created using reflection)
+namespace Jannesen.Web.Core.Impl.Source;
 
-namespace Jannesen.Web.Core.Impl.Source
+[WebCoreDataSourceAttribute("cookie")]
+[System.Diagnostics.CodeAnalysis.SuppressMessage("Performance", "CA1812", Justification = "Instantiated by reflection")]
+sealed class http_cookie: WebCoreDataSource
 {
-    [WebCoreDataSourceAttribute("cookie")]
-    sealed class http_cookie: WebCoreDataSource
+    public                                          http_cookie(string name_args): base(name_args)
     {
-        public                                          http_cookie(string name_args): base(name_args)
-        {
-        }
+    }
 
-        public      override        WebCoreDataValue    GetValue(WebCoreCall httpCall)
-        {
-            return new WebCoreDataValue(httpCall.Request.Cookies[Name]);
-        }
+    public      override        WebCoreDataValue    GetValue(WebCoreCall httpCall)
+    {
+        return new WebCoreDataValue(httpCall.Request.Cookies[Name]);
+    }
 
-        public      override        string              ToString()
-        {
-            return "cookie:" + Name;
-        }
+    public      override        string              ToString()
+    {
+        return "cookie:" + Name;
     }
 }

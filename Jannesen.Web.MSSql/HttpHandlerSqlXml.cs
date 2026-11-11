@@ -7,104 +7,103 @@ using Microsoft.Data.SqlClient;
 using Jannesen.Web.Core.Impl;
 using Jannesen.Web.MSSql.Library;
 
-namespace Jannesen.Web.MSSql
+namespace Jannesen.Web.MSSql;
+
+[WebCoreHttpHandlerAttribute("sql-xml")]
+public class HttpHandlerSqlXml: HttpHandlerMSSql
 {
-    [WebCoreHttpHandlerAttribute("sql-xml")]
-    public class HttpHandlerSqlXml: HttpHandlerMSSql
+    private readonly        bool                        _xmlIdent;
+    private readonly        Encoding                    _charset;
+
+    public      override    string                      Mimetype            => "text/xml";
+
+    public                                              HttpHandlerSqlXml(WebCoreConfigReader configReader): base(configReader)
     {
-        private readonly        bool                        _xmlIdent;
-        private readonly        Encoding                    _charset;
+        ArgumentNullException.ThrowIfNull(configReader);
 
-        public      override    string                      Mimetype            => "text/xml";
+        _xmlIdent       = configReader.GetValueBool("xml-ident", false);
 
-        public                                              HttpHandlerSqlXml(WebCoreConfigReader configReader): base(configReader)
-        {
-            ArgumentNullException.ThrowIfNull(configReader);
+        var charset = configReader.GetValueString("charset", null);
+        if (charset != null) {
+            try {
+                _charset =  Encoding.GetEncoding(charset);
+            }
+            catch(Exception) {
+                throw new FormatException("Unknown charset '" + charset + "'.");
+            }
+        }
+        else {
+            _charset =  new UTF8Encoding(false);
+        }
 
-            _xmlIdent       = configReader.GetValueBool("xml-ident", false);
-
-            var charset = configReader.GetValueString("charset", null);
-            if (charset != null) {
-                try {
-                    _charset =  Encoding.GetEncoding(charset);
-                }
-                catch(Exception) {
-                    throw new FormatException("Unknown charset '" + charset + "'.");
+        if (configReader.hasChildren) {
+            while (configReader.ReadNextElement()) {
+                switch(configReader.ElementName) {
+                case    "parameter":    ParseParameter(configReader);               break;
+                default:                configReader.InvalidElement();              break;
                 }
             }
-            else {
-                _charset =  new UTF8Encoding(false);
-            }
+        }
+    }
 
-            if (configReader.hasChildren) {
-                while (configReader.ReadNextElement()) {
-                    switch(configReader.ElementName) {
-                    case    "parameter":    ParseParameter(configReader);               break;
-                    default:                configReader.InvalidElement();              break;
+    protected   override    IWebCoreResponse            Process(WebCoreCall httpCall, SqlDataReader dataReader)
+    {
+        var webResponseBuffer = new WebCoreResponseBuffer("text/xml; charset=" + _charset.BodyName, true);
+
+        if (HandleResponseOptions(webResponseBuffer, dataReader) == HttpStatusCode.OK) {
+            try {
+                using (var textStream  = webResponseBuffer.GetStreamWriter()) {
+                    if (_xmlIdent) {
+                        _fetchXmlIdent(textStream, dataReader);
+                    }
+                    else {
+                        _fetchData(textStream, dataReader);
                     }
                 }
             }
+            catch(Exception err) {
+                throw new WebResponseException("Write of XML-BODY failed.", err);
+            }
         }
 
-        protected   override    IWebCoreResponse            Process(WebCoreCall httpCall, SqlDataReader dataReader)
-        {
-            var webResponseBuffer = new WebCoreResponseBuffer("text/xml; charset=" + _charset.BodyName, true);
+        return webResponseBuffer;
+    }
 
-            if (HandleResponseOptions(webResponseBuffer, dataReader) == HttpStatusCode.OK) {
-                try {
-                    using (var textStream  = webResponseBuffer.GetStreamWriter()) {
-                        if (_xmlIdent) {
-                            _fetchXmlIdent(textStream, dataReader);
-                        }
-                        else {
-                            _fetchData(textStream, dataReader);
-                        }
-                    }
-                }
-                catch(Exception err) {
-                    throw new WebResponseException("Write of XML-BODY failed.", err);
-                }
+    private     static      void                        _fetchXmlIdent(StreamWriter textStream, SqlDataReader dataReader)
+    {
+        using (var xmlMemory = new MemoryStream()) {
+            using (var xmlStream = new StreamWriter(xmlMemory, new System.Text.UTF8Encoding(false), 1024, true)) {
+                _fetchData(xmlStream, dataReader);
             }
 
-            return webResponseBuffer;
-        }
+            xmlMemory.Seek(0, SeekOrigin.Begin);
 
-        private     static      void                        _fetchXmlIdent(StreamWriter textStream, SqlDataReader dataReader)
-        {
-            using (var xmlMemory = new MemoryStream()) {
-                using (var xmlStream = new StreamWriter(xmlMemory, new System.Text.UTF8Encoding(false), 1024, true)) {
-                    _fetchData(xmlStream, dataReader);
-                }
+            using (var xmlInput = new XmlTextReader(new StreamReader(xmlMemory, new System.Text.UTF8Encoding(false))) { DtdProcessing=DtdProcessing.Prohibit, XmlResolver=null }) {
+                using (var xmlWriter = new XmlTextWriter(textStream)) {
+                    xmlWriter.Formatting = Formatting.Indented;
+                    xmlWriter.Indentation = 1;
+                    xmlWriter.IndentChar = '\t';
+                    xmlWriter.WriteStartDocument();
 
-                xmlMemory.Seek(0, SeekOrigin.Begin);
-
-                using (var xmlInput = new XmlTextReader(new StreamReader(xmlMemory, new System.Text.UTF8Encoding(false))) { DtdProcessing=DtdProcessing.Prohibit, XmlResolver=null }) {
-                    using (var xmlWriter = new XmlTextWriter(textStream)) {
-                        xmlWriter.Formatting = Formatting.Indented;
-                        xmlWriter.Indentation = 1;
-                        xmlWriter.IndentChar = '\t';
-                        xmlWriter.WriteStartDocument();
-
-                        while (!xmlInput.EOF)
-                            xmlWriter.WriteNode(xmlInput, false);
-                    }
+                    while (!xmlInput.EOF)
+                        xmlWriter.WriteNode(xmlInput, false);
                 }
             }
         }
-        private     static      void                        _fetchData(StreamWriter textStream, SqlDataReader dataReader)
-        {
-            var fempty = true;
+    }
+    private     static      void                        _fetchData(StreamWriter textStream, SqlDataReader dataReader)
+    {
+        var fempty = true;
 
-            do {
-                while(dataReader.Read()) {
-                    textStream.Write(dataReader.GetString(0));
-                    fempty = false;
-                }
+        do {
+            while(dataReader.Read()) {
+                textStream.Write(dataReader.GetString(0));
+                fempty = false;
             }
-            while (dataReader.NextResult());
-
-            if (fempty)
-                textStream.Write("<empty/>");
         }
+        while (dataReader.NextResult());
+
+        if (fempty)
+            textStream.Write("<empty/>");
     }
 }

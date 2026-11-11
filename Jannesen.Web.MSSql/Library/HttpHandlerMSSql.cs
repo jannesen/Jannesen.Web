@@ -4,193 +4,192 @@ using System.Data;
 using Microsoft.Data.SqlClient;
 using Jannesen.Web.Core.Impl;
 
-namespace Jannesen.Web.MSSql.Library
+namespace Jannesen.Web.MSSql.Library;
+
+public abstract class HttpHandlerMSSql: WebCoreHttpHandler
 {
-    public abstract class HttpHandlerMSSql: WebCoreHttpHandler
+    private readonly        string                      _procedure;
+    private readonly        string                      _database;
+    private readonly        int                         _timeout;
+    private readonly        ParameterList               _parameters;
+
+    protected                                           HttpHandlerMSSql(WebCoreConfigReader configReader): base(configReader)
     {
-        private readonly        string                      _procedure;
-        private readonly        string                      _database;
-        private readonly        int                         _timeout;
-        private readonly        ParameterList               _parameters;
+        ArgumentNullException.ThrowIfNull(configReader);
 
-        protected                                           HttpHandlerMSSql(WebCoreConfigReader configReader): base(configReader)
-        {
-            ArgumentNullException.ThrowIfNull(configReader);
+        _procedure       = configReader.GetValueString("procedure");
+        _timeout         = configReader.GetValueInt("timeout", 30, 5, 300);
+        _database        = configReader.GetValueString("database");
+        _parameters      = new ParameterList();
+    }
 
-            _procedure       = configReader.GetValueString("procedure");
-            _timeout         = configReader.GetValueInt("timeout", 30, 5, 300);
-            _database        = configReader.GetValueString("database");
-            _parameters      = new ParameterList();
-        }
+    protected               void                        ParseParameter(WebCoreConfigReader configReader)
+    {
+        ArgumentNullException.ThrowIfNull(configReader);
 
-        protected               void                        ParseParameter(WebCoreConfigReader configReader)
-        {
-            ArgumentNullException.ThrowIfNull(configReader);
+        var type     = configReader.GetValueString  ("type");
 
-            var type     = configReader.GetValueString  ("type");
+        Parameter parameter;
 
-            Parameter parameter;
+        parameter = new ParameterValue(type, configReader);
 
-            parameter = new ParameterValue(type, configReader);
+        _parameters.Add(parameter);
+    }
 
-            _parameters.Add(parameter);
-        }
-
-        public      override    IWebCoreResponse            Process(WebCoreCall httpCall)
-        {
-            var retry_count = 0;
+    public      override    IWebCoreResponse            Process(WebCoreCall httpCall)
+    {
+        var retry_count = 0;
 
 retry:      using (var sqlConnection = GetConnection(httpCall))
-            {
-                using (var sqlCommand = new SqlCommand(_procedure, sqlConnection) {CommandType = CommandType.StoredProcedure, CommandTimeout = _timeout } ) {
-                    _parameters.AddParametersToCommand(sqlCommand, httpCall);
+        {
+            using (var sqlCommand = new SqlCommand(_procedure, sqlConnection) {CommandType = CommandType.StoredProcedure, CommandTimeout = _timeout } ) {
+                _parameters.AddParametersToCommand(sqlCommand, httpCall);
 
-                    try {
-                        return Process(httpCall, sqlCommand);
+                try {
+                    return Process(httpCall, sqlCommand);
+                }
+                catch(Exception err) {
+                    if (retry_count <= 3 && _deadlockError(err)) {
+                        httpCall.ApplicationConfig.Application.LogWarning("Deadlock on "+ sqlCommand.CommandText);
+                        ++retry_count;
+                        System.Threading.Thread.Sleep(150);
+                        goto retry;
                     }
-                    catch(Exception err) {
-                        if (retry_count <= 3 && _deadlockError(err)) {
-                            httpCall.ApplicationConfig.Application.LogWarning("Deadlock on "+ sqlCommand.CommandText);
-                            ++retry_count;
-                            System.Threading.Thread.Sleep(150);
-                            goto retry;
-                        }
 
-                        throw;
-                    }
+                    throw;
                 }
             }
         }
-        public      override    WebCoreErrorData?           ProcessError(Exception err)
-        {
-            if (err is SqlException sqlErr) {
-                var msg = err.Message;
-                int i;
+    }
+    public      override    WebCoreErrorData?           ProcessError(Exception err)
+    {
+        if (err is SqlException sqlErr) {
+            var msg = err.Message;
+            int i;
 
-                if (msg.Length > 2 && msg[0] == '[' && msg[^1] == ']') {
-                    return _createErrorData(msg.Substring(1, msg.Length - 2), msg.Substring(1, msg.Length - 2));
-                }
+            if (msg.Length > 2 && msg[0] == '[' && msg[^1] == ']') {
+                return _createErrorData(msg.Substring(1, msg.Length - 2), msg.Substring(1, msg.Length - 2));
+            }
 
-                if (msg.Length > 2 && msg[0] == '[' && (i = msg.IndexOf("] ", StringComparison.Ordinal)) > 0) {
-                    return _createErrorData(msg.Substring(1, i - 1), msg.Substring(i+2));
-                }
+            if (msg.Length > 2 && msg[0] == '[' && (i = msg.IndexOf("] ", StringComparison.Ordinal)) > 0) {
+                return _createErrorData(msg.Substring(1, i - 1), msg.Substring(i+2));
+            }
 
-                if (sqlErr.Number == -2) {
-                    return new WebCoreErrorData() {
-                                StatusCode = HttpStatusCode.InternalServerError,
-                                Code       = "DATABASE-TIMEOUT",
-                                Message    = "Database timeout"
-                            };
-                }
-
+            if (sqlErr.Number == -2) {
                 return new WebCoreErrorData() {
-                           StatusCode = HttpStatusCode.InternalServerError,
-                           Code       = "DATABASE-ERROR",
-                           Message    = msg
-                       };
+                            StatusCode = HttpStatusCode.InternalServerError,
+                            Code       = "DATABASE-TIMEOUT",
+                            Message    = "Database timeout"
+                        };
             }
 
-            if (err is NoDataException) {
-                return new WebCoreErrorData() {
-                           StatusCode = HttpStatusCode.InternalServerError,
-                           Code       = "NO-DATA",
-                           Message    = "No data retrieved"
-                       };
-            }
-
-            return null;
-        }
-
-        protected   virtual     IWebCoreResponse            Process(WebCoreCall httpCall, SqlCommand sqlCommand)
-        {
-            ArgumentNullException.ThrowIfNull(httpCall);
-            ArgumentNullException.ThrowIfNull(sqlCommand);
-
-            using (var dataReader = sqlCommand.ExecuteReader()) {
-                return Process(httpCall, dataReader);
-            }
-        }
-        protected   virtual     IWebCoreResponse            Process(WebCoreCall httpCall, SqlDataReader dataReader)
-        {
-            throw new NotImplementedException("Not implemented HttpHandlerMSSql.Process");
-        }
-
-        protected               SqlConnection               GetConnection(WebCoreCall httpCall)
-        {
-            ArgumentNullException.ThrowIfNull(httpCall);
-
-            return httpCall.ApplicationConfig.GetResource<ResourceMSSqlDatabase>(_database).GetConnection(httpCall);
-        }
-        protected   static      HttpStatusCode              HandleResponseOptions(WebCoreResponseBuffer webResponseBuffer, SqlDataReader dataReader)
-        {
-            ArgumentNullException.ThrowIfNull(webResponseBuffer);
-            ArgumentNullException.ThrowIfNull(dataReader);
-
-            try {
-                if (dataReader.FieldCount>0 && dataReader.GetName(0).StartsWith("opt.", StringComparison.Ordinal)) {
-                    if (dataReader.Read()) {
-                        for (var i = 0 ; i < dataReader.FieldCount ; ++i) {
-                            var fieldname = dataReader.GetName(i);
-
-                            switch(fieldname) {
-                            case "opt.cache.lastmodified":
-                                webResponseBuffer.LastModified = dataReader.GetDateTime(i);
-                                break;
-
-                            case "opt.cache.maxage":
-                                webResponseBuffer.CacheMaxAge = dataReader.GetInt32(i);
-                                break;
-
-                            case "opt.statuscode":
-                                webResponseBuffer.StatusCode = (HttpStatusCode)dataReader.GetInt32(i);
-                                break;
-
-                            case "opt.etag":
-                                webResponseBuffer.ETag = dataReader.GetString(i);
-                                break;
-
-                            case "opt.disposition":
-                                webResponseBuffer.Disposition = dataReader.GetString(i);
-                                break;
-
-                            default:
-                                throw new InternalErrorException("Unknown option \'"+fieldname+"\' received from database.");
-                            }
-                        }
-                    }
-
-                    dataReader.NextResult();
-                }
-            }
-            catch(Exception err) {
-                throw new WebResponseException("Setting HTTP-OPTIONS failed.", err);
-            }
-
-            return webResponseBuffer.StatusCode;
-        }
-
-        private     static      bool                        _deadlockError(Exception err)
-        {
-            while (err.InnerException != null)
-                err = err.InnerException;
-
-            return err is SqlException sqlErr &&  sqlErr.Number == 1205;
-        }
-        private     static      WebCoreErrorData            _createErrorData(string code, string message)
-        {
             return new WebCoreErrorData() {
-                       StatusCode = code switch {
-                                         "REQUEST-ERROR"                   => HttpStatusCode.BadRequest,
-                                         "INVALID-AUTHENTICATION"          => HttpStatusCode.Unauthorized,
-                                         "INVALID-BASIC-AUTHENTICATION"    => HttpStatusCode.Unauthorized,
-                                         "NOT-FOUND"                       => HttpStatusCode.NotFound,
-                                         "HTTP-401"                        => HttpStatusCode.Unauthorized,
-                                         "HTTP-404"                        => HttpStatusCode.NotFound,
-                                         _                                 => HttpStatusCode.InternalServerError
-                                    },
-                       Code       = code,
-                       Message    = message
-                   };
+                        StatusCode = HttpStatusCode.InternalServerError,
+                        Code       = "DATABASE-ERROR",
+                        Message    = msg
+                    };
         }
+
+        if (err is NoDataException) {
+            return new WebCoreErrorData() {
+                        StatusCode = HttpStatusCode.InternalServerError,
+                        Code       = "NO-DATA",
+                        Message    = "No data retrieved"
+                    };
+        }
+
+        return null;
+    }
+
+    protected   virtual     IWebCoreResponse            Process(WebCoreCall httpCall, SqlCommand sqlCommand)
+    {
+        ArgumentNullException.ThrowIfNull(httpCall);
+        ArgumentNullException.ThrowIfNull(sqlCommand);
+
+        using (var dataReader = sqlCommand.ExecuteReader()) {
+            return Process(httpCall, dataReader);
+        }
+    }
+    protected   virtual     IWebCoreResponse            Process(WebCoreCall httpCall, SqlDataReader dataReader)
+    {
+        throw new NotImplementedException("Not implemented HttpHandlerMSSql.Process");
+    }
+
+    protected               SqlConnection               GetConnection(WebCoreCall httpCall)
+    {
+        ArgumentNullException.ThrowIfNull(httpCall);
+
+        return httpCall.ApplicationConfig.GetResource<ResourceMSSqlDatabase>(_database).GetConnection(httpCall);
+    }
+    protected   static      HttpStatusCode              HandleResponseOptions(WebCoreResponseBuffer webResponseBuffer, SqlDataReader dataReader)
+    {
+        ArgumentNullException.ThrowIfNull(webResponseBuffer);
+        ArgumentNullException.ThrowIfNull(dataReader);
+
+        try {
+            if (dataReader.FieldCount>0 && dataReader.GetName(0).StartsWith("opt.", StringComparison.Ordinal)) {
+                if (dataReader.Read()) {
+                    for (var i = 0 ; i < dataReader.FieldCount ; ++i) {
+                        var fieldname = dataReader.GetName(i);
+
+                        switch(fieldname) {
+                        case "opt.cache.lastmodified":
+                            webResponseBuffer.LastModified = dataReader.GetDateTime(i);
+                            break;
+
+                        case "opt.cache.maxage":
+                            webResponseBuffer.CacheMaxAge = dataReader.GetInt32(i);
+                            break;
+
+                        case "opt.statuscode":
+                            webResponseBuffer.StatusCode = (HttpStatusCode)dataReader.GetInt32(i);
+                            break;
+
+                        case "opt.etag":
+                            webResponseBuffer.ETag = dataReader.GetString(i);
+                            break;
+
+                        case "opt.disposition":
+                            webResponseBuffer.Disposition = dataReader.GetString(i);
+                            break;
+
+                        default:
+                            throw new InternalErrorException("Unknown option \'"+fieldname+"\' received from database.");
+                        }
+                    }
+                }
+
+                dataReader.NextResult();
+            }
+        }
+        catch(Exception err) {
+            throw new WebResponseException("Setting HTTP-OPTIONS failed.", err);
+        }
+
+        return webResponseBuffer.StatusCode;
+    }
+
+    private     static      bool                        _deadlockError(Exception err)
+    {
+        while (err.InnerException != null)
+            err = err.InnerException;
+
+        return err is SqlException sqlErr &&  sqlErr.Number == 1205;
+    }
+    private     static      WebCoreErrorData            _createErrorData(string code, string message)
+    {
+        return new WebCoreErrorData() {
+                    StatusCode = code switch {
+                                        "REQUEST-ERROR"                   => HttpStatusCode.BadRequest,
+                                        "INVALID-AUTHENTICATION"          => HttpStatusCode.Unauthorized,
+                                        "INVALID-BASIC-AUTHENTICATION"    => HttpStatusCode.Unauthorized,
+                                        "NOT-FOUND"                       => HttpStatusCode.NotFound,
+                                        "HTTP-401"                        => HttpStatusCode.Unauthorized,
+                                        "HTTP-404"                        => HttpStatusCode.NotFound,
+                                        _                                 => HttpStatusCode.InternalServerError
+                                },
+                    Code       = code,
+                    Message    = message
+                };
     }
 }

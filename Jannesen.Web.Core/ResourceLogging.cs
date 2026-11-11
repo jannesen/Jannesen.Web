@@ -6,184 +6,183 @@ using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Http.Extensions;
 using Jannesen.Web.Core.Impl;
 
-namespace Jannesen.Web.Core
+namespace Jannesen.Web.Core;
+
+[WebCoreResourceAttribute("logging")]
+public class ResourceLogging: WebCoreResource
 {
-    [WebCoreResourceAttribute("logging")]
-    public class ResourceLogging: WebCoreResource
+    private readonly        string              _directory;
+    private readonly        Lock                _logLock;
+    private                 FileStream?         _filestream;
+    private                 DateTime            _nextFile;
+
+    public      override    string              Type        => "log";
+    public                  string              Directory   => _directory;
+
+    public                                      ResourceLogging(WebCoreConfigReader configReader): base(configReader)
     {
-        private readonly        string              _directory;
-        private readonly        Lock                _logLock;
-        private                 FileStream?         _filestream;
-        private                 DateTime            _nextFile;
+        ArgumentNullException.ThrowIfNull(configReader);
 
-        public      override    string              Type        => "log";
-        public                  string              Directory   => _directory;
+        _directory   = configReader.GetValueString("directory");
+        _logLock     = new Lock();
+        _filestream  = null;
+        _nextFile    = DateTime.MinValue;
+    }
 
-        public                                      ResourceLogging(WebCoreConfigReader configReader): base(configReader)
-        {
-            ArgumentNullException.ThrowIfNull(configReader);
-
-            _directory   = configReader.GetValueString("directory");
-            _logLock     = new Lock();
-            _filestream  = null;
-            _nextFile    = DateTime.MinValue;
+    protected   override    void                Dispose(bool disposing)
+    {
+        lock(_logLock) {
+            _filestream?.Dispose();
+            _filestream = null;
         }
+        base.Dispose(disposing);
+    }
 
-        protected   override    void                Dispose(bool disposing)
-        {
-            lock(_logLock) {
-                _filestream?.Dispose();
-                _filestream = null;
+    public                  void                Logging(WebCoreCall call, IWebCoreResponse response, HttpResponse httpResponse)
+    {
+        ArgumentNullException.ThrowIfNull(call);
+
+        lock(_logLock) {
+            try {
+                using (var writer = _getLogStream()) {
+                    _logRequest(writer, call);
+                    _logResponse(writer, response, httpResponse);
+                    _logEnd(writer);
+                }
             }
-            base.Dispose(disposing);
+            catch(Exception logerr) {
+                Application.LogError("Logging failed", logerr);
+            }
+        }
+    }
+    public                  void                Logging(WebCoreCall call, Exception err)
+    {
+        ArgumentNullException.ThrowIfNull(call);
+
+        lock(_logLock) {
+            try {
+                using (var writer = _getLogStream()) {
+                    _logRequest(writer, call);
+                    _logError(writer, err);
+                    _logEnd(writer);
+                }
+            }
+            catch(Exception logerr) {
+                Application.LogError("Logging failed", logerr);
+            }
+        }
+    }
+
+    private                 StreamWriter        _getLogStream()
+    {
+        var now = DateTime.Now;
+
+        if (_filestream == null || now > _nextFile) {
+            _filestream?.Dispose();
+            _filestream = null;
+
+            var fileName = _directory + "\\weblog-" + now.ToString("yyyy-MM-dd", CultureInfo.InvariantCulture) + ".log";
+            Application.LogInfo("New logfile: " + fileName);
+            _filestream = new FileStream(fileName, FileMode.Append, FileAccess.Write, FileShare.ReadWrite, 1);
+            _nextFile   = new DateTime(now.Ticks - (now.Ticks % TimeSpan.TicksPerDay) + TimeSpan.TicksPerDay);
         }
 
-        public                  void                Logging(WebCoreCall call, IWebCoreResponse response, HttpResponse httpResponse)
-        {
-            ArgumentNullException.ThrowIfNull(call);
+        return new StreamWriter(_filestream, System.Text.Encoding.UTF8, 0x10000, true);
+    }
+    private     static      void                _logRequest(StreamWriter writer, WebCoreCall call)
+    {
+        writer.Write("### REQUEST ### @");
+        writer.WriteLine(call.Timestamp.ToString("yyyy-dd-MM HH:mm:ss", CultureInfo.InvariantCulture));
 
-            lock(_logLock) {
-                try {
-                    using (var writer = _getLogStream()) {
-                        _logRequest(writer, call);
-                        _logResponse(writer, response, httpResponse);
-                        _logEnd(writer);
+        writer.Write(call.Request.Method);
+        writer.Write(" ");
+        writer.WriteLine(call.Request.GetEncodedPathAndQuery());
+
+        var textbody = false;
+
+        foreach(var h in call.Request.Headers) {
+            var key = h.Key;
+
+            for(var i = 0 ; i < h.Value.Count ; i++) {
+                var value = h.Value[i];
+
+                switch(h.Key) {
+                case "Authorization":
+                    value = "*****";
+                    break;
+
+                case "Content-Type":
+                    if (value != null && value.Contains("charset=utf-8", StringComparison.OrdinalIgnoreCase)) {
+                        textbody = true;
                     }
+                    break;
                 }
-                catch(Exception logerr) {
-                    Application.LogError("Logging failed", logerr);
-                }
-            }
-        }
-        public                  void                Logging(WebCoreCall call, Exception err)
-        {
-            ArgumentNullException.ThrowIfNull(call);
 
-            lock(_logLock) {
-                try {
-                    using (var writer = _getLogStream()) {
-                        _logRequest(writer, call);
-                        _logError(writer, err);
-                        _logEnd(writer);
-                    }
-                }
-                catch(Exception logerr) {
-                    Application.LogError("Logging failed", logerr);
-                }
+                writer.Write(h.Key);
+                writer.Write(": ");
+                writer.WriteLine(value);
             }
         }
 
-        private                 StreamWriter        _getLogStream()
-        {
-            var now = DateTime.Now;
-
-            if (_filestream == null || now > _nextFile) {
-                _filestream?.Dispose();
-                _filestream = null;
-
-                var fileName = _directory + "\\weblog-" + now.ToString("yyyy-MM-dd", CultureInfo.InvariantCulture) + ".log";
-                Application.LogInfo("New logfile: " + fileName);
-                _filestream = new FileStream(fileName, FileMode.Append, FileAccess.Write, FileShare.ReadWrite, 1);
-                _nextFile   = new DateTime(now.Ticks - (now.Ticks % TimeSpan.TicksPerDay) + TimeSpan.TicksPerDay);
+        if (call.RequestBodyData != null) {
+            if (textbody) {
+                writer.WriteLine();
+                writer.Flush();
+                writer.BaseStream.Write(call.RequestBodyData, 0, call.RequestBodyData.Length);
+                writer.WriteLine();
             }
-
-            return new StreamWriter(_filestream, System.Text.Encoding.UTF8, 0x10000, true);
+            else
+                writer.WriteLine("[BINARY-DATA]");
         }
-        private     static      void                _logRequest(StreamWriter writer, WebCoreCall call)
-        {
-            writer.Write("### REQUEST ### @");
-            writer.WriteLine(call.Timestamp.ToString("yyyy-dd-MM HH:mm:ss", CultureInfo.InvariantCulture));
+    }
+    private     static      void                _logResponse(StreamWriter writer, IWebCoreResponse response, HttpResponse httpResponse)
+    {
+        ArgumentNullException.ThrowIfNull(writer);
+        ArgumentNullException.ThrowIfNull(response);
+        ArgumentNullException.ThrowIfNull(httpResponse);
 
-            writer.Write(call.Request.Method);
-            writer.Write(" ");
-            writer.WriteLine(call.Request.GetEncodedPathAndQuery());
+        writer.WriteLine("### RESPONSE ");
 
-            var textbody = false;
+        writer.WriteLine(httpResponse.StatusCode);
 
-            foreach(var h in call.Request.Headers) {
-                var key = h.Key;
+        var hasContentLength = false;
 
-                for(var i = 0 ; i < h.Value.Count ; i++) {
-                    var value = h.Value[i];
+        foreach(var h in httpResponse.Headers) {
+            var key = h.Key;
 
-                    switch(h.Key) {
-                    case "Authorization":
-                        value = "*****";
-                        break;
+            for(var i = 0 ; i < h.Value.Count; ++i) {
+                var value = h.Value[i];
 
-                    case "Content-Type":
-                        if (value != null && value.Contains("charset=utf-8", StringComparison.OrdinalIgnoreCase)) {
-                            textbody = true;
-                        }
-                        break;
-                    }
+                if (key == "Content-Length")
+                    hasContentLength = true;
 
-                    writer.Write(h.Key);
-                    writer.Write(": ");
-                    writer.WriteLine(value);
-                }
-            }
-
-            if (call.RequestBodyData != null) {
-                if (textbody) {
-                    writer.WriteLine();
-                    writer.Flush();
-                    writer.BaseStream.Write(call.RequestBodyData, 0, call.RequestBodyData.Length);
-                    writer.WriteLine();
-                }
-                else
-                    writer.WriteLine("[BINARY-DATA]");
+                writer.Write(key);
+                writer.Write(": ");
+                writer.WriteLine(value);
             }
         }
-        private     static      void                _logResponse(StreamWriter writer, IWebCoreResponse response, HttpResponse httpResponse)
-        {
-            ArgumentNullException.ThrowIfNull(writer);
-            ArgumentNullException.ThrowIfNull(response);
-            ArgumentNullException.ThrowIfNull(httpResponse);
 
-            writer.WriteLine("### RESPONSE ");
-
-            writer.WriteLine(httpResponse.StatusCode);
-
-            var hasContentLength = false;
-
-            foreach(var h in httpResponse.Headers) {
-                var key = h.Key;
-
-                for(var i = 0 ; i < h.Value.Count; ++i) {
-                    var value = h.Value[i];
-
-                    if (key == "Content-Length")
-                        hasContentLength = true;
-
-                    writer.Write(key);
-                    writer.Write(": ");
-                    writer.WriteLine(value);
-                }
-            }
-
-            if (hasContentLength) {
-                response.WriteLoggingData(writer);
-            }
+        if (hasContentLength) {
+            response.WriteLoggingData(writer);
         }
-        private     static      void                _logError(StreamWriter writer, Exception? err)
-        {
-            ArgumentNullException.ThrowIfNull(writer);
+    }
+    private     static      void                _logError(StreamWriter writer, Exception? err)
+    {
+        ArgumentNullException.ThrowIfNull(writer);
 
-            writer.WriteLine("### ERROR");
+        writer.WriteLine("### ERROR");
 
-            while (err != null) {
-                writer.WriteLine("[" + err.GetType().Name + "]: " + err.Message);
-                err = err.InnerException;
-            }
+        while (err != null) {
+            writer.WriteLine("[" + err.GetType().Name + "]: " + err.Message);
+            err = err.InnerException;
         }
-        private     static      void                _logEnd(StreamWriter writer)
-        {
-            ArgumentNullException.ThrowIfNull(writer);
+    }
+    private     static      void                _logEnd(StreamWriter writer)
+    {
+        ArgumentNullException.ThrowIfNull(writer);
 
-            writer.WriteLine("###");
-            writer.WriteLine();
-            writer.WriteLine();
-        }
+        writer.WriteLine("###");
+        writer.WriteLine();
+        writer.WriteLine();
     }
 }

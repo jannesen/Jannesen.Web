@@ -2,19 +2,18 @@
 using System.Reflection;
 using Jannesen.Web.Core.Impl;
 
-namespace Jannesen.Web.MSSql.Library
+namespace Jannesen.Web.MSSql.Library;
+
+public sealed class ValueConvertorAttributeBaseType: WebCoreDynamicClassAttribute
 {
-    public sealed class ValueConvertorAttributeBaseType: WebCoreDynamicClassAttribute
+    public      override    string                          Type            => "sql-type";
+
+    public                                                  ValueConvertorAttributeBaseType(string name): base(name)
     {
-        public      override    string                          Type            => "sql-type";
+    }
 
-        public                                                  ValueConvertorAttributeBaseType(string name): base(name)
-        {
-        }
-
-        public      override    ConstructorInfo                 GetConstructor(Type classType)
-        {
-            return GetConstructorFor(classType, typeof(ValueConvertor), typeof(string));
-        }
+    public      override    ConstructorInfo                 GetConstructor(Type classType)
+    {
+        return GetConstructorFor(classType, typeof(ValueConvertor), typeof(string));
     }
 }

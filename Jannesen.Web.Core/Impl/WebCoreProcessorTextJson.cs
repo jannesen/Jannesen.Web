@@ -1,64 +1,63 @@
 ﻿using System;
 using Jannesen.FileFormat.Json;
 
-namespace Jannesen.Web.Core.Impl
+namespace Jannesen.Web.Core.Impl;
+
+public class WebCoreProcessorTextJson : IWebCoreCallProcessor
 {
-    public class WebCoreProcessorTextJson : IWebCoreCallProcessor
+    private                 object?             _document;
+
+    public                  object?             Document        => _document;
+
+    public                  void                Proces(WebCoreCall httpCall)
     {
-        private                 object?             _document;
+        ArgumentNullException.ThrowIfNull(httpCall);
 
-        public                  object?             Document        => _document;
-
-        public                  void                Proces(WebCoreCall httpCall)
-        {
-            ArgumentNullException.ThrowIfNull(httpCall);
-
-            try {
-                var stream = httpCall.GetBodyText("application/json");
-                if (stream != null) {
-                    using(var reader = new JsonReader(stream)) {
-                        _document = reader.ParseDocument();
-                    }
+        try {
+            var stream = httpCall.GetBodyText("application/json");
+            if (stream != null) {
+                using(var reader = new JsonReader(stream)) {
+                    _document = reader.ParseDocument();
                 }
             }
-            catch(Exception err) {
-                throw new WebRequestException("Error in JSON HTTP-BODY.", err);
+        }
+        catch(Exception err) {
+            throw new WebRequestException("Error in JSON HTTP-BODY.", err);
+        }
+    }
+
+    public                  bool                GetValue(string name, out object? rtn)
+    {
+        ArgumentNullException.ThrowIfNull(name);
+
+        if (_document == null)
+            throw new WebRequestException("Empty body or null.");
+
+        if (!(_document is JsonObject docObject))
+            throw new WebRequestException("JSON root must by a object");
+
+        if (name.IndexOf('.', StringComparison.Ordinal) < 0)
+            return docObject.TryGetValue(name, out rtn);
+
+        var obj = _document;
+
+        foreach(var n in name.Split('.')) {
+            if (!(obj is JsonObject jsonObject)) {
+                throw new WebRequestException("Invalid Json schema.");
+            }
+
+            if (n == "$") {
+                obj = JsonWriter.Stringify(jsonObject);
+            }
+            else {
+                if (!jsonObject.TryGetValue(n, out obj)) {
+                    rtn = null;
+                    return false;
+                }
             }
         }
 
-        public                  bool                GetValue(string name, out object? rtn)
-        {
-            ArgumentNullException.ThrowIfNull(name);
-
-            if (_document == null)
-                throw new WebRequestException("Empty body or null.");
-
-            if (!(_document is JsonObject docObject))
-                throw new WebRequestException("JSON root must by a object");
-
-            if (name.IndexOf('.', StringComparison.Ordinal) < 0)
-                return docObject.TryGetValue(name, out rtn);
-
-            var obj = _document;
-
-            foreach(var n in name.Split('.')) {
-                if (!(obj is JsonObject jsonObject)) {
-                    throw new WebRequestException("Invalid Json schema.");
-                }
-
-                if (n == "$") {
-                    obj = JsonWriter.Stringify(jsonObject);
-                }
-                else {
-                    if (!jsonObject.TryGetValue(n, out obj)) {
-                        rtn = null;
-                        return false;
-                    }
-                }
-            }
-
-            rtn = obj;
-            return true;
-        }
+        rtn = obj;
+        return true;
     }
 }

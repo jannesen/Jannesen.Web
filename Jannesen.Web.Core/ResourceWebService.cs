@@ -3,66 +3,65 @@ using System.Collections.Generic;
 using System.Security.Cryptography.X509Certificates;
 using Jannesen.Web.Core.Impl;
 
-namespace Jannesen.Web.Core
+namespace Jannesen.Web.Core;
+
+[WebCoreResourceAttribute("webservice")]
+public class ResourceWebService: WebCoreResource
 {
-    [WebCoreResourceAttribute("webservice")]
-    public class ResourceWebService: WebCoreResource
+    private readonly        string                          _baseUrl;
+    private readonly        string?                         _key;
+    private readonly        string?                         _username;
+    private readonly        string?                         _passwd;
+    private readonly        X509Certificate2Collection?     _certificates;
+    private readonly        Dictionary<string, string>      _properties;
+
+    public      override    string                          Type            => "webservice";
+    public                  string                          BaseUrl         => _baseUrl;
+    public                  string?                         Key             => _key;
+    public                  string?                         Username        => _username;
+    public                  string?                         Passwd          => _passwd;
+    public                  X509Certificate2Collection?     Certificates    => _certificates;
+    public                  Dictionary<string, string>      Properties      => _properties;
+
+    public                                                  ResourceWebService(WebCoreConfigReader configReader): base(configReader)
     {
-        private readonly        string                          _baseUrl;
-        private readonly        string?                         _key;
-        private readonly        string?                         _username;
-        private readonly        string?                         _passwd;
-        private readonly        X509Certificate2Collection?     _certificates;
-        private readonly        Dictionary<string, string>      _properties;
+        ArgumentNullException.ThrowIfNull(configReader);
 
-        public      override    string                          Type            => "webservice";
-        public                  string                          BaseUrl         => _baseUrl;
-        public                  string?                         Key             => _key;
-        public                  string?                         Username        => _username;
-        public                  string?                         Passwd          => _passwd;
-        public                  X509Certificate2Collection?     Certificates    => _certificates;
-        public                  Dictionary<string, string>      Properties      => _properties;
+        _baseUrl      = configReader.GetValueString("baseurl");
+        _key          = configReader.GetValueString("key", null);
+        _username     = configReader.GetValueString("username", null);
+        _passwd       = (_username != null) ? configReader.GetValueString("passwd") : null;
+        _certificates = null;
+        _properties   = configReader.GetValueDictionary();
 
-        public                                                  ResourceWebService(WebCoreConfigReader configReader): base(configReader)
-        {
-            ArgumentNullException.ThrowIfNull(configReader);
+        var certificate = configReader.GetValueString("certificate", null);
+        if (certificate != null) {
+            try {
+                _certificates = new X509Certificate2Collection();
 
-            _baseUrl      = configReader.GetValueString("baseurl");
-            _key          = configReader.GetValueString("key", null);
-            _username     = configReader.GetValueString("username", null);
-            _passwd       = (_username != null) ? configReader.GetValueString("passwd") : null;
-            _certificates = null;
-            _properties   = configReader.GetValueDictionary();
-
-            var certificate = configReader.GetValueString("certificate", null);
-            if (certificate != null) {
-                try {
-                    _certificates = new X509Certificate2Collection();
-
-                    using (var store = new X509Store(StoreName.My, StoreLocation.LocalMachine)) {
-                        try {
-                            store.Open(OpenFlags.ReadOnly);
-                        }
-                        catch(Exception err) {
-                            throw new WebConfigException("Failed to open X509Store", err, configReader);
-                        }
-
-                        foreach (var cert in store.Certificates) {
-                            if (cert.Subject == certificate) {
-                                if (!cert.HasPrivateKey)
-                                    throw new Exception("Certificate has no private key.");
-
-                                _certificates.Add(cert);
-                            }
-                        }
+                using (var store = new X509Store(StoreName.My, StoreLocation.LocalMachine)) {
+                    try {
+                        store.Open(OpenFlags.ReadOnly);
+                    }
+                    catch(Exception err) {
+                        throw new WebConfigException("Failed to open X509Store", err, configReader);
                     }
 
-                    if (_certificates.Count == 0)
-                        throw new Exception("No certificate found in store.");
+                    foreach (var cert in store.Certificates) {
+                        if (cert.Subject == certificate) {
+                            if (!cert.HasPrivateKey)
+                                throw new Exception("Certificate has no private key.");
+
+                            _certificates.Add(cert);
+                        }
+                    }
                 }
-                catch(Exception err) {
-                    throw new WebConfigException("Failed to load certificate '" + certificate + "'.", err, configReader);
-                }
+
+                if (_certificates.Count == 0)
+                    throw new Exception("No certificate found in store.");
+            }
+            catch(Exception err) {
+                throw new WebConfigException("Failed to load certificate '" + certificate + "'.", err, configReader);
             }
         }
     }
