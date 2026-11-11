@@ -3,7 +3,7 @@ using Jannesen.FileFormat.Json;
 
 namespace Jannesen.Web.Core.Impl;
 
-public class WebCoreProcessorTextJson : IWebCoreCallProcessor
+public class WebCoreProcessorTextJson : IWebCoreProcessor
 {
     private                 object?             _document;
 

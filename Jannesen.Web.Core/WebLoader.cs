@@ -36,7 +36,7 @@ public sealed class WebLoader
         _loadAssembly(Assembly.Load(name));
     }
 
-    public                          WebCoreDataSource                   GetDataSource(string source, string? name)
+    public                          IWebCoreDataSource                  GetDataSource(string source, string? name)
     {
         ArgumentNullException.ThrowIfNull(source);
 
@@ -54,7 +54,7 @@ public sealed class WebLoader
                 throw new WebSourceException("Invalid source '" + source + "', name missing.");
         }
 
-        return (WebCoreDataSource)ConstructDynamicClass(new WebCoreDataSourceAttribute(source), name);
+        return (IWebCoreDataSource)ConstructDynamicClass(new WebCoreDataSourceAttribute(source), name);
     }
     public                          object                              ConstructDynamicClass(WebCoreDynamicClassAttribute className, params object?[] args)
     {

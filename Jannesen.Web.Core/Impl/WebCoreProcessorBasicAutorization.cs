@@ -2,7 +2,7 @@
 
 namespace Jannesen.Web.Core.Impl;
 
-public class WebCoreProcessorBasicAutorization : IWebCoreCallProcessor
+public class WebCoreProcessorBasicAutorization : IWebCoreProcessor
 {
     private                 string?             _username;
     private                 string?             _passwd;

@@ -4,11 +4,11 @@ namespace Jannesen.Web.Core.Impl.Source;
 
 sealed class multiple: WebCoreDataSource
 {
-    public      const           char                SplitChar = '|';
+    public      const           char                    SplitChar = '|';
 
-    private readonly            WebCoreDataSource[] _list;
+    private readonly            IWebCoreDataSource[]    _list;
 
-    public                                          multiple(string source, string? name_args): base(source)
+    public                                              multiple(string source, string? name_args): base(source)
     {
         var sources = source.Split(SplitChar);
 
@@ -19,7 +19,7 @@ sealed class multiple: WebCoreDataSource
         }
     }
 
-    public      override        WebCoreDataValue    GetValue(WebCoreCall httpCall)
+    public      override        WebCoreDataValue        GetValue(WebCoreCall httpCall)
     {
         var rtn = WebCoreDataValue.NoValue;
 
@@ -33,7 +33,7 @@ sealed class multiple: WebCoreDataSource
         return rtn;
     }
 
-    public      override        string              ToString()
+    public      override        string                  ToString()
     {
         return "multiple:" + Name;
     }

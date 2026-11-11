@@ -2,7 +2,7 @@
 
 namespace Jannesen.Web.Core.Impl;
 
-public interface IWebCoreCallProcessor
+public interface IWebCoreProcessor
 {
     void                Proces(WebCoreCall httpCall);
 }

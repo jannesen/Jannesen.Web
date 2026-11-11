@@ -3,7 +3,7 @@ using System.Xml;
 
 namespace Jannesen.Web.Core.Impl;
 
-public class WebCoreProcessorTextXml : IWebCoreCallProcessor
+public class WebCoreProcessorTextXml : IWebCoreProcessor
 {
     private                 XmlDocument?        _document;
 

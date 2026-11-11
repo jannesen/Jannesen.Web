@@ -8,7 +8,7 @@ namespace Jannesen.Web.MSSql.Library;
 public class ParameterValue: Parameter
 {
     private readonly        ValueConvertor      _type;
-    private readonly        WebCoreDataSource   _source;
+    private readonly        IWebCoreDataSource  _source;
     private readonly        bool                _optional;
 
     public                                      ParameterValue(string type, WebCoreConfigReader configReader): base(configReader)

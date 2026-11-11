@@ -5,7 +5,7 @@ using System.Collections.Specialized;
 
 namespace Jannesen.Web.Core.Impl;
 
-public class WebCoreUrlPathData: NameValueCollection, IWebCoreCallProcessor
+public class WebCoreUrlPathData: NameValueCollection, IWebCoreProcessor
 {
     public                      WebCoreUrlPathData()
     {

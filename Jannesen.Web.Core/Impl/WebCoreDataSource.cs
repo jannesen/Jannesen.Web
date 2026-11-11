@@ -2,7 +2,7 @@
 
 namespace Jannesen.Web.Core.Impl;
 
-public abstract class WebCoreDataSource
+public abstract class WebCoreDataSource: IWebCoreDataSource
 {
     private readonly            string                  _name;
 

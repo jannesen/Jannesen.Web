@@ -140,7 +140,7 @@ public class WebCoreCall
         default: throw new WebHttpException(HttpStatusCode.BadRequest, "Multiple '" + name + "' headers.");
         }
     }
-    public                  T                                   GetRequestProcessor<T>() where T: IWebCoreCallProcessor, new()
+    public                  T                                   GetRequestProcessor<T>() where T: IWebCoreProcessor, new()
     {
     // Find if already created.
         if (_requestProcessors != null) {
