@@ -9,13 +9,19 @@ namespace Jannesen.Web.Core;
 
 public class WebCoreCall
 {
+    readonly struct ProcessorInstance
+    {
+        public IWebCoreProcessorDefinition     Definition   { get; init; }
+        public object                          Instance     { get; init; }
+    }
+
     private readonly        WebApplicationConfig                _applicationConfig;
     private readonly        DateTime                            _timestamp;
     private readonly        HttpContext                         _context;
     private readonly        HttpRequest                         _request;
     private readonly        WebCoreHttpHandler                  _handler;
+    private readonly        List<ProcessorInstance>             _processors;
     private                 byte[]?                             _requestBodyData;
-    private                 List<object>?                       _requestProcessors;
 
     public                  WebApplicationConfig                ApplicationConfig   => _applicationConfig;
     public                  DateTime                            Timestamp           => _timestamp;
@@ -98,25 +104,25 @@ public class WebCoreCall
     public                  WebCoreProcessorBasicAutorization   RequestBasicAutorization
     {
         get {
-            return GetRequestProcessor<WebCoreProcessorBasicAutorization>();
+            return GetProcessor<WebCoreProcessorBasicAutorization>(WebCoreProcessorBasicAutorization.Definition);
         }
     }
     public                  WebCoreProcessorUrlPathData         RequestUrlPathData
     {
         get {
-            return GetRequestProcessor<WebCoreProcessorUrlPathData>();
+            return GetProcessor<WebCoreProcessorUrlPathData>(WebCoreProcessorUrlPathData.Definition);
         }
     }
     public                  WebCoreProcessorTextXml             RequestTextXml
     {
         get {
-            return GetRequestProcessor<WebCoreProcessorTextXml>();
+            return GetProcessor<WebCoreProcessorTextXml>(WebCoreProcessorTextXml.Definition);
         }
     }
     public                  WebCoreProcessorTextJson            RequestTextJson
     {
         get {
-            return GetRequestProcessor<WebCoreProcessorTextJson>();
+            return GetProcessor<WebCoreProcessorTextJson>(WebCoreProcessorTextJson.Definition);
         }
     }
 
@@ -129,6 +135,7 @@ public class WebCoreCall
         _context           = httpCall;
         _request           = httpCall.Request;
         _handler           = handler;
+        _processors        = new List<ProcessorInstance>();
     }
 
     public                  string?                             GetHeader(string name)
@@ -140,31 +147,23 @@ public class WebCoreCall
         default: throw new WebHttpException(HttpStatusCode.BadRequest, "Multiple '" + name + "' headers.");
         }
     }
-    public                  T                                   GetRequestProcessor<T>() where T: IWebCoreProcessor, new()
+    public                  T                                   GetProcessor<T>(IWebCoreProcessorDefinition definition)
     {
-    // Find if already created.
-        if (_requestProcessors != null) {
-            for (var i = 0 ; i < _requestProcessors.Count ; ++i) {
-                if (_requestProcessors[i] is T rp) {
-                    return rp;
-                }
+        ArgumentNullException.ThrowIfNull(definition);
+
+        foreach(var p in _processors) {
+            if (p.Definition == definition) {
+                return (T)p.Instance;
             }
         }
 
-    // Create and process
-        {
-            var processor = new T();
+        var newInstance = definition.Create(this);
+        _processors.Add(new ProcessorInstance() {
+                            Definition = definition,
+                            Instance   = newInstance
+                        });
 
-            processor.Proces(this);
-
-            if (_requestProcessors == null) {
-                _requestProcessors = new List<object>();
-            }
-
-            _requestProcessors.Add(processor);
-
-            return processor;
-        }
+        return (T)newInstance;
     }
     public                  byte[]                              GetBodyData()
     {

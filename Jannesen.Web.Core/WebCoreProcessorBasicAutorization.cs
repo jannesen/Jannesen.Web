@@ -2,36 +2,30 @@
 
 namespace Jannesen.Web.Core;
 
-
-public class WebCoreProcessorBasicAutorization: IWebCoreProcessor
+public class WebCoreProcessorBasicAutorization
 {
     public static readonly  IWebCoreProcessorDefinition    Definition = new DefinitionClass();
 
-    internal class DefinitionClass: IWebCoreProcessorDefinition
+    internal sealed class DefinitionClass: IWebCoreProcessorDefinition
     {
         public          string          Name    => "BasicAutorization";
 
         public          object          Create(WebCoreCall httpCall)
         {
-            var processor = new WebCoreProcessorBasicAutorization();
-            processor.Proces(httpCall);
-            return processor;
+            ArgumentNullException.ThrowIfNull(httpCall);
+            return new WebCoreProcessorBasicAutorization(httpCall);
         }
     }
 
-
-    private                 string?             _username;
-    private                 string?             _passwd;
+    private readonly        string?             _username;
+    private readonly        string?             _passwd;
 
     public                  string?             UserName        => _username;
     public                  string?             Passwd          => _passwd;
 
-    public                  void                Proces(WebCoreCall httpCall)
+    internal                                    WebCoreProcessorBasicAutorization(WebCoreCall httpCall)
     {
-        ArgumentNullException.ThrowIfNull(httpCall);
-
-        var authorization   = httpCall.GetHeader("Authorization");
-
+        var authorization = httpCall.GetHeader("Authorization");
         if (authorization != null && authorization.StartsWith("Basic ", StringComparison.Ordinal)) {
             var AuthStr     = System.Text.Encoding.ASCII.GetString(System.Convert.FromBase64String(authorization.Substring(6)));
             var AuthStrPos  = AuthStr.IndexOf(':', StringComparison.Ordinal);

@@ -3,16 +3,27 @@ using Jannesen.FileFormat.Json;
 
 namespace Jannesen.Web.Core;
 
-public class WebCoreProcessorTextJson : IWebCoreProcessor
+public class WebCoreProcessorTextJson
 {
-    private                 object?             _document;
+    public static readonly  IWebCoreProcessorDefinition    Definition = new DefinitionClass();
+
+    internal sealed class DefinitionClass: IWebCoreProcessorDefinition
+    {
+        public          string          Name    => "TextJson";
+
+        public          object          Create(WebCoreCall httpCall)
+        {
+            ArgumentNullException.ThrowIfNull(httpCall);
+            return new WebCoreProcessorTextJson(httpCall);
+        }
+    }
+
+    private readonly        object?             _document;
 
     public                  object?             Document        => _document;
 
-    public                  void                Proces(WebCoreCall httpCall)
+    internal                                    WebCoreProcessorTextJson(WebCoreCall httpCall)
     {
-        ArgumentNullException.ThrowIfNull(httpCall);
-
         try {
             var stream = httpCall.GetBodyText("application/json");
             if (stream != null) {

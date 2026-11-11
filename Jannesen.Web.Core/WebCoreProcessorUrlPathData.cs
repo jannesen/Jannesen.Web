@@ -5,18 +5,26 @@ using System.Collections.Specialized;
 
 namespace Jannesen.Web.Core;
 
-public class WebCoreProcessorUrlPathData: NameValueCollection, IWebCoreProcessor
+public class WebCoreProcessorUrlPathData: NameValueCollection
 {
-    public                      WebCoreProcessorUrlPathData()
+    public static readonly  IWebCoreProcessorDefinition    Definition = new DefinitionClass();
+
+    internal sealed class DefinitionClass: IWebCoreProcessorDefinition
     {
+        public          string          Name    => "TextXml";
+
+        public          object          Create(WebCoreCall httpCall)
+        {
+            ArgumentNullException.ThrowIfNull(httpCall);
+            return new WebCoreProcessorUrlPathData(httpCall);
+        }
     }
 
-    public          void        Proces(WebCoreCall httpCall)
+    internal                WebCoreProcessorUrlPathData(WebCoreCall httpCall)
     {
-        ArgumentNullException.ThrowIfNull(httpCall);
-
-        if (httpCall.Handler.WildcardPathProcessor == null)
+        if (httpCall.Handler.WildcardPathProcessor == null) {
             throw new WebHandlerConfigException("URL-PATH parameters not available, because not a wildcard handler.");
+        }
 
         var names = httpCall.Handler.WildcardPathProcessor.Names;
 

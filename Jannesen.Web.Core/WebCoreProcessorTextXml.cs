@@ -3,14 +3,27 @@ using System.Xml;
 
 namespace Jannesen.Web.Core;
 
-public class WebCoreProcessorTextXml : IWebCoreProcessor
+public class WebCoreProcessorTextXml
 {
-    private                 XmlDocument?        _document;
+    public static readonly  IWebCoreProcessorDefinition    Definition = new DefinitionClass();
 
-    public                  void                Proces(WebCoreCall httpCall)
+    internal sealed class DefinitionClass: IWebCoreProcessorDefinition
     {
-        ArgumentNullException.ThrowIfNull(httpCall);
+        public          string          Name    => "TextXml";
 
+        public          object          Create(WebCoreCall httpCall)
+        {
+            ArgumentNullException.ThrowIfNull(httpCall);
+            return new WebCoreProcessorTextXml(httpCall);
+        }
+    }
+
+    private readonly        XmlDocument?        _document;
+
+    public                  XmlDocument?        Document => _document;
+
+    internal                                    WebCoreProcessorTextXml(WebCoreCall httpCall)
+    {
         try {
 
             using(var reader = httpCall.GetBodyText("text/xml")) {

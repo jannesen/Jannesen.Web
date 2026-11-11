@@ -3,7 +3,7 @@ using System.Collections.Generic;
 
 namespace Jannesen.Web.Core;
 
-internal class WebCoreHttpHandlerDictionary
+internal sealed class WebCoreHttpHandlerDictionary
 {
     private sealed class VerbDictionary
     {

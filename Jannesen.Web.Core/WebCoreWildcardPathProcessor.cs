@@ -6,7 +6,7 @@ using System.Text.RegularExpressions;
 
 namespace Jannesen.Web.Core;
 
-internal class WebCoreWildcardPathProcessor
+internal sealed class WebCoreWildcardPathProcessor
 {
     private sealed class Parser
     {
@@ -235,10 +235,6 @@ internal class WebCoreWildcardPathProcessor
 
     public                                                      WebCoreWildcardPathProcessor(string prefix, string suffix, string expression)
     {
-        ArgumentNullException.ThrowIfNull(prefix);
-        ArgumentNullException.ThrowIfNull(suffix);
-        ArgumentNullException.ThrowIfNull(expression);
-
         _prefix     = prefix;
         _suffix     = suffix;
         _expression = expression;
