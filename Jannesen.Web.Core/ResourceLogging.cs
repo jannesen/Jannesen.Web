@@ -4,7 +4,6 @@ using System.IO;
 using System.Threading;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Http.Extensions;
-using Jannesen.Web.Core.Impl;
 
 namespace Jannesen.Web.Core;
 

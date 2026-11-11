@@ -1,7 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using Microsoft.Data.SqlClient;
-using Jannesen.Web.Core.Impl;
+using Jannesen.Web.Core;
 
 namespace Jannesen.Web.MSSql.Library;
 

@@ -1,0 +1,240 @@
+﻿using System;
+using System.Collections.Generic;
+using System.IO;
+using System.Net;
+using Microsoft.AspNetCore.Http;
+using Microsoft.Extensions.Caching.Memory;
+
+namespace Jannesen.Web.Core;
+
+public class WebCoreCall
+{
+    private readonly        WebApplicationConfig                _applicationConfig;
+    private readonly        DateTime                            _timestamp;
+    private readonly        HttpContext                         _context;
+    private readonly        HttpRequest                         _request;
+    private readonly        WebCoreHttpHandler                  _handler;
+    private                 byte[]?                             _requestBodyData;
+    private                 List<object>?                       _requestProcessors;
+
+    public                  WebApplicationConfig                ApplicationConfig   => _applicationConfig;
+    public                  DateTime                            Timestamp           => _timestamp;
+    public                  HttpContext                         Context             => _context;
+    public                  HttpRequest                         Request             => _request;
+    public                  IMemoryCache                        Cache               => _applicationConfig.Application.Cache;
+    public                  WebCoreHttpHandler                  Handler             => _handler;
+    internal                byte[]?                             RequestBodyData     => _requestBodyData;
+    public                  string                              HttpMethod          => _request.Method;
+    public                  string?                             RequestContentType  => _request.ContentType;
+    public                  int?                                RequestContentLength
+    {
+        get {
+            var s = GetHeader("Content-Length");
+
+            if (!string.IsNullOrEmpty(s)) {
+                if (int.TryParse(s, out var rtn)) {
+                    return rtn;
+                }
+            }
+
+            return null;
+        }
+    }
+    public                  DateTime?                           RequestIfModifiedSince
+    {
+        get {
+            var s = GetHeader("If-Modified-Since");
+
+            if (!string.IsNullOrEmpty(s)) {
+                if (DateTime.TryParseExact(s, "R", System.Globalization.DateTimeFormatInfo.InvariantInfo, System.Globalization.DateTimeStyles.AdjustToUniversal, out var rtn))
+                    return rtn;
+            }
+
+            return null;
+        }
+    }
+    public                  string?                             RequestIfNoneMatch
+    {
+        get {
+            var s = GetHeader("If-None-Match");
+
+            return !string.IsNullOrEmpty(s) ? s : null;
+        }
+    }
+    public                  string?                             RequestReferer
+    {
+        get {
+            var s = GetHeader("Referer");
+
+            return !string.IsNullOrEmpty(s) ? s : null;
+        }
+    }
+    public                  string?                             RequestUserAgent
+    {
+        get {
+            var s = GetHeader("User-Agent");
+
+            return !string.IsNullOrEmpty(s) ? s : null;
+        }
+    }
+    public                  string?                             RequestRemoteAddr
+    {
+        get {
+            var rtn = GetHeader("X-Forwarded-For");
+
+            if (!string.IsNullOrEmpty(rtn)) {
+                var p = rtn.IndexOf(',', StringComparison.Ordinal);
+                if (p > 0) {
+                    rtn = rtn.Substring(0, p);
+                }
+            }
+            else {
+                rtn = _context.Connection.RemoteIpAddress?.ToString();
+            }
+
+            return !string.IsNullOrEmpty(rtn) ? rtn : null;
+        }
+    }
+    public                  WebCoreProcessorBasicAutorization   RequestBasicAutorization
+    {
+        get {
+            return GetRequestProcessor<WebCoreProcessorBasicAutorization>();
+        }
+    }
+    public                  WebCoreProcessorUrlPathData         RequestUrlPathData
+    {
+        get {
+            return GetRequestProcessor<WebCoreProcessorUrlPathData>();
+        }
+    }
+    public                  WebCoreProcessorTextXml             RequestTextXml
+    {
+        get {
+            return GetRequestProcessor<WebCoreProcessorTextXml>();
+        }
+    }
+    public                  WebCoreProcessorTextJson            RequestTextJson
+    {
+        get {
+            return GetRequestProcessor<WebCoreProcessorTextJson>();
+        }
+    }
+
+    public                                                      WebCoreCall(WebApplicationConfig applicationConfig, HttpContext httpCall, WebCoreHttpHandler handler)
+    {
+        ArgumentNullException.ThrowIfNull(httpCall);
+
+        _applicationConfig = applicationConfig;
+        _timestamp         = DateTime.UtcNow;
+        _context           = httpCall;
+        _request           = httpCall.Request;
+        _handler           = handler;
+    }
+
+    public                  string?                             GetHeader(string name)
+    {
+        var h = _request.Headers[name];
+        switch(h.Count) {
+        case 0: return null;
+        case 1: return h[0];
+        default: throw new WebHttpException(HttpStatusCode.BadRequest, "Multiple '" + name + "' headers.");
+        }
+    }
+    public                  T                                   GetRequestProcessor<T>() where T: IWebCoreProcessor, new()
+    {
+    // Find if already created.
+        if (_requestProcessors != null) {
+            for (var i = 0 ; i < _requestProcessors.Count ; ++i) {
+                if (_requestProcessors[i] is T rp) {
+                    return rp;
+                }
+            }
+        }
+
+    // Create and process
+        {
+            var processor = new T();
+
+            processor.Proces(this);
+
+            if (_requestProcessors == null) {
+                _requestProcessors = new List<object>();
+            }
+
+            _requestProcessors.Add(processor);
+
+            return processor;
+        }
+    }
+    public                  byte[]                              GetBodyData()
+    {
+        if (_requestBodyData == null) {
+            var length = RequestContentLength;
+
+            if (!length.HasValue) {
+                throw new WebRequestException("Missing content-length header.");
+            }
+
+            var buf = new byte[length.Value];
+
+            using (var inputStream = _request.Body) {
+                var size = 0;
+                int rs;
+
+                while (size < buf.Length && (rs = inputStream.Read(buf, size, buf.Length - size)) > 0)
+                    size += rs;
+
+                if (size != buf.Length)
+                    throw new WebRequestException("BODY is incomplete.");
+            }
+
+            _requestBodyData = buf;
+        }
+
+        return _requestBodyData;
+    }
+    public                  StreamReader?                       GetBodyText(string contenttype)
+    {
+        var     requestContentType = RequestContentType;
+
+        if (string.IsNullOrEmpty(requestContentType)) {
+            if (_request.ContentLength <= 0) {
+                return null;
+            }
+
+            throw new WebRequestException("Missing Content-Type.");
+        }
+
+        var encoding         = (System.Text.Encoding?)null;
+        var contentTypeParts = requestContentType.Split(';');
+
+        for (var i = 1 ; i <contentTypeParts.Length ; ++i)
+            contentTypeParts[i] = contentTypeParts[i].TrimStart();
+
+        if (contenttype != null && contentTypeParts[0] != contenttype)
+            throw new WebRequestException("Expect " + contenttype + " body.");
+
+        for (var i = 1 ; i < contentTypeParts.Length ; ++i) {
+            if (contentTypeParts[i].StartsWith("charset=", StringComparison.Ordinal)) {
+                var charset     = contentTypeParts[i].Substring(8);
+
+                switch(charset.ToLowerInvariant()) {
+                case "unicode": encoding = System.Text.Encoding.Unicode;    break;
+                case "utf-8":   encoding = System.Text.Encoding.UTF8;       break;
+                default:        throw new NotImplementedException("Invalid characterset '" + charset + "'.");
+                }
+            }
+        }
+
+        if (encoding == null)
+            throw new WebRequestException("Missing charset in Content-Type " + requestContentType + ".");
+
+        return new System.IO.StreamReader(new System.IO.MemoryStream(GetBodyData(), false), encoding, false, 4096, false);
+    }
+    public                  string?                             GetBodyString(string contenttype)
+    {
+        using(var reader = GetBodyText(contenttype)) {
+            return reader?.ReadToEnd();
+        }
+    }
+}

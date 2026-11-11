@@ -3,7 +3,6 @@ using System.IO;
 using System.Net;
 using Microsoft.Extensions.Caching.Memory;
 using Jannesen.Web.Core;
-using Jannesen.Web.Core.Impl;
 
 #pragma warning disable CA3003 // Potential file path injection vulnerability was found where (_mapPhysicalPath has a path validator);
 

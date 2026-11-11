@@ -1,5 +1,5 @@
 ﻿using System;
-using Jannesen.Web.Core.Impl;
+using Jannesen.Web.Core;
 
 namespace Jannesen.Web.ExcelExport.ExcelExport;
 

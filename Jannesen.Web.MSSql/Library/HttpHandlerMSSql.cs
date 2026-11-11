@@ -2,7 +2,7 @@
 using System.Net;
 using System.Data;
 using Microsoft.Data.SqlClient;
-using Jannesen.Web.Core.Impl;
+using Jannesen.Web.Core;
 
 namespace Jannesen.Web.MSSql.Library;
 

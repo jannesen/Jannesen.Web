@@ -4,8 +4,8 @@ using System.Net;
 using System.Xml;
 using System.Text;
 using Microsoft.Data.SqlClient;
-using Jannesen.Web.Core.Impl;
 using Jannesen.Web.MSSql.Library;
+using Jannesen.Web.Core;
 
 namespace Jannesen.Web.MSSql;
 

@@ -3,7 +3,6 @@ using System.Net;
 using System.Security.Principal;
 using Microsoft.Data.SqlClient;
 using Jannesen.Web.Core;
-using Jannesen.Web.Core.Impl;
 
 #pragma warning disable CA1416 // Validate platform compatibility
 

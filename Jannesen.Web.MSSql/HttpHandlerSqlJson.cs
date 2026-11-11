@@ -5,8 +5,8 @@ using System.Net;
 using System.Xml;
 using Microsoft.Data.SqlClient;
 using Jannesen.FileFormat.Json;
-using Jannesen.Web.Core.Impl;
 using Jannesen.Web.MSSql.Library;
+using Jannesen.Web.Core;
 
 namespace Jannesen.Web.MSSql;
 

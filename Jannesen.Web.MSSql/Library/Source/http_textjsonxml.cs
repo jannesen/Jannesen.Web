@@ -2,7 +2,7 @@
 using System.IO;
 using System.Xml;
 using Jannesen.FileFormat.Json;
-using Jannesen.Web.Core.Impl;
+using Jannesen.Web.Core;
 
 #pragma warning disable CA1812 // Avoid uninstantiated internal classes (created using reflection)
 

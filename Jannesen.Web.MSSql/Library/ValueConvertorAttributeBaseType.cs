@@ -1,6 +1,6 @@
 ﻿using System;
 using System.Reflection;
-using Jannesen.Web.Core.Impl;
+using Jannesen.Web.Core;
 
 namespace Jannesen.Web.MSSql.Library;
 

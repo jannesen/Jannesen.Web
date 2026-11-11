@@ -4,7 +4,7 @@ using System.IO;
 using System.Net;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Http.Features;
-using Jannesen.Web.Core.Impl;
+using Jannesen.Web.Core;
 
 namespace Jannesen.Web.StaticFile.Internal;
 

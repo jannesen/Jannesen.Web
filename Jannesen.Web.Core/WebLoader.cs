@@ -2,7 +2,6 @@
 using System.Collections.Generic;
 using System.Reflection;
 using System.Threading;
-using Jannesen.Web.Core.Impl;
 
 namespace Jannesen.Web.Core;
 
@@ -40,8 +39,8 @@ public sealed class WebLoader
     {
         ArgumentNullException.ThrowIfNull(source);
 
-        if (source.Contains(Impl.Source.multiple.SplitChar, StringComparison.Ordinal)) {
-            return new Impl.Source.multiple(source, name);
+        if (source.Contains(WebCoreDataSourceMultiple.SplitChar, StringComparison.Ordinal)) {
+            return new WebCoreDataSourceMultiple(source, name);
         }
 
         var sep = source.IndexOf(':', StringComparison.Ordinal);

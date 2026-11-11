@@ -5,9 +5,9 @@ using System.Threading;
 using Microsoft.Data.SqlClient;
 using DocumentFormat.OpenXml.Packaging;
 using DocumentFormat.OpenXml;
-using Jannesen.Web.Core.Impl;
 using Jannesen.Web.MSSql.Library;
 using Jannesen.Web.ExcelExport.ExcelExport;
+using Jannesen.Web.Core;
 
 namespace Jannesen.Web.ExcelExport;
 

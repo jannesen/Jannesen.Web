@@ -1,7 +1,7 @@
 ﻿using System;
 using System.IO;
 using System.Security.Cryptography;
-using Jannesen.Web.Core.Impl;
+using Jannesen.Web.Core;
 
 #pragma warning disable CA5350 // Do Not Use Weak Cryptographic Algorithms (SHA1 used for etag)
 

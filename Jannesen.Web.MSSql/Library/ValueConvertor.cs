@@ -4,7 +4,6 @@ using System.Data;
 using System.Globalization;
 using System.Text;
 using Jannesen.Web.Core;
-using Jannesen.Web.Core.Impl;
 
 namespace Jannesen.Web.MSSql.Library;
 

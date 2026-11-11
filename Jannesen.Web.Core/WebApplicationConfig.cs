@@ -1,7 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.IO;
-using Jannesen.Web.Core.Impl;
 
 namespace Jannesen.Web.Core;
 
@@ -37,7 +36,7 @@ public sealed class WebApplicationConfig: IDisposable
 
     private     readonly            WebApplication                      _application;
     private     readonly            List<DependanceFile>                _dependanceFiles;
-    private     readonly            CoreHttpHandlerDictionary           _httpHandlers;
+    private     readonly            WebCoreHttpHandlerDictionary           _httpHandlers;
     private     readonly            CoreResourceDictionary              _resources;
     private                         DateTime                            _nextDependanceCheck;
 
@@ -47,7 +46,7 @@ public sealed class WebApplicationConfig: IDisposable
     {
         _application         = application;
         _dependanceFiles     = new List<DependanceFile>(32);
-        _httpHandlers        = new CoreHttpHandlerDictionary();
+        _httpHandlers        = new WebCoreHttpHandlerDictionary();
         _resources           = new CoreResourceDictionary();
         _nextDependanceCheck = DateTime.UtcNow.AddTicks(TimeSpan.TicksPerSecond * DependanceCheckTime);
     }
