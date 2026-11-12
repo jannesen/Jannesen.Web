@@ -4,7 +4,7 @@ using System.IO;
 
 namespace Jannesen.Web.Core;
 
-internal sealed class ReadonlyMemoryStream: Stream
+internal sealed class WebCoreReadonlyMemoryStream: Stream
 {
     private                     int                             _pos;
     private readonly            ReadOnlyMemory<byte>            _data;
@@ -27,7 +27,7 @@ internal sealed class ReadonlyMemoryStream: Stream
         }
     }
 
-    public                                                      ReadonlyMemoryStream(ReadOnlyMemory<byte> data)
+    public                                                      WebCoreReadonlyMemoryStream(ReadOnlyMemory<byte> data)
     {
         _data = data;
     }

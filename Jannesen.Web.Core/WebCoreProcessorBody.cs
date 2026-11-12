@@ -62,7 +62,7 @@ public class WebCoreProcessorBody
 
     public                  Stream                  GetStream()
     {
-        return new ReadonlyMemoryStream(_body);
+        return new WebCoreReadonlyMemoryStream(_body);
     }
     public                  StreamReader?           GetStreamReader(string contenttype)
     {
