@@ -25,7 +25,7 @@ public class ParameterValue: Parameter
         }
 
         try {
-            _source = WebLoader.Instance.GetDataSource(source, Name);
+            _source = WebLoader.Instance.GetDataSource(source);
         }
         catch(Exception err) {
             throw new WebConfigException("Invalid source '" + source + "'.", err, configReader);

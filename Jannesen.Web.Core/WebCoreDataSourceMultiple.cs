@@ -8,14 +8,14 @@ internal sealed class WebCoreDataSourceMultiple: WebCoreDataSource
 
     private readonly            IWebCoreDataSource[]    _list;
 
-    public                                              WebCoreDataSourceMultiple(string source, string? name_args): base(source)
+    public                                              WebCoreDataSourceMultiple(string source): base(source)
     {
         var sources = source.Split(SplitChar);
 
         _list = new WebCoreDataSource[sources.Length];
 
         for (var i = 0 ; i < sources.Length ; ++i) {
-            _list[i] = WebLoader.Instance.GetDataSource(sources[i], name_args);
+            _list[i] = WebLoader.Instance.GetDataSource(sources[i]);
         }
     }
 

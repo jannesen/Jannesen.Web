@@ -35,25 +35,23 @@ public sealed class WebLoader
         _loadAssembly(Assembly.Load(name));
     }
 
-    public                          IWebCoreDataSource                  GetDataSource(string source, string? name)
+    public                          IWebCoreDataSource                  GetDataSource(string source)
     {
         ArgumentNullException.ThrowIfNull(source);
 
         if (source.Contains(WebCoreDataSourceMultiple.SplitChar, StringComparison.Ordinal)) {
-            return new WebCoreDataSourceMultiple(source, name);
+            return new WebCoreDataSourceMultiple(source);
         }
 
         var sep = source.IndexOf(':', StringComparison.Ordinal);
-        if (sep > 0) {
-            name   = source.Substring(sep + 1);
-            source = source.Substring(0, sep);
-        }
-        else {
-            if (name == null)
-                throw new WebSourceException("Invalid source '" + source + "', name missing.");
+        if (sep <= 0) {
+            throw new WebSourceException("Invalid source '" + source + "', name missing.");
         }
 
-        return (IWebCoreDataSource)ConstructDynamicClass(new WebCoreDataSourceAttribute(source), name);
+        var processor = source.Substring(0, sep);
+        var name      = source.Substring(sep + 1);
+
+        return (IWebCoreDataSource)ConstructDynamicClass(new WebCoreDataSourceAttribute(processor), name);
     }
     public                          object                              ConstructDynamicClass(WebCoreDynamicClassAttribute className, params object?[] args)
     {
