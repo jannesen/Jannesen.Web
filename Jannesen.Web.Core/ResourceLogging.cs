@@ -115,7 +115,7 @@ public class ResourceLogging: WebCoreResource
             }
         }
 
-        var body = call.GetProcessorOptional<WebCoreProcessorBody>(WebCoreProcessorBody.Definition);
+        var body = call.GetProcessorResultOptional<WebCoreProcessResultBody>(WebCoreProcessorBody.Definition);
         if (body != null) {
             if (body.ContentType != null && body.ContentType.Contains("charset=utf-8", StringComparison.OrdinalIgnoreCase)) {
                 writer.WriteLine();

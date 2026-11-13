@@ -3,48 +3,31 @@ using System.Xml;
 
 namespace Jannesen.Web.Core;
 
-public class WebCoreProcessorTextXml
+public sealed class WebCoreProcessorTextXml: IWebCoreProcessor
 {
-    public static readonly  IWebCoreProcessorDefinition    Definition = new DefinitionClass();
+    public static readonly  IWebCoreProcessor    Definition = new WebCoreProcessorTextXml();
 
-    internal sealed class DefinitionClass: IWebCoreProcessorDefinition
+    public          string          Name    => "TextXml";
+
+    public          object          Process(WebCoreCall httpCall)
     {
-        public          string          Name    => "TextXml";
+        ArgumentNullException.ThrowIfNull(httpCall);
 
-        public          object          Create(WebCoreCall httpCall)
-        {
-            ArgumentNullException.ThrowIfNull(httpCall);
-            return new WebCoreProcessorTextXml(httpCall);
-        }
-    }
-
-    private readonly        XmlDocument?        _document;
-
-    public                  XmlDocument?        Document => _document;
-
-    internal                                    WebCoreProcessorTextXml(WebCoreCall httpCall)
-    {
         try {
-
             using(var reader = httpCall.RequestBody.GetStreamReader("text/xml")) {
                 if (reader != null) {
-                    _document = new XmlDocument() { XmlResolver=null } ;
+                    var document = new XmlDocument() { XmlResolver=null } ;
 #pragma warning disable CA2000 // CA2000: Dispose objects before losing scope
-                    _document.Load(new XmlTextReader(reader) { DtdProcessing = DtdProcessing.Prohibit, XmlResolver = null });
+                    document.Load(new XmlTextReader(reader) { DtdProcessing = DtdProcessing.Prohibit, XmlResolver = null });
 #pragma warning restore CA2000
+                    return new WebCoreProcessResultTextXml(document);
                 }
             }
+
+            return new WebCoreProcessResultTextXml(null);
         }
         catch(Exception err) {
             throw new WebRequestException("Error in XML HTTP-BODY.", err);
         }
-    }
-
-    public                  string?             GetStringValue(string xpath)
-    {
-        if (_document == null)
-            throw new WebRequestException("Empty body.");
-
-        return _document.SelectSingleNode(xpath)?.Value;
     }
 }

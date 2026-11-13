@@ -2,38 +2,26 @@
 
 namespace Jannesen.Web.Core;
 
-public class WebCoreProcessorBasicAutorization
+public class WebCoreProcessorBasicAutorization: IWebCoreProcessor
 {
-    public static readonly  IWebCoreProcessorDefinition    Definition = new DefinitionClass();
+    public static readonly  IWebCoreProcessor    Definition = new WebCoreProcessorBasicAutorization();
 
-    internal sealed class DefinitionClass: IWebCoreProcessorDefinition
+    public          string          Name    => "BasicAutorization";
+
+    public          object          Process(WebCoreCall httpCall)
     {
-        public          string          Name    => "BasicAutorization";
+        ArgumentNullException.ThrowIfNull(httpCall);
 
-        public          object          Create(WebCoreCall httpCall)
-        {
-            ArgumentNullException.ThrowIfNull(httpCall);
-            return new WebCoreProcessorBasicAutorization(httpCall);
-        }
-    }
-
-    private readonly        string?             _username;
-    private readonly        string?             _passwd;
-
-    public                  string?             UserName        => _username;
-    public                  string?             Passwd          => _passwd;
-
-    internal                                    WebCoreProcessorBasicAutorization(WebCoreCall httpCall)
-    {
         var authorization = httpCall.GetHeader("Authorization");
         if (authorization != null && authorization.StartsWith("Basic ", StringComparison.Ordinal)) {
-            var AuthStr     = System.Text.Encoding.ASCII.GetString(System.Convert.FromBase64String(authorization.Substring(6)));
-            var AuthStrPos  = AuthStr.IndexOf(':', StringComparison.Ordinal);
+            var authstr     = System.Text.Encoding.ASCII.GetString(System.Convert.FromBase64String(authorization.Substring(6)));
+            var authstrPos  = authstr.IndexOf(':', StringComparison.Ordinal);
 
-            if (AuthStrPos>=0) {
-                _username = AuthStr.Substring(0, AuthStrPos);
-                _passwd   = AuthStr.Substring(AuthStrPos+1);
-                return ;
+            if (authstrPos>=0) {
+                return new WebCoreProcessResultBasicAutorization(
+                               authstr.Substring(0, authstrPos),
+                               authstr.Substring(authstrPos+1)
+                           );
             }
         }
 
