@@ -2,13 +2,13 @@
 
 namespace Jannesen.Web.Core;
 
-public class WebCoreProcessorBasicAutorization: IWebCoreProcessor
+public class WebCoreProcessorBasicAutorization: IWebCoreProcessor<WebCoreProcessResultBasicAutorization>
 {
-    public static readonly  IWebCoreProcessor    Definition = new WebCoreProcessorBasicAutorization();
+    public static readonly  IWebCoreProcessor<WebCoreProcessResultBasicAutorization>    Definition = new WebCoreProcessorBasicAutorization();
 
-    public          string          Name    => "BasicAutorization";
+    public          string                                  Name    => "BasicAutorization";
 
-    public          object          Process(WebCoreCall httpCall)
+    public          WebCoreProcessResultBasicAutorization   Process(WebCoreCall httpCall)
     {
         ArgumentNullException.ThrowIfNull(httpCall);
 

@@ -5,13 +5,13 @@ using System.Collections.Specialized;
 
 namespace Jannesen.Web.Core;
 
-public sealed class WebCoreProcessorUrlPathData: IWebCoreProcessor
+public sealed class WebCoreProcessorUrlPathData: IWebCoreProcessor<WebCoreProcessResultUrlPathData>
 {
-    public static readonly  IWebCoreProcessor    Definition = new WebCoreProcessorUrlPathData();
+    public static readonly  IWebCoreProcessor<WebCoreProcessResultUrlPathData>    Definition = new WebCoreProcessorUrlPathData();
 
     public          string          Name    => "UrlPathData";
 
-    public          object          Process(WebCoreCall httpCall)
+    public          WebCoreProcessResultUrlPathData     Process(WebCoreCall httpCall)
     {
         ArgumentNullException.ThrowIfNull(httpCall);
 

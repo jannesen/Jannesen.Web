@@ -13,7 +13,7 @@ internal sealed class WebCoreDataSourceUrlPath: WebCoreDataSource
 
     public      override        WebCoreDataValue        GetValue(WebCoreCall httpCall)
     {
-        return new WebCoreDataValue(httpCall.RequestUrlPathData[Name]);
+        return new WebCoreDataValue(httpCall.GetProcessorResult(WebCoreProcessorUrlPathData.Definition)[Name]);
     }
 
     public      override        string                  ToString()

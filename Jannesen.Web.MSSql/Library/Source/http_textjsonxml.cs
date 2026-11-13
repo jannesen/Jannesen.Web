@@ -20,7 +20,7 @@ internal sealed class http_textjsonxml: WebCoreDataSource
         if (httpCall.Request.Method == "GET" || httpCall.Request.Method == "HEAD")
             throw new WebHandlerConfigException("TEXTXML-BODY not available for HTTP/GET.");
 
-        var jsondoc = httpCall.RequestTextJson.Document;
+        var jsondoc = httpCall.GetProcessorResult(WebCoreProcessorTextJson.Definition).Document;
 
         using (var stringWriter = new StringWriter()) {
 #pragma warning disable CA2000 // refecence to stringWriter which is disposed

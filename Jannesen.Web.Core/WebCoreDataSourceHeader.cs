@@ -49,8 +49,8 @@ sealed class WebCoreDataSourceHeader: WebCoreDataSource
         case "referer":             return new WebCoreDataValue((object?)httpCall.RequestReferer);
         case "user-agent":          return new WebCoreDataValue((object?)httpCall.RequestUserAgent);
         case "remote-addr":         return new WebCoreDataValue((object?)httpCall.RequestRemoteAddr);
-        case "basic-username":      return new WebCoreDataValue((object?)httpCall.RequestBasicAutorization.UserName);
-        case "basic-passwd":        return new WebCoreDataValue((object?)httpCall.RequestBasicAutorization.Passwd);
+        case "basic-username":      return new WebCoreDataValue((object?)httpCall.GetProcessorResult(WebCoreProcessorBasicAutorization.Definition).UserName);
+        case "basic-passwd":        return new WebCoreDataValue((object?)httpCall.GetProcessorResult(WebCoreProcessorBasicAutorization.Definition).Passwd);
         default:                    return new WebCoreDataValue((object?)httpCall.GetHeader(_name));
         }
     }

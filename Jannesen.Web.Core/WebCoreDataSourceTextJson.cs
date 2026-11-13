@@ -16,7 +16,7 @@ internal sealed class WebCoreDataSourceTextJson: WebCoreDataSource
         if (httpCall.Request.Method == "GET" || httpCall.Request.Method == "HEAD")
             throw new WebHandlerConfigException("TEXTJSON-BODY not available for HTTP/GET.");
 
-        if (httpCall.RequestTextJson.GetValue(Name, out var value)) {
+        if (httpCall.GetProcessorResult(WebCoreProcessorTextJson.Definition).GetValue(Name, out var value)) {
             if (!(value == null || value is Int32 || value is Int64 || value is string || value is float || value is double || value is bool))
                 throw new WebInvalidValueException("Invalid JSON value '" + value.GetType().FullName + "'.");
 

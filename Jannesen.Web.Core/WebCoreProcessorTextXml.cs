@@ -3,13 +3,13 @@ using System.Xml;
 
 namespace Jannesen.Web.Core;
 
-public sealed class WebCoreProcessorTextXml: IWebCoreProcessor
+public sealed class WebCoreProcessorTextXml: IWebCoreProcessor<WebCoreProcessResultTextXml>
 {
-    public static readonly  IWebCoreProcessor    Definition = new WebCoreProcessorTextXml();
+    public static readonly  IWebCoreProcessor<WebCoreProcessResultTextXml>    Definition = new WebCoreProcessorTextXml();
 
-    public          string          Name    => "TextXml";
+    public          string                              Name    => "TextXml";
 
-    public          object          Process(WebCoreCall httpCall)
+    public          WebCoreProcessResultTextXml         Process(WebCoreCall httpCall)
     {
         ArgumentNullException.ThrowIfNull(httpCall);
 

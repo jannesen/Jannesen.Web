@@ -11,8 +11,8 @@ public class WebCoreCall
 {
     readonly struct ProcessorInstance
     {
-        public IWebCoreProcessor     Definition   { get; init; }
-        public object                          Instance     { get; init; }
+        public IWebCoreProcessor<object>    Definition   { get; init; }
+        public object                       Instance     { get; init; }
     }
 
     private readonly        WebApplicationConfig                _applicationConfig;
@@ -99,12 +99,8 @@ public class WebCoreCall
             return !string.IsNullOrEmpty(rtn) ? rtn : null;
         }
     }
-    public                  WebCoreProcessResultBody                RequestBody                 => GetProcessorResult<WebCoreProcessResultBody>(WebCoreProcessorBody.Definition);
-    public                  WebCoreProcessResultBasicAutorization   RequestBasicAutorization    => GetProcessorResult<WebCoreProcessResultBasicAutorization>(WebCoreProcessorBasicAutorization.Definition);
-    public                  WebCoreProcessResultUrlPathData         RequestUrlPathData          => GetProcessorResult<WebCoreProcessResultUrlPathData>(WebCoreProcessorUrlPathData.Definition);
-    public                  WebCoreProcessResultTextJson            RequestTextJson             => GetProcessorResult<WebCoreProcessResultTextJson>(WebCoreProcessorTextJson.Definition);
-    public                  WebCoreProcessResultTextXml             RequestTextXml              => GetProcessorResult<WebCoreProcessResultTextXml>(WebCoreProcessorTextXml.Definition);
-
+    public                  WebCoreProcessResultRequestBody     RequestBody => GetProcessorResult(WebCoreProcessorRequestBody.Definition);
+    
     public                                                      WebCoreCall(WebApplicationConfig applicationConfig, HttpContext httpCall, WebCoreHttpHandler handler)
     {
         ArgumentNullException.ThrowIfNull(httpCall);
@@ -126,7 +122,7 @@ public class WebCoreCall
         default: throw new WebHttpException(HttpStatusCode.BadRequest, "Multiple '" + name + "' headers.");
         }
     }
-    public                  T                                   GetProcessorResult<T>(IWebCoreProcessor definition)
+    public                  T                                   GetProcessorResult<T>(IWebCoreProcessor<T> definition) where T : class
     {
         ArgumentNullException.ThrowIfNull(definition);
 
@@ -138,13 +134,13 @@ public class WebCoreCall
 
         var newInstance = definition.Process(this);
         _processors.Add(new ProcessorInstance() {
-                            Definition = definition,
+                            Definition = (IWebCoreProcessor<object>)definition,
                             Instance   = newInstance
                         });
 
-        return (T)newInstance;
+        return newInstance;
     }
-    public                  T?                                  GetProcessorResultOptional<T>(IWebCoreProcessor definition)
+    public                  T?                                  GetProcessorResultOptional<T>(IWebCoreProcessor<T> definition) where T:class
     {
         ArgumentNullException.ThrowIfNull(definition);
 

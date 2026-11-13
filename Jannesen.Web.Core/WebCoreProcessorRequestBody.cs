@@ -7,13 +7,13 @@ namespace Jannesen.Web.Core;
 
 #pragma warning disable CA1819 // Properties should not return arrays
 
-public sealed class WebCoreProcessorBody: IWebCoreProcessor
+public sealed class WebCoreProcessorRequestBody: IWebCoreProcessor<WebCoreProcessResultRequestBody>
 {
-    public static readonly  IWebCoreProcessor    Definition = new WebCoreProcessorBody();
+    public static readonly  IWebCoreProcessor<WebCoreProcessResultRequestBody>    Definition = new WebCoreProcessorRequestBody();
 
-    public          string          Name    => "BodyData";
+    public          string                              Name    => "BodyData";
 
-    public          object          Process(WebCoreCall httpCall)
+    public          WebCoreProcessResultRequestBody     Process(WebCoreCall httpCall)
     {
         ArgumentNullException.ThrowIfNull(httpCall);
 
@@ -35,7 +35,7 @@ public sealed class WebCoreProcessorBody: IWebCoreProcessor
                 }
             }
 
-            return new WebCoreProcessResultBody(httpCall.Request.ContentType, buf);
+            return new WebCoreProcessResultRequestBody(httpCall.Request.ContentType, buf);
         }
 
         if (httpCall.Request.Headers["Transfer-Encoding"].Count > 0) {

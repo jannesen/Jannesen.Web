@@ -7,7 +7,7 @@ namespace Jannesen.Web.Core;
 
 #pragma warning disable CA1819 // Properties should not return arrays
 
-public sealed class WebCoreProcessResultBody(string? contentType, byte[] body)
+public sealed class WebCoreProcessResultRequestBody(string? contentType, byte[] body)
 {
     public          string?         ContentType     => contentType;
     public          byte[]          Data            => body; // Voor nu byte[] omdat Microsoft.Data.SqlClient ReadonlyMemory niet ondersteund.

@@ -3,13 +3,13 @@ using Jannesen.FileFormat.Json;
 
 namespace Jannesen.Web.Core;
 
-public sealed class WebCoreProcessorTextJson: IWebCoreProcessor
+public sealed class WebCoreProcessorTextJson: IWebCoreProcessor<WebCoreProcessResultTextJson>
 {
-    public static readonly  IWebCoreProcessor    Definition = new WebCoreProcessorTextJson();
+    public static readonly  IWebCoreProcessor<WebCoreProcessResultTextJson>    Definition = new WebCoreProcessorTextJson();
 
-    public          string          Name    => "TextJson";
+    public          string                                  Name    => "TextJson";
 
-    public          object          Process(WebCoreCall httpCall)
+    public          WebCoreProcessResultTextJson            Process(WebCoreCall httpCall)
     {
         ArgumentNullException.ThrowIfNull(httpCall);
 

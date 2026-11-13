@@ -16,7 +16,7 @@ internal sealed class WebCoreDataSourceTextXml: WebCoreDataSource
         if (httpCall.Request.Method == "GET" || httpCall.Request.Method == "HEAD")
             throw new WebHandlerConfigException("TEXTXML-BODY not available for HTTP/GET.");
 
-        return new WebCoreDataValue(httpCall.RequestTextXml.GetStringValue(Name));
+        return new WebCoreDataValue(httpCall.GetProcessorResult(WebCoreProcessorTextXml.Definition).GetStringValue(Name));
     }
 
     public      override        string                  ToString()
