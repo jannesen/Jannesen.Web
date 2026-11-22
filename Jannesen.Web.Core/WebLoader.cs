@@ -12,14 +12,18 @@ public sealed class WebLoader
     private     readonly            List<Assembly>                                              _loadedModules;
     private     readonly            Dictionary<WebCoreDynamicClassAttribute, ConstructorInfo>   _dynamicClasses;
     private     readonly            Dictionary<string, WebCoreErrorHandler>                     _errorHandlers;
+    private     readonly            Dictionary<string, IWebCoreProcessorGetDatasource>          _dataSourcesProcessors;
+    private     readonly            Dictionary<string, IWebCoreDataSource>                      _dataSources;
     private     readonly            Lock                                                        _lock;
 
     public                          WebLoader()
     {
-        _loadedModules  = new List<Assembly>();
-        _dynamicClasses = new Dictionary<WebCoreDynamicClassAttribute, ConstructorInfo>(256);
-        _errorHandlers  = new Dictionary<string, WebCoreErrorHandler>(16);
-        _lock           = new Lock();
+        _loadedModules         = new List<Assembly>();
+        _dynamicClasses        = new Dictionary<WebCoreDynamicClassAttribute, ConstructorInfo>(256);
+        _errorHandlers         = new Dictionary<string, WebCoreErrorHandler>(16);
+        _dataSourcesProcessors = new Dictionary<string, IWebCoreProcessorGetDatasource>(16);
+        _dataSources           = new Dictionary<string, IWebCoreDataSource>(1024);
+        _lock                  = new Lock();
 
     }
     public                          void                                Init()
@@ -39,19 +43,21 @@ public sealed class WebLoader
     {
         ArgumentNullException.ThrowIfNull(source);
 
-        if (source.Contains(WebCoreDataSourceMultiple.SplitChar, StringComparison.Ordinal)) {
-            return new WebCoreDataSourceMultiple(source);
+        try {
+            var reader = new DataSourceReader(source);
+            IWebCoreDataSource  rtn;
+
+            lock(_dataSources) {
+                rtn = _parseMulti(reader);
+            }
+
+            reader.Next().Test(DataSourceReader.TokenType.EOF);
+
+            return rtn;
         }
-
-        var sep = source.IndexOf(':', StringComparison.Ordinal);
-        if (sep <= 0) {
-            throw new WebSourceException("Invalid source '" + source + "', name missing.");
+        catch(Exception ex) {
+            throw new WebSourceException($"Invalid datasource 'source'.", ex);
         }
-
-        var processor = source.Substring(0, sep);
-        var name      = source.Substring(sep + 1);
-
-        return (IWebCoreDataSource)ConstructDynamicClass(new WebCoreDataSourceAttribute(processor), name);
     }
     public                          object                              ConstructDynamicClass(WebCoreDynamicClassAttribute className, params object?[] args)
     {
@@ -146,5 +152,91 @@ public sealed class WebLoader
         }
 
         throw new KeyNotFoundException("Unknown class " + name + ".");
+    }
+
+    private                         IWebCoreDataSource                  _parseMulti(DataSourceReader reader)
+    {
+        var ds = _parseSingle(reader);
+
+        if (reader.Peek.Type == DataSourceReader.TokenType.Pipe) {
+            var m = new List<IWebCoreDataSource>();
+            m.Add(ds);
+
+            while (reader.NextIf(DataSourceReader.TokenType.Pipe)) {
+                m.Add(_parseSingle(reader));
+            }
+
+            ds = new WebCoreDataSourceMultiple(m.ToArray());
+        }
+
+        return ds;
+    }
+    private                         IWebCoreDataSource                  _parseSingle(DataSourceReader reader)
+    {
+        var tprocessor = reader.Next().TestName();
+
+        if (reader.NextIf(DataSourceReader.TokenType.LParen)) {
+            var args = new List<IWebCoreDataSource>();
+
+            if (reader.Peek.Type != DataSourceReader.TokenType.RParen) {
+                do {
+                    args.Add(_parseMulti(reader));
+                }
+                while (reader.NextIf(DataSourceReader.TokenType.Comma));
+            }
+
+            reader.Next().Test(DataSourceReader.TokenType.RParen);
+            reader.Next().Test(DataSourceReader.TokenType.Colon);
+            var tname = reader.Next().TestName();
+
+            return _getDatasource(reader, tprocessor, args, tname);
+        }
+        else {
+            reader.Next().Test(DataSourceReader.TokenType.Colon);
+            var tname = reader.Next().TestName();
+
+            return _getDatasource(reader, tprocessor, tname);
+        }
+    }
+    private                         IWebCoreDataSource                  _getDatasource(DataSourceReader reader, DataSourceReader.Token tprocessor, DataSourceReader.Token tname)
+    {
+        var dsname = reader.Str[tprocessor.Start..reader.Peek.Start];
+
+        if (!_dataSources.TryGetValue(dsname, out var datasource)) {
+            datasource = (IWebCoreDataSource)ConstructDynamicClass(new WebCoreDataSourceAttribute(tprocessor.GetString()), tname.GetString());
+            _dataSources[dsname] = datasource;
+        }
+
+        return datasource;
+    }
+    private                         IWebCoreDataSource                  _getDatasource(DataSourceReader reader, DataSourceReader.Token tprocessor, List<IWebCoreDataSource> args,  DataSourceReader.Token tname)
+    {
+        var processorname     = reader.Str[tprocessor.Start..reader.Peek.Start];
+
+        if (!_dataSourcesProcessors.TryGetValue(processorname, out var processor)) {
+            var argsType = new Type[args.Count];
+            for (var i = 0; i < argsType.Length ; i++) {
+                argsType[i] = args[i].GetType();
+            }
+
+            var sprocessor    = tprocessor.GetString();
+            var processorType = _getTypeByClassFullName(sprocessor);
+            if (!typeof(IWebCoreProcessorGetDatasource).IsAssignableFrom(processorType)) {
+                throw new FormatException($"Class {sprocessor} not implements IWebCoreProcessor.");
+            }
+
+            processor = (IWebCoreProcessorGetDatasource)(processorType.GetConstructor(argsType) ?? throw new FormatException($"Can't instance {sprocessor}, invalid number of arguments.")).Invoke(args.ToArray());
+            _dataSourcesProcessors[processorname] = processor;
+            System.Diagnostics.Debug.WriteLine($"Create processor: {processorname}");
+        }
+
+        var dsname = reader.Str[tprocessor.Start..reader.Peek.Start];
+
+        if (!_dataSources.TryGetValue(dsname, out var datasource)) {
+            datasource = processor.GetDataSource(tname.GetString());
+            _dataSources[dsname] = datasource;
+        }
+
+        return datasource;
     }
 }

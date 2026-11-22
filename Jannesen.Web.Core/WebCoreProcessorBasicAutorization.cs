@@ -6,8 +6,6 @@ public class WebCoreProcessorBasicAutorization: IWebCoreProcessor<WebCoreProcess
 {
     public static readonly  IWebCoreProcessor<WebCoreProcessResultBasicAutorization>    Definition = new WebCoreProcessorBasicAutorization();
 
-    public          string                                  Name    => "BasicAutorization";
-
     public          WebCoreProcessResultBasicAutorization   Process(WebCoreCall httpCall)
     {
         ArgumentNullException.ThrowIfNull(httpCall);

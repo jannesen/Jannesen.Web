@@ -9,8 +9,6 @@ public sealed class WebCoreProcessorUrlPathData: IWebCoreProcessor<WebCoreProces
 {
     public static readonly  IWebCoreProcessor<WebCoreProcessResultUrlPathData>    Definition = new WebCoreProcessorUrlPathData();
 
-    public          string          Name    => "UrlPathData";
-
     public          WebCoreProcessResultUrlPathData     Process(WebCoreCall httpCall)
     {
         ArgumentNullException.ThrowIfNull(httpCall);

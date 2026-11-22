@@ -1,30 +1,16 @@
 ﻿using System;
+using System.Text;
 
 namespace Jannesen.Web.Core;
 
-internal sealed class WebCoreDataSourceMultiple: WebCoreDataSource
+internal sealed class WebCoreDataSourceMultiple(IWebCoreDataSource[] list): IWebCoreDataSource
 {
-    public      const           char                    SplitChar = '|';
-
-    private readonly            IWebCoreDataSource[]    _list;
-
-    public                                              WebCoreDataSourceMultiple(string source): base(source)
-    {
-        var sources = source.Split(SplitChar);
-
-        _list = new WebCoreDataSource[sources.Length];
-
-        for (var i = 0 ; i < sources.Length ; ++i) {
-            _list[i] = WebLoader.Instance.GetDataSource(sources[i]);
-        }
-    }
-
-    public      override        WebCoreDataValue        GetValue(WebCoreCall httpCall)
+    public                      WebCoreDataValue        GetValue(WebCoreCall httpCall)
     {
         var rtn = WebCoreDataValue.NoValue;
 
-        for (var i = 0 ; i < _list.Length ; ++i) {
-            rtn = _list[i].GetValue(httpCall);
+        for (var i = 0 ; i < list.Length ; ++i) {
+            rtn = list[i].GetValue(httpCall);
 
             if (rtn.Type != WebCoreDataValueType.NoValue)
                 break;
@@ -35,6 +21,13 @@ internal sealed class WebCoreDataSourceMultiple: WebCoreDataSource
 
     public      override        string                  ToString()
     {
-        return "multiple:" + Name;
+        var rtn = new StringBuilder();
+
+        foreach(var i in list) {
+            if (rtn.Length > 0) rtn.Append('|');
+            rtn.Append(i.ToString());
+        }
+
+        return rtn.ToString();
     }
 }

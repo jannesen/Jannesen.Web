@@ -59,4 +59,3 @@ public sealed class WebCoreProcessResultRequestBody(string? contentType, byte[] 
         }
     }
 }
-

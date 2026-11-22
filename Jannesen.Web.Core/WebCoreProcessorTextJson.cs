@@ -7,8 +7,6 @@ public sealed class WebCoreProcessorTextJson: IWebCoreProcessor<WebCoreProcessRe
 {
     public static readonly  IWebCoreProcessor<WebCoreProcessResultTextJson>    Definition = new WebCoreProcessorTextJson();
 
-    public          string                                  Name    => "TextJson";
-
     public          WebCoreProcessResultTextJson            Process(WebCoreCall httpCall)
     {
         ArgumentNullException.ThrowIfNull(httpCall);

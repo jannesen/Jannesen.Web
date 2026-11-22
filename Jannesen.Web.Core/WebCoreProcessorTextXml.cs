@@ -7,8 +7,6 @@ public sealed class WebCoreProcessorTextXml: IWebCoreProcessor<WebCoreProcessRes
 {
     public static readonly  IWebCoreProcessor<WebCoreProcessResultTextXml>    Definition = new WebCoreProcessorTextXml();
 
-    public          string                              Name    => "TextXml";
-
     public          WebCoreProcessResultTextXml         Process(WebCoreCall httpCall)
     {
         ArgumentNullException.ThrowIfNull(httpCall);

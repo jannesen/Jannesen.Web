@@ -11,8 +11,6 @@ public sealed class WebCoreProcessorRequestBody: IWebCoreProcessor<WebCoreProces
 {
     public static readonly  IWebCoreProcessor<WebCoreProcessResultRequestBody>    Definition = new WebCoreProcessorRequestBody();
 
-    public          string                              Name    => "BodyData";
-
     public          WebCoreProcessResultRequestBody     Process(WebCoreCall httpCall)
     {
         ArgumentNullException.ThrowIfNull(httpCall);

@@ -8,4 +8,3 @@ public sealed class WebCoreProcessResultBasicAutorization(string? username, stri
     public          string?         Passwd          => passwd;
 
 }
-

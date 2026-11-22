@@ -15,4 +15,3 @@ public sealed class WebCoreProcessResultTextXml(XmlDocument? document)
         return document.SelectSingleNode(xpath)?.Value;
     }
 }
-

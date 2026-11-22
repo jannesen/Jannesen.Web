@@ -11,8 +11,8 @@ public class WebCoreCall
 {
     readonly struct ProcessorInstance
     {
-        public IWebCoreProcessor<object>    Definition   { get; init; }
-        public object                       Instance     { get; init; }
+        public object   Definition   { get; init; }
+        public object   Instance     { get; init; }
     }
 
     private readonly        WebApplicationConfig                _applicationConfig;
@@ -100,7 +100,7 @@ public class WebCoreCall
         }
     }
     public                  WebCoreProcessResultRequestBody     RequestBody => GetProcessorResult(WebCoreProcessorRequestBody.Definition);
-    
+
     public                                                      WebCoreCall(WebApplicationConfig applicationConfig, HttpContext httpCall, WebCoreHttpHandler handler)
     {
         ArgumentNullException.ThrowIfNull(httpCall);
@@ -127,14 +127,14 @@ public class WebCoreCall
         ArgumentNullException.ThrowIfNull(definition);
 
         foreach(var p in _processors) {
-            if (p.Definition == definition) {
+            if (object.ReferenceEquals(p.Definition, definition)) {
                 return (T)p.Instance;
             }
         }
 
         var newInstance = definition.Process(this);
         _processors.Add(new ProcessorInstance() {
-                            Definition = (IWebCoreProcessor<object>)definition,
+                            Definition = definition,
                             Instance   = newInstance
                         });
 
