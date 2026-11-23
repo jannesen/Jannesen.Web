@@ -15,7 +15,7 @@ public sealed class WebCoreProcessorRequestBody: IWebCoreProcessor<WebCoreProces
     {
         ArgumentNullException.ThrowIfNull(httpCall);
 
-        var sContentLength = httpCall.GetHeader("Content-Length");
+        var sContentLength = httpCall.Request.GetHeader("Content-Length");
 
         if (!string.IsNullOrEmpty(sContentLength) && int.TryParse(sContentLength, out var contentLength)) {
             var buf = new byte[contentLength];

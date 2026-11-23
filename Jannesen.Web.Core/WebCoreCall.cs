@@ -18,88 +18,17 @@ public class WebCoreCall
     private readonly        WebApplicationConfig                _applicationConfig;
     private readonly        DateTime                            _timestamp;
     private readonly        HttpContext                         _context;
-    private readonly        HttpRequest                         _request;
     private readonly        WebCoreHttpHandler                  _handler;
     private readonly        List<ProcessorInstance>             _processors;
 
     public                  WebApplicationConfig                ApplicationConfig   => _applicationConfig;
     public                  DateTime                            Timestamp           => _timestamp;
     public                  HttpContext                         Context             => _context;
-    public                  HttpRequest                         Request             => _request;
+    public                  HttpRequest                         Request             => _context.Request;
     public                  IMemoryCache                        Cache               => _applicationConfig.Application.Cache;
     public                  WebCoreHttpHandler                  Handler             => _handler;
-    public                  string                              HttpMethod          => _request.Method;
-    public                  string?                             RequestContentType  => _request.ContentType;
-    public                  int?                                RequestContentLength
-    {
-        get {
-            var s = GetHeader("Content-Length");
-
-            if (!string.IsNullOrEmpty(s)) {
-                if (int.TryParse(s, out var rtn)) {
-                    return rtn;
-                }
-            }
-
-            return null;
-        }
-    }
-    public                  DateTime?                           RequestIfModifiedSince
-    {
-        get {
-            var s = GetHeader("If-Modified-Since");
-
-            if (!string.IsNullOrEmpty(s)) {
-                if (DateTime.TryParseExact(s, "R", System.Globalization.DateTimeFormatInfo.InvariantInfo, System.Globalization.DateTimeStyles.AdjustToUniversal, out var rtn))
-                    return rtn;
-            }
-
-            return null;
-        }
-    }
-    public                  string?                             RequestIfNoneMatch
-    {
-        get {
-            var s = GetHeader("If-None-Match");
-
-            return !string.IsNullOrEmpty(s) ? s : null;
-        }
-    }
-    public                  string?                             RequestReferer
-    {
-        get {
-            var s = GetHeader("Referer");
-
-            return !string.IsNullOrEmpty(s) ? s : null;
-        }
-    }
-    public                  string?                             RequestUserAgent
-    {
-        get {
-            var s = GetHeader("User-Agent");
-
-            return !string.IsNullOrEmpty(s) ? s : null;
-        }
-    }
-    public                  string?                             RequestRemoteAddr
-    {
-        get {
-            var rtn = GetHeader("X-Forwarded-For");
-
-            if (!string.IsNullOrEmpty(rtn)) {
-                var p = rtn.IndexOf(',', StringComparison.Ordinal);
-                if (p > 0) {
-                    rtn = rtn.Substring(0, p);
-                }
-            }
-            else {
-                rtn = _context.Connection.RemoteIpAddress?.ToString();
-            }
-
-            return !string.IsNullOrEmpty(rtn) ? rtn : null;
-        }
-    }
-    public                  WebCoreProcessResultRequestBody     RequestBody => GetProcessorResult(WebCoreProcessorRequestBody.Definition);
+    public                  string                              HttpMethod          => _context.Request.Method;
+    public                  WebCoreProcessResultRequestBody     RequestBody         => GetProcessorResult(WebCoreProcessorRequestBody.Definition);
 
     public                                                      WebCoreCall(WebApplicationConfig applicationConfig, HttpContext httpCall, WebCoreHttpHandler handler)
     {
@@ -108,14 +37,13 @@ public class WebCoreCall
         _applicationConfig = applicationConfig;
         _timestamp         = DateTime.UtcNow;
         _context           = httpCall;
-        _request           = httpCall.Request;
         _handler           = handler;
         _processors        = new List<ProcessorInstance>();
     }
 
     public                  string?                             GetHeader(string name)
     {
-        var h = _request.Headers[name];
+        var h = _context.Request.Headers[name];
         switch(h.Count) {
         case 0: return null;
         case 1: return h[0];

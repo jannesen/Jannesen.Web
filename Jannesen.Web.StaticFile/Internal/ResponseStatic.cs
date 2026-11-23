@@ -42,12 +42,12 @@ abstract class ResponseStatic: IWebCoreResponse
 
         if (_lastModified.HasValue) {
             response.Headers.LastModified = _lastModified.Value.ToString("R", System.Globalization.DateTimeFormatInfo.InvariantInfo);
-            ifModifiedSince = call.RequestIfModifiedSince;
+            ifModifiedSince = call.Request.IfModifiedSince;
         }
 
         if (_eTag != null) {
             response.Headers.ETag = _eTag;
-            etag = call.RequestIfNoneMatch;
+            etag = call.Request.IfNoneMatch;
         }
 
         response.Headers.ContentType  = _contentType;
@@ -66,7 +66,7 @@ abstract class ResponseStatic: IWebCoreResponse
         }
 
         response.StatusCode = (int)HttpStatusCode.OK;
-        if (call.HttpMethod != "HEAD") {
+        if (call.Request.Method != "HEAD") {
             SendBodyData(response);
         }
     }

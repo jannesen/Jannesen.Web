@@ -10,7 +10,7 @@ public class WebCoreProcessorBasicAutorization: IWebCoreProcessor<WebCoreProcess
     {
         ArgumentNullException.ThrowIfNull(httpCall);
 
-        var authorization = httpCall.GetHeader("Authorization");
+        var authorization = httpCall.Request.GetHeader("Authorization");
         if (authorization != null && authorization.StartsWith("Basic ", StringComparison.Ordinal)) {
             var authstr     = System.Text.Encoding.ASCII.GetString(System.Convert.FromBase64String(authorization.Substring(6)));
             var authstrPos  = authstr.IndexOf(':', StringComparison.Ordinal);

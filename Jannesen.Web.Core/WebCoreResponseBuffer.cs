@@ -90,12 +90,12 @@ public class WebCoreResponseBuffer: IWebCoreResponse
 
                     if (LastModified < DateTime.MaxValue) {
                         response.Headers.LastModified = LastModified.ToString("R", System.Globalization.DateTimeFormatInfo.InvariantInfo);
-                        req_ifModifiedSince = call.RequestIfModifiedSince;
+                        req_ifModifiedSince = call.Request.IfModifiedSince;
                     }
 
                     if (ETag != null) {
                         response.Headers.ETag = ETag;
-                        req_etag              = call.RequestIfNoneMatch;
+                        req_etag              = call.Request.IfNoneMatch;
                     }
 
                     response.Headers.CacheControl = CacheMaxAge >= 0
@@ -140,7 +140,7 @@ public class WebCoreResponseBuffer: IWebCoreResponse
                 response.Headers.ContentType = ContentType;
             }
 
-            if (call.HttpMethod == "HEAD" && StatusCode == HttpStatusCode.OK) {
+            if (call.Request.Method == "HEAD" && StatusCode == HttpStatusCode.OK) {
                 return;
             }
 

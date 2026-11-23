@@ -41,8 +41,8 @@ sealed class WebCoreDataSourceBody: WebCoreDataSource
             throw new WebHandlerConfigException("BODY not available in with HTTP/GET.");
 
         switch(_valueCode) {
-        case ValueNameCode.ContentType:     return new WebCoreDataValue((object?)httpCall.RequestContentType);
-        case ValueNameCode.ContentLength:   return new WebCoreDataValue((object?)httpCall.RequestContentLength);
+        case ValueNameCode.ContentType:     return new WebCoreDataValue((object?)httpCall.RequestBody.ContentType);
+        case ValueNameCode.ContentLength:   return new WebCoreDataValue((object?)httpCall.RequestBody.ContentLength);
         case ValueNameCode.Data:            return new WebCoreDataValue((object)httpCall.RequestBody.Data);
         case ValueNameCode.Text:            return new WebCoreDataValue((object?)httpCall.RequestBody.GetString("text/plain"));
         case ValueNameCode.Json:            return new WebCoreDataValue((object?)httpCall.RequestBody.GetString("application/json"));

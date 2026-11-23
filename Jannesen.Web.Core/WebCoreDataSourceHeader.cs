@@ -43,15 +43,15 @@ sealed class WebCoreDataSourceHeader: WebCoreDataSource
     public      override        WebCoreDataValue        GetValue(WebCoreCall httpCall)
     {
         switch(_name) {
-        case "method":              return new WebCoreDataValue((object)httpCall.HttpMethod);
-        case "if-modified-since":   return new WebCoreDataValue((object?)httpCall.RequestIfModifiedSince);
-        case "if-none-match":       return new WebCoreDataValue((object?)httpCall.RequestIfNoneMatch);
-        case "referer":             return new WebCoreDataValue((object?)httpCall.RequestReferer);
-        case "user-agent":          return new WebCoreDataValue((object?)httpCall.RequestUserAgent);
-        case "remote-addr":         return new WebCoreDataValue((object?)httpCall.RequestRemoteAddr);
+        case "method":              return new WebCoreDataValue((object)httpCall.Request.Method);
+        case "if-modified-since":   return new WebCoreDataValue((object?)httpCall.Request.IfModifiedSince);
+        case "if-none-match":       return new WebCoreDataValue((object?)httpCall.Request.IfNoneMatch);
+        case "referer":             return new WebCoreDataValue((object?)httpCall.Request.Referer);
+        case "user-agent":          return new WebCoreDataValue((object?)httpCall.Request.UserAgent);
+        case "remote-addr":         return new WebCoreDataValue((object?)httpCall.RemoteAddr);
         case "basic-username":      return new WebCoreDataValue((object?)httpCall.GetProcessorResult(WebCoreProcessorBasicAutorization.Definition).UserName);
         case "basic-passwd":        return new WebCoreDataValue((object?)httpCall.GetProcessorResult(WebCoreProcessorBasicAutorization.Definition).Passwd);
-        default:                    return new WebCoreDataValue((object?)httpCall.GetHeader(_name));
+        default:                    return new WebCoreDataValue((object?)httpCall.Request.GetHeader(_name));
         }
     }
 
