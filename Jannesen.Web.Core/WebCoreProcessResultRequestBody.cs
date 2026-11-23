@@ -10,7 +10,8 @@ namespace Jannesen.Web.Core;
 public sealed class WebCoreProcessResultRequestBody(string? contentType, byte[] body)
 {
     public          string?         ContentType     => contentType;
-    public          byte[]          Data            => body; // Voor nu byte[] omdat Microsoft.Data.SqlClient ReadonlyMemory niet ondersteund.
+    public          byte[]          Data            => body;    // Voor nu byte[] omdat Microsoft.Data.SqlClient ReadonlyMemory niet ondersteund.
+                                                                // See https://github.com/dotnet/SqlClient/issues/4491
 
     public          Stream          GetStream()
     {
