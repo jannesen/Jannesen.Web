@@ -11,15 +11,15 @@ public class WebCoreCall
 {
     readonly struct ProcessorInstance
     {
-        public object   Definition   { get; init; }
-        public object   Instance     { get; init; }
+        public IWebCoreProcessor<object>    Definition      { get; init; }
+        public object                       Instance        { get; init; }
     }
 
     private readonly        WebApplicationConfig                _applicationConfig;
     private readonly        DateTime                            _timestamp;
     private readonly        HttpContext                         _context;
     private readonly        WebCoreHttpHandler                  _handler;
-    private readonly        List<ProcessorInstance>             _processors;
+    private readonly        List<ProcessorInstance>             _processorInstances;
 
     public                  WebApplicationConfig                ApplicationConfig   => _applicationConfig;
     public                  DateTime                            Timestamp           => _timestamp;
@@ -38,7 +38,18 @@ public class WebCoreCall
         _timestamp         = DateTime.UtcNow;
         _context           = httpCall;
         _handler           = handler;
-        _processors        = new List<ProcessorInstance>();
+        _processorInstances        = new List<ProcessorInstance>();
+    }
+
+    public                  void                                LoadProcessors()
+    {
+        foreach(var processor in _handler.Processors) {
+            _processorInstances.Add(new ProcessorInstance() {
+                                        Definition = processor,
+                                        Instance   = processor.Process(this)
+                                    });
+
+        }
     }
 
     public                  string?                             GetHeader(string name)
@@ -50,30 +61,17 @@ public class WebCoreCall
         default: throw new WebHttpException(HttpStatusCode.BadRequest, "Multiple '" + name + "' headers.");
         }
     }
-    public                  T                                   GetProcessorResult<T>(IWebCoreProcessor<T> definition) where T : class
+    public                  T                                   GetProcessorResult<T>(IWebCoreProcessor<T> processor) where T : class
     {
-        ArgumentNullException.ThrowIfNull(definition);
-
-        foreach(var p in _processors) {
-            if (object.ReferenceEquals(p.Definition, definition)) {
-                return (T)p.Instance;
-            }
-        }
-
-        var newInstance = definition.Process(this);
-        _processors.Add(new ProcessorInstance() {
-                            Definition = definition,
-                            Instance   = newInstance
-                        });
-
-        return newInstance;
+        return GetProcessorResultOptional(processor) ??
+                    throw new InvalidOperationException($"processor '{processor}' instance not created.");
     }
     public                  T?                                  GetProcessorResultOptional<T>(IWebCoreProcessor<T> definition) where T:class
     {
         ArgumentNullException.ThrowIfNull(definition);
 
-        foreach(var p in _processors) {
-            if (p.Definition == definition) {
+        foreach(var p in _processorInstances) {
+            if (object.ReferenceEquals(p.Definition, definition)) {
                 return (T)p.Instance;
             }
         }

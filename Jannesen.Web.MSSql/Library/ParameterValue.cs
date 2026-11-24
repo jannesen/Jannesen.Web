@@ -10,12 +10,14 @@ public class ParameterValue: Parameter
     private readonly        IWebCoreDataSource  _source;
     private readonly        bool                _optional;
 
-    public                                      ParameterValue(string type, WebCoreConfigReader configReader): base(configReader)
+    public                                      ParameterValue(WebCoreHttpHandler handler, WebCoreConfigReader configReader): base(configReader)
     {
+        ArgumentNullException.ThrowIfNull(handler);
         ArgumentNullException.ThrowIfNull(configReader);
 
-        var source = configReader.GetValueString  ("source");
-        _optional  = configReader.GetValueBool    ("optional", false);
+        var type   = configReader.GetValueString("type");
+        var source = configReader.GetValueString("source");
+        _optional  = configReader.GetValueBool  ("optional", false);
 
         try {
             _type = ValueConvertor.GetType(type);
@@ -25,7 +27,7 @@ public class ParameterValue: Parameter
         }
 
         try {
-            _source = WebLoader.Instance.GetDataSource(source);
+            _source = handler.GetDataSource(source);
         }
         catch(Exception err) {
             throw new WebConfigException("Invalid source '" + source + "'.", err, configReader);

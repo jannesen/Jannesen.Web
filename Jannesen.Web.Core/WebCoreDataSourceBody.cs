@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Generic;
 
 #pragma warning disable CA1812 // Avoid uninstantiated internal classes (created using reflection)
 
@@ -17,9 +18,9 @@ sealed class WebCoreDataSourceBody: WebCoreDataSource
         TextXml
     }
 
-    private readonly            ValueNameCode           _valueCode;
+    private readonly            ValueNameCode                           _valueCode;
 
-    public                                              WebCoreDataSourceBody(string name_args): base(name_args)
+    public                                                              WebCoreDataSourceBody(string name_args): base(name_args)
     {
         switch(Name) {
         case "content-type":
@@ -35,7 +36,11 @@ sealed class WebCoreDataSourceBody: WebCoreDataSource
         }
     }
 
-    public      override        WebCoreDataValue        GetValue(WebCoreCall httpCall)
+    public      override        IEnumerable<IWebCoreProcessor<object>>  GetRequiredProcessors()
+    {
+        return [ WebCoreProcessorRequestBody.Definition ];
+    }
+    public      override        WebCoreDataValue                        GetValue(WebCoreCall httpCall)
     {
         if (httpCall.Request.Method == "GET" || httpCall.Request.Method == "HEAD")
             throw new WebHandlerConfigException("BODY not available in with HTTP/GET.");
@@ -51,7 +56,7 @@ sealed class WebCoreDataSourceBody: WebCoreDataSource
         }
     }
 
-    public      override        string                  ToString()
+    public      override        string                                  ToString()
     {
         return "body:" + Name;
     }

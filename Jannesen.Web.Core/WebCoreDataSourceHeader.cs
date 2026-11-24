@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Generic;
 
 #pragma warning disable CA1812 // Avoid uninstantiated internal classes (created using reflection)
 
@@ -7,9 +8,9 @@ namespace Jannesen.Web.Core;
 [WebCoreDataSourceAttribute("header")]
 sealed class WebCoreDataSourceHeader: WebCoreDataSource
 {
-    private readonly            string                  _name;
+    private readonly            string                                  _name;
 
-    public                                              WebCoreDataSourceHeader(string name_args): base(name_args)
+    public                                                              WebCoreDataSourceHeader(string name_args): base(name_args)
     {
         switch(Name) {
         case "method":
@@ -40,7 +41,17 @@ sealed class WebCoreDataSourceHeader: WebCoreDataSource
         }
     }
 
-    public      override        WebCoreDataValue        GetValue(WebCoreCall httpCall)
+    public      override        IEnumerable<IWebCoreProcessor<object>>  GetRequiredProcessors()
+    {
+        switch(_name) {
+        case "basic-username":
+        case "basic-passwd":
+            return [ WebCoreProcessorBasicAutorization.Definition ];
+        default:
+            return [];
+        }
+    }
+    public      override        WebCoreDataValue                        GetValue(WebCoreCall httpCall)
     {
         switch(_name) {
         case "method":              return new WebCoreDataValue((object)httpCall.Request.Method);
@@ -55,7 +66,7 @@ sealed class WebCoreDataSourceHeader: WebCoreDataSource
         }
     }
 
-    public      override        string                  ToString()
+    public      override        string                                  ToString()
     {
         return "header:" + Name;
     }

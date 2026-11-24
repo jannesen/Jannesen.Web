@@ -1,7 +1,6 @@
 ﻿using System;
-using System.IO;
+using System.Collections.Generic;
 using System.Net;
-using Jannesen.FileFormat.Json;
 
 namespace Jannesen.Web.Core;
 
@@ -11,7 +10,11 @@ public sealed class WebCoreProcessorRequestBody: IWebCoreProcessor<WebCoreProces
 {
     public static readonly  IWebCoreProcessor<WebCoreProcessResultRequestBody>    Definition = new WebCoreProcessorRequestBody();
 
-    public          WebCoreProcessResultRequestBody     Process(WebCoreCall httpCall)
+    public          IEnumerable<IWebCoreProcessor<object>>  GetRequiredProcessors()
+    {
+        return [];
+    }
+    public          WebCoreProcessResultRequestBody         Process(WebCoreCall httpCall)
     {
         ArgumentNullException.ThrowIfNull(httpCall);
 

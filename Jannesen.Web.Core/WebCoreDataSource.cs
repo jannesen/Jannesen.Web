@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Generic;
 
 namespace Jannesen.Web.Core;
 
@@ -13,5 +14,6 @@ public abstract class WebCoreDataSource: IWebCoreDataSource
         _name = name;
     }
 
-    public      abstract        WebCoreDataValue        GetValue(WebCoreCall call);
+    public      abstract        IEnumerable<IWebCoreProcessor<object>>  GetRequiredProcessors();
+    public      abstract        WebCoreDataValue                        GetValue(WebCoreCall call);
 }

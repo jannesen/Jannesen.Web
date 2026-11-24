@@ -8,24 +8,27 @@ namespace Jannesen.Web.Core;
 
 public abstract class WebCoreHttpHandler
 {
-    private readonly        string                              _path;
-    private readonly        string                              _verb;
-    private readonly        WebCoreWildcardPathProcessor?       _wildcardPathProcessor;
-    private readonly        WebCoreErrorHandler                 _errorHandler;
-    private readonly        ResourceLogging?                    _logging;
+    private readonly        string                                      _path;
+    private readonly        string                                      _verb;
+    private readonly        List<IWebCoreProcessor<object>>             _processors;
+    private readonly        WebCoreWildcardPathProcessor?               _wildcardPathProcessor;
+    private readonly        WebCoreErrorHandler                         _errorHandler;
+    private readonly        ResourceLogging?                            _logging;
 
-    public                  string                              Path                    => _path;
-    public                  string                              Verb                    => _verb;
-    internal                WebCoreWildcardPathProcessor?       WildcardPathProcessor   => _wildcardPathProcessor;
-    public                  ResourceLogging?                    Logging                 => _logging;
-    public      virtual     string?                             Mimetype                => null;
+    public                  string                                      Path                    => _path;
+    public                  string                                      Verb                    => _verb;
+    public                  IReadOnlyList<IWebCoreProcessor<object>>    Processors              => _processors;
+    internal                WebCoreWildcardPathProcessor?               WildcardPathProcessor   => _wildcardPathProcessor;
+    public                  ResourceLogging?                            Logging                 => _logging;
+    public      virtual     string?                                     Mimetype                => null;
 
-    protected                                                   WebCoreHttpHandler(WebCoreConfigReader configReader)
+    protected                                                           WebCoreHttpHandler(WebCoreConfigReader configReader)
     {
         ArgumentNullException.ThrowIfNull(configReader);
 
-        _path   = configReader.GetValuePathName("path");
-        _verb   = string.Intern(configReader.GetValueString("verb", "GET")!.ToUpperInvariant());
+        _path         = configReader.GetValuePathName("path");
+        _verb         = string.Intern(configReader.GetValueString("verb", "GET")!.ToUpperInvariant());
+        _processors   = new List<IWebCoreProcessor<object>>();
         _errorHandler = WebLoader.Instance.GetErrorHandler(configReader.GetValueString("error-handler", null));
 
         var logging = configReader.GetValueString("logging", null);
@@ -36,7 +39,7 @@ public abstract class WebCoreHttpHandler
         _wildcardPathProcessor = WebCoreWildcardPathProcessor.GetProcessor(_path);
     }
 
-    public      virtual     void                                ProcessRequest(WebApplicationConfig applicationConfig, HttpContext context)
+    public      virtual     void                                        ProcessRequest(WebApplicationConfig applicationConfig, HttpContext context)
     {
         ArgumentNullException.ThrowIfNull(applicationConfig);
         ArgumentNullException.ThrowIfNull(context);
@@ -44,18 +47,44 @@ public abstract class WebCoreHttpHandler
         _processRequest(applicationConfig, context);
     }
 
-    public      abstract    IWebCoreResponse                    Process(WebCoreCall httpCall);
-    public      virtual     WebCoreErrorData?                   ProcessError(Exception err)
+    public      abstract    IWebCoreResponse                            Process(WebCoreCall httpCall);
+    public      virtual     WebCoreErrorData?                           ProcessError(Exception err)
     {
         return null;
     }
 
-    private                 void                                _processRequest(WebApplicationConfig applicationConfig, HttpContext context)
+    public                  IWebCoreDataSource                          GetDataSource(string source)
+    {
+        var ds = WebLoader.Instance.GetDataSource(source);
+
+        foreach(var p in ds.GetRequiredProcessors()) {
+            _addProcessor(p);
+        }
+
+        return ds;
+    }
+
+    private                 void                                        _addProcessor(IWebCoreProcessor<object> processor)
+    {
+        foreach(var p in _processors) {
+            if (object.ReferenceEquals(p, processor)) {
+                return ;
+            }
+        }
+
+        foreach(var p in processor.GetRequiredProcessors()) {
+            _addProcessor(p);
+        }
+
+        _processors.Add(processor);
+    }
+    private                 void                                        _processRequest(WebApplicationConfig applicationConfig, HttpContext context)
     {
         var             httpCall    = new WebCoreCall(applicationConfig, context, this);
         IWebCoreResponse webResponse;
 
         try {
+            httpCall.LoadProcessors();
             webResponse = Process(httpCall);
         }
         catch(WebHttpException err) {

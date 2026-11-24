@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.IO;
 using System.Xml;
 using Jannesen.FileFormat.Json;
@@ -11,11 +12,15 @@ namespace Jannesen.Web.MSSql.Library.Source;
 [WebCoreDataSourceAttribute("textjsonxml")]
 internal sealed class http_textjsonxml: WebCoreDataSource
 {
-    public                                              http_textjsonxml(string name_args): base(name_args)
+    public                                                              http_textjsonxml(string name_args): base(name_args)
     {
     }
 
-    public      override        WebCoreDataValue        GetValue(WebCoreCall httpCall)
+    public      override        IEnumerable<IWebCoreProcessor<object>>  GetRequiredProcessors()
+    {
+        return [ WebCoreProcessorTextJson.Definition ];
+    }
+    public      override        WebCoreDataValue                        GetValue(WebCoreCall httpCall)
     {
         if (httpCall.Request.Method == "GET" || httpCall.Request.Method == "HEAD")
             throw new WebHandlerConfigException("TEXTXML-BODY not available for HTTP/GET.");
@@ -41,7 +46,7 @@ internal sealed class http_textjsonxml: WebCoreDataSource
         }
     }
 
-    private                     void                    _jsonToXmlElement(XmlWriter xmlWriter, string elementName, JsonObject jsonObject)
+    private                     void                                    _jsonToXmlElement(XmlWriter xmlWriter, string elementName, JsonObject jsonObject)
     {
         xmlWriter.WriteStartElement(elementName);
 
@@ -62,7 +67,7 @@ internal sealed class http_textjsonxml: WebCoreDataSource
 
         xmlWriter.WriteEndElement();
     }
-    private                     void                    _jsonToXmlElement(XmlWriter xmlWriter, string elementName, JsonArray jsonArray)
+    private                     void                                    _jsonToXmlElement(XmlWriter xmlWriter, string elementName, JsonArray jsonArray)
     {
         xmlWriter.WriteStartElement(elementName);
 
@@ -80,7 +85,7 @@ internal sealed class http_textjsonxml: WebCoreDataSource
 
         xmlWriter.WriteEndElement();
     }
-    private     static          void                    _jsonToXmlAttribute(XmlWriter xmlWriter, string attributeName, object? value)
+    private     static          void                                    _jsonToXmlAttribute(XmlWriter xmlWriter, string attributeName, object? value)
     {
         if (value != null) {
             if (value is string vstring)
@@ -98,7 +103,7 @@ internal sealed class http_textjsonxml: WebCoreDataSource
                 throw new WebConversionException("Can't convert json '" + value.GetType().Name + "' to xml-attribute.");
         }
     }
-    public      override        string                  ToString()
+    public      override        string                                  ToString()
     {
         return "textjsonxml";
     }

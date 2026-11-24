@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Generic;
 using Jannesen.FileFormat.Json;
 
 namespace Jannesen.Web.Core;
@@ -7,6 +8,10 @@ public sealed class WebCoreProcessorTextJson: IWebCoreProcessor<WebCoreProcessRe
 {
     public static readonly  IWebCoreProcessor<WebCoreProcessResultTextJson>    Definition = new WebCoreProcessorTextJson();
 
+    public          IEnumerable<IWebCoreProcessor<object>>  GetRequiredProcessors()
+    {
+        return [ WebCoreProcessorRequestBody.Definition ];
+    }
     public          WebCoreProcessResultTextJson            Process(WebCoreCall httpCall)
     {
         ArgumentNullException.ThrowIfNull(httpCall);

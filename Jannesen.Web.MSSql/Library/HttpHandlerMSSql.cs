@@ -27,13 +27,7 @@ public abstract class HttpHandlerMSSql: WebCoreHttpHandler
     {
         ArgumentNullException.ThrowIfNull(configReader);
 
-        var type     = configReader.GetValueString  ("type");
-
-        Parameter parameter;
-
-        parameter = new ParameterValue(type, configReader);
-
-        _parameters.Add(parameter);
+        _parameters.Add(new ParameterValue(this, configReader));
     }
 
     public      override    IWebCoreResponse            Process(WebCoreCall httpCall)

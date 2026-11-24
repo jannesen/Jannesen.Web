@@ -181,7 +181,11 @@ public sealed class WebApplicationConfig: IDisposable
     }
     private                         void                                _addHttpHandler(WebCoreHttpHandler coreHttpHandler)
     {
-        System.Diagnostics.Debug.WriteLine("Add HttpHandler: " + coreHttpHandler.Path + " [" + coreHttpHandler.Verb + "]");
+        System.Diagnostics.Debug.WriteLine($"Add HttpHandler: {coreHttpHandler.Path} [{ coreHttpHandler.Verb }]");
+        foreach(var p in coreHttpHandler.Processors) {
+            System.Diagnostics.Debug.WriteLine($"  {p}");
+        }
+
         _httpHandlers.Add(coreHttpHandler);
     }
     private                         void                                _addResource(WebCoreResource coreResource)

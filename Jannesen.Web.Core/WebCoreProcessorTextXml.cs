@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.Xml;
 
 namespace Jannesen.Web.Core;
@@ -7,7 +8,11 @@ public sealed class WebCoreProcessorTextXml: IWebCoreProcessor<WebCoreProcessRes
 {
     public static readonly  IWebCoreProcessor<WebCoreProcessResultTextXml>    Definition = new WebCoreProcessorTextXml();
 
-    public          WebCoreProcessResultTextXml         Process(WebCoreCall httpCall)
+    public          IEnumerable<IWebCoreProcessor<object>>  GetRequiredProcessors()
+    {
+        return [ WebCoreProcessorRequestBody.Definition ];
+    }
+    public          WebCoreProcessResultTextXml             Process(WebCoreCall httpCall)
     {
         ArgumentNullException.ThrowIfNull(httpCall);
 

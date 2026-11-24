@@ -16,7 +16,7 @@ public sealed class WebLoader
     private     readonly            Dictionary<string, IWebCoreDataSource>                      _dataSources;
     private     readonly            Lock                                                        _lock;
 
-    public                          WebLoader()
+    public                                                              WebLoader()
     {
         _loadedModules         = new List<Assembly>();
         _dynamicClasses        = new Dictionary<WebCoreDynamicClassAttribute, ConstructorInfo>(256);
@@ -26,7 +26,7 @@ public sealed class WebLoader
         _lock                  = new Lock();
 
     }
-    public                          void                                Init()
+    internal                        void                                Init()
     {
         // Load a
         _loadAssembly(this.GetType().Assembly);
@@ -39,7 +39,7 @@ public sealed class WebLoader
         _loadAssembly(Assembly.Load(name));
     }
 
-    public                          IWebCoreDataSource                  GetDataSource(string source)
+    internal                        IWebCoreDataSource                  GetDataSource(string source)
     {
         ArgumentNullException.ThrowIfNull(source);
 
@@ -186,22 +186,24 @@ public sealed class WebLoader
             }
 
             reader.Next().Test(DataSourceReader.TokenType.RParen);
-            reader.Next().Test(DataSourceReader.TokenType.Colon);
-            var tname = reader.Next().TestName();
+            var processorname = reader.Str[tprocessor.Start..reader.Peek.Start];
 
-            return _getDatasource(reader, tprocessor, args, tname);
+            reader.Next().Test(DataSourceReader.TokenType.Colon);
+            var tname  = reader.Next().TestName();
+            var dsname = reader.Str[tprocessor.Start..reader.Peek.Start];
+
+            return _getDatasource(reader, dsname, processorname, tprocessor, args, tname);
         }
         else {
             reader.Next().Test(DataSourceReader.TokenType.Colon);
-            var tname = reader.Next().TestName();
+            var tname  = reader.Next().TestName();
+            var dsname = reader.Str[tprocessor.Start..reader.Peek.Start];
 
-            return _getDatasource(reader, tprocessor, tname);
+            return _getDatasource(reader, dsname, tprocessor, tname);
         }
     }
-    private                         IWebCoreDataSource                  _getDatasource(DataSourceReader reader, DataSourceReader.Token tprocessor, DataSourceReader.Token tname)
+    private                         IWebCoreDataSource                  _getDatasource(DataSourceReader reader, string dsname, DataSourceReader.Token tprocessor, DataSourceReader.Token tname)
     {
-        var dsname = reader.Str[tprocessor.Start..reader.Peek.Start];
-
         if (!_dataSources.TryGetValue(dsname, out var datasource)) {
             datasource = (IWebCoreDataSource)ConstructDynamicClass(new WebCoreDataSourceAttribute(tprocessor.GetString()), tname.GetString());
             _dataSources[dsname] = datasource;
@@ -209,10 +211,8 @@ public sealed class WebLoader
 
         return datasource;
     }
-    private                         IWebCoreDataSource                  _getDatasource(DataSourceReader reader, DataSourceReader.Token tprocessor, List<IWebCoreDataSource> args,  DataSourceReader.Token tname)
+    private                         IWebCoreDataSource                  _getDatasource(DataSourceReader reader, string dsname, string processorname, DataSourceReader.Token tprocessor, List<IWebCoreDataSource> args,  DataSourceReader.Token tname)
     {
-        var processorname     = reader.Str[tprocessor.Start..reader.Peek.Start];
-
         if (!_dataSourcesProcessors.TryGetValue(processorname, out var processor)) {
             var argsType = new Type[args.Count];
             for (var i = 0; i < argsType.Length ; i++) {
@@ -230,7 +230,6 @@ public sealed class WebLoader
             System.Diagnostics.Debug.WriteLine($"Create processor: {processorname}");
         }
 
-        var dsname = reader.Str[tprocessor.Start..reader.Peek.Start];
 
         if (!_dataSources.TryGetValue(dsname, out var datasource)) {
             datasource = processor.GetDataSource(tname.GetString());

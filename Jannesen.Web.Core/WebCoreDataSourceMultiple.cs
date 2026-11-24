@@ -1,11 +1,17 @@
 ﻿using System;
+using System.Collections.Generic;
+using System.Linq;
 using System.Text;
 
 namespace Jannesen.Web.Core;
 
 internal sealed class WebCoreDataSourceMultiple(IWebCoreDataSource[] list): IWebCoreDataSource
 {
-    public                      WebCoreDataValue        GetValue(WebCoreCall httpCall)
+    public                      IEnumerable<IWebCoreProcessor<object>>  GetRequiredProcessors()
+    {
+        return WebCoreLibrary.JoinDatasourcesArray(list);
+    }
+    public                      WebCoreDataValue                        GetValue(WebCoreCall httpCall)
     {
         var rtn = WebCoreDataValue.NoValue;
 
@@ -19,7 +25,7 @@ internal sealed class WebCoreDataSourceMultiple(IWebCoreDataSource[] list): IWeb
         return rtn;
     }
 
-    public      override        string                  ToString()
+    public      override        string                                  ToString()
     {
         var rtn = new StringBuilder();
 

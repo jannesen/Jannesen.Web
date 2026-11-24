@@ -1,5 +1,5 @@
 ﻿using System;
-using System.Collections.Specialized;
+using System.Collections.Generic;
 
 #pragma warning disable CA1010 // Collections should implement generic interface. Fault in NameValueCollection.
 
@@ -9,7 +9,11 @@ public sealed class WebCoreProcessorUrlPathData: IWebCoreProcessor<WebCoreProces
 {
     public static readonly  IWebCoreProcessor<WebCoreProcessResultUrlPathData>    Definition = new WebCoreProcessorUrlPathData();
 
-    public          WebCoreProcessResultUrlPathData     Process(WebCoreCall httpCall)
+    public          IEnumerable<IWebCoreProcessor<object>>  GetRequiredProcessors()
+    {
+        return [];
+    }
+    public          WebCoreProcessResultUrlPathData         Process(WebCoreCall httpCall)
     {
         ArgumentNullException.ThrowIfNull(httpCall);
 
