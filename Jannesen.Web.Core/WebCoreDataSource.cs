@@ -14,6 +14,6 @@ public abstract class WebCoreDataSource: IWebCoreDataSource
         _name = name;
     }
 
-    public      abstract        IEnumerable<IWebCoreProcessor<object>>  GetRequiredProcessors();
-    public      abstract        WebCoreDataValue                        GetValue(WebCoreCall call);
+    public      abstract        IEnumerable<IWebCoreProcessor>  GetRequiredProcessors();
+    public      abstract        WebCoreDataValue                GetValue(WebCoreCall call);
 }

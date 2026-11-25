@@ -6,13 +6,13 @@ namespace Jannesen.Web.Core;
 
 public sealed class WebCoreProcessorRequestBody: IWebCoreProcessor<WebCoreProcessResultRequestBody>
 {
-    public static readonly  IWebCoreProcessor<WebCoreProcessResultRequestBody>    Definition = new WebCoreProcessorRequestBody();
+    public static readonly  IWebCoreProcessor<WebCoreProcessResultRequestBody>  Processor = new WebCoreProcessorRequestBody();
 
-    public          IEnumerable<IWebCoreProcessor<object>>  GetRequiredProcessors()
+    public          IEnumerable<IWebCoreProcessor>      GetRequiredProcessors()
     {
         return [];
     }
-    public          WebCoreProcessResultRequestBody         Process(WebCoreCall httpCall)
+    public          object                              Process(WebCoreCall httpCall)
     {
         ArgumentNullException.ThrowIfNull(httpCall);
 

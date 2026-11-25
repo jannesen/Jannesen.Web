@@ -6,13 +6,13 @@ namespace Jannesen.Web.Core;
 
 public sealed class WebCoreProcessorTextJson: IWebCoreProcessor<WebCoreProcessResultTextJson>
 {
-    public static readonly  IWebCoreProcessor<WebCoreProcessResultTextJson>    Definition = new WebCoreProcessorTextJson();
+    public static readonly  IWebCoreProcessor<WebCoreProcessResultTextJson> Processor = new WebCoreProcessorTextJson();
 
-    public          IEnumerable<IWebCoreProcessor<object>>  GetRequiredProcessors()
+    public          IEnumerable<IWebCoreProcessor>      GetRequiredProcessors()
     {
-        return [ WebCoreProcessorRequestBody.Definition ];
+        return [ WebCoreProcessorRequestBody.Processor ];
     }
-    public          WebCoreProcessResultTextJson            Process(WebCoreCall httpCall)
+    public          object                              Process(WebCoreCall httpCall)
     {
         ArgumentNullException.ThrowIfNull(httpCall);
 

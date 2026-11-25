@@ -9,20 +9,20 @@ namespace Jannesen.Web.Core;
 [SuppressMessage("Performance", "CA1812", Justification = "Instantiated by reflection")]
 internal sealed class WebCoreDataSourceTextJson: WebCoreDataSource
 {
-    public                                                              WebCoreDataSourceTextJson(string name_args): base(name_args)
+    public                                                          WebCoreDataSourceTextJson(string name_args): base(name_args)
     {
     }
 
-    public      override        IEnumerable<IWebCoreProcessor<object>>  GetRequiredProcessors()
+    public      override        IEnumerable<IWebCoreProcessor>      GetRequiredProcessors()
     {
-        return [ WebCoreProcessorTextJson.Definition ];
+        return [ WebCoreProcessorTextJson.Processor ];
     }
-    public      override        WebCoreDataValue                        GetValue(WebCoreCall httpCall)
+    public      override        WebCoreDataValue                    GetValue(WebCoreCall httpCall)
     {
         if (httpCall.Request.Method == "GET" || httpCall.Request.Method == "HEAD")
             throw new WebHandlerConfigException("TEXTJSON-BODY not available for HTTP/GET.");
 
-        if (httpCall.GetProcessorResult(WebCoreProcessorTextJson.Definition).GetValue(Name, out var value)) {
+        if (httpCall.GetProcessorResult(WebCoreProcessorTextJson.Processor).GetValue(Name, out var value)) {
             if (!(value == null || value is Int32 || value is Int64 || value is string || value is float || value is double || value is bool))
                 throw new WebInvalidValueException("Invalid JSON value '" + value.GetType().FullName + "'.");
 
@@ -32,7 +32,7 @@ internal sealed class WebCoreDataSourceTextJson: WebCoreDataSource
             return WebCoreDataValue.NoValue;
     }
 
-    public      override        string                                  ToString()
+    public      override        string                              ToString()
     {
         return "textjson:" + Name;
     }

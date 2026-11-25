@@ -9,17 +9,17 @@ namespace Jannesen.Web.Core;
 
 public class WebCoreCall
 {
-    readonly struct ProcessorInstance
+    readonly struct ProcessorResult
     {
-        public IWebCoreProcessor<object>    Definition      { get; init; }
-        public object                       Instance        { get; init; }
+        public IWebCoreProcessor    Processor       { get; init; }
+        public object               Result          { get; init; }
     }
 
     private readonly        WebApplicationConfig                _applicationConfig;
     private readonly        DateTime                            _timestamp;
     private readonly        HttpContext                         _context;
     private readonly        WebCoreHttpHandler                  _handler;
-    private readonly        List<ProcessorInstance>             _processorInstances;
+    private readonly        List<ProcessorResult>               _processorResult;
 
     public                  WebApplicationConfig                ApplicationConfig   => _applicationConfig;
     public                  DateTime                            Timestamp           => _timestamp;
@@ -28,7 +28,7 @@ public class WebCoreCall
     public                  IMemoryCache                        Cache               => _applicationConfig.Application.Cache;
     public                  WebCoreHttpHandler                  Handler             => _handler;
     public                  string                              HttpMethod          => _context.Request.Method;
-    public                  WebCoreProcessResultRequestBody     RequestBody         => GetProcessorResult(WebCoreProcessorRequestBody.Definition);
+    public                  WebCoreProcessResultRequestBody     RequestBody         => GetProcessorResult(WebCoreProcessorRequestBody.Processor);
 
     public                                                      WebCoreCall(WebApplicationConfig applicationConfig, HttpContext httpCall, WebCoreHttpHandler handler)
     {
@@ -38,15 +38,15 @@ public class WebCoreCall
         _timestamp         = DateTime.UtcNow;
         _context           = httpCall;
         _handler           = handler;
-        _processorInstances        = new List<ProcessorInstance>();
+        _processorResult        = new List<ProcessorResult>();
     }
 
     public                  void                                LoadProcessors()
     {
         foreach(var processor in _handler.Processors) {
-            _processorInstances.Add(new ProcessorInstance() {
-                                        Definition = processor,
-                                        Instance   = processor.Process(this)
+            _processorResult.Add(new ProcessorResult() {
+                                        Processor  = processor,
+                                        Result     = processor.Process(this)
                                     });
 
         }
@@ -70,9 +70,9 @@ public class WebCoreCall
     {
         ArgumentNullException.ThrowIfNull(definition);
 
-        foreach(var p in _processorInstances) {
-            if (object.ReferenceEquals(p.Definition, definition)) {
-                return (T)p.Instance;
+        foreach(var p in _processorResult) {
+            if (object.ReferenceEquals(p.Processor, definition)) {
+                return (T)p.Result;
             }
         }
 

@@ -13,7 +13,7 @@ sealed class WebCoreDataSourceCookie: WebCoreDataSource
     {
     }
 
-    public      override        IEnumerable<IWebCoreProcessor<object>>  GetRequiredProcessors()
+    public      override        IEnumerable<IWebCoreProcessor>          GetRequiredProcessors()
     {
         return [];
     }

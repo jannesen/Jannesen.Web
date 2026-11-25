@@ -2,7 +2,11 @@
 
 namespace Jannesen.Web.Core;
 
-public interface IWebCoreProcessor<out T>: IWebCoreProcessorRequired where T: class
+public interface IWebCoreProcessor: IWebCoreProcessorRequired
 {
-    T               Process(WebCoreCall httpCall);
+    object              Process(WebCoreCall httpCall);
+}
+
+public interface IWebCoreProcessor<T>: IWebCoreProcessor where T: class
+{
 }

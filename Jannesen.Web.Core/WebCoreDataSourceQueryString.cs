@@ -13,7 +13,7 @@ internal sealed class WebCoreDataSourceQueryString: WebCoreDataSource
     {
     }
 
-    public      override        IEnumerable<IWebCoreProcessor<object>>  GetRequiredProcessors()
+    public      override        IEnumerable<IWebCoreProcessor>          GetRequiredProcessors()
     {
         return [];
     }

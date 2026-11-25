@@ -9,23 +9,23 @@ namespace Jannesen.Web.Core;
 [SuppressMessage("Performance", "CA1812", Justification = "Instantiated by reflection")]
 internal sealed class WebCoreDataSourceTextXml: WebCoreDataSource
 {
-    public                                                              WebCoreDataSourceTextXml(string name_args): base(name_args)
+    public                                                          WebCoreDataSourceTextXml(string name_args): base(name_args)
     {
     }
 
-    public      override        IEnumerable<IWebCoreProcessor<object>>  GetRequiredProcessors()
+    public      override        IEnumerable<IWebCoreProcessor>      GetRequiredProcessors()
     {
-        return [ WebCoreProcessorTextXml.Definition ];
+        return [ WebCoreProcessorTextXml.Processor ];
     }
-    public      override        WebCoreDataValue                        GetValue(WebCoreCall httpCall)
+    public      override        WebCoreDataValue                    GetValue(WebCoreCall httpCall)
     {
         if (httpCall.Request.Method == "GET" || httpCall.Request.Method == "HEAD")
             throw new WebHandlerConfigException("TEXTXML-BODY not available for HTTP/GET.");
 
-        return new WebCoreDataValue(httpCall.GetProcessorResult(WebCoreProcessorTextXml.Definition).GetStringValue(Name));
+        return new WebCoreDataValue(httpCall.GetProcessorResult(WebCoreProcessorTextXml.Processor).GetStringValue(Name));
     }
 
-    public      override        string                                  ToString()
+    public      override        string                              ToString()
     {
         return "textxml:" + Name;
     }

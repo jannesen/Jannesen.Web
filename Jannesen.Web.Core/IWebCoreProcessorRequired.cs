@@ -5,5 +5,5 @@ namespace Jannesen.Web.Core;
 
 public interface IWebCoreProcessorRequired
 {
-    IEnumerable<IWebCoreProcessor<object>>      GetRequiredProcessors();
+    IEnumerable<IWebCoreProcessor>          GetRequiredProcessors();
 }

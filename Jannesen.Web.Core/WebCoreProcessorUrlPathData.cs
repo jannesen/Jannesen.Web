@@ -5,13 +5,13 @@ namespace Jannesen.Web.Core;
 
 public sealed class WebCoreProcessorUrlPathData: IWebCoreProcessor<WebCoreProcessResultUrlPathData>
 {
-    public static readonly  IWebCoreProcessor<WebCoreProcessResultUrlPathData>    Definition = new WebCoreProcessorUrlPathData();
+    public static readonly  IWebCoreProcessor<WebCoreProcessResultUrlPathData>  Processor = new WebCoreProcessorUrlPathData();
 
-    public          IEnumerable<IWebCoreProcessor<object>>  GetRequiredProcessors()
+    public          IEnumerable<IWebCoreProcessor>      GetRequiredProcessors()
     {
         return [];
     }
-    public          WebCoreProcessResultUrlPathData         Process(WebCoreCall httpCall)
+    public          object                              Process(WebCoreCall httpCall)
     {
         ArgumentNullException.ThrowIfNull(httpCall);
 

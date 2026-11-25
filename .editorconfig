@@ -61,7 +61,6 @@ dotnet_diagnostic.CA1308.severity = none
 # CA1416: Validate platform compatibility (code analysis)
 dotnet_diagnostic.CA1416.severity = none
 
-
 # CA1707: Identifiers should not contain underscores
 dotnet_diagnostic.CA1707.severity = none
 
@@ -73,6 +72,9 @@ dotnet_diagnostic.CA1716.severity = none
 
 # CA1815: Override equals and operator equals on value types
 dotnet_diagnostic.CA1815.severity = none
+
+# CA2007: Do not directly await a Task
+dotnet_diagnostic.CA2007.severity = none
 
 # CA2100: Review SQL queries for security vulnerabilities
 dotnet_diagnostic.CA2100.severity = none

@@ -9,20 +9,20 @@ namespace Jannesen.Web.Core;
 [SuppressMessage("Performance", "CA1812", Justification = "Instantiated by reflection")]
 internal sealed class WebCoreDataSourceUrlPath: WebCoreDataSource
 {
-    public                                                              WebCoreDataSourceUrlPath(string name_args): base(name_args)
+    public                                                          WebCoreDataSourceUrlPath(string name_args): base(name_args)
     {
     }
 
-    public      override        IEnumerable<IWebCoreProcessor<object>>  GetRequiredProcessors()
+    public      override        IEnumerable<IWebCoreProcessor>      GetRequiredProcessors()
     {
-        return [ WebCoreProcessorUrlPathData.Definition ];
+        return [ WebCoreProcessorUrlPathData.Processor ];
     }
-    public      override        WebCoreDataValue                        GetValue(WebCoreCall httpCall)
+    public      override        WebCoreDataValue                    GetValue(WebCoreCall httpCall)
     {
-        return new WebCoreDataValue(httpCall.GetProcessorResult(WebCoreProcessorUrlPathData.Definition)[Name]);
+        return new WebCoreDataValue(httpCall.GetProcessorResult(WebCoreProcessorUrlPathData.Processor)[Name]);
     }
 
-    public      override        string                                  ToString()
+    public      override        string                              ToString()
     {
         return "querystring:" + Name;
     }

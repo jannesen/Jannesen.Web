@@ -11,7 +11,7 @@ sealed class WebCoreDataSourceHeader: WebCoreDataSource
 {
     private readonly            string                                  _name;
 
-    public                                                              WebCoreDataSourceHeader(string name_args): base(name_args)
+    public                                                          WebCoreDataSourceHeader(string name_args): base(name_args)
     {
         switch(Name) {
         case "method":
@@ -42,17 +42,17 @@ sealed class WebCoreDataSourceHeader: WebCoreDataSource
         }
     }
 
-    public      override        IEnumerable<IWebCoreProcessor<object>>  GetRequiredProcessors()
+    public      override        IEnumerable<IWebCoreProcessor>      GetRequiredProcessors()
     {
         switch(_name) {
         case "basic-username":
         case "basic-passwd":
-            return [ WebCoreProcessorBasicAutorization.Definition ];
+            return [ WebCoreProcessorBasicAutorization.Processor ];
         default:
             return [];
         }
     }
-    public      override        WebCoreDataValue                        GetValue(WebCoreCall httpCall)
+    public      override        WebCoreDataValue                    GetValue(WebCoreCall httpCall)
     {
         switch(_name) {
         case "method":              return new WebCoreDataValue((object)httpCall.Request.Method);
@@ -61,13 +61,13 @@ sealed class WebCoreDataSourceHeader: WebCoreDataSource
         case "referer":             return new WebCoreDataValue((object?)httpCall.Request.Referer);
         case "user-agent":          return new WebCoreDataValue((object?)httpCall.Request.UserAgent);
         case "remote-addr":         return new WebCoreDataValue((object?)httpCall.RemoteAddr);
-        case "basic-username":      return new WebCoreDataValue((object?)httpCall.GetProcessorResult(WebCoreProcessorBasicAutorization.Definition).UserName);
-        case "basic-passwd":        return new WebCoreDataValue((object?)httpCall.GetProcessorResult(WebCoreProcessorBasicAutorization.Definition).Passwd);
+        case "basic-username":      return new WebCoreDataValue((object?)httpCall.GetProcessorResult(WebCoreProcessorBasicAutorization.Processor).UserName);
+        case "basic-passwd":        return new WebCoreDataValue((object?)httpCall.GetProcessorResult(WebCoreProcessorBasicAutorization.Processor).Passwd);
         default:                    return new WebCoreDataValue((object?)httpCall.Request.GetHeader(_name));
         }
     }
 
-    public      override        string                                  ToString()
+    public      override        string                              ToString()
     {
         return "header:" + Name;
     }
