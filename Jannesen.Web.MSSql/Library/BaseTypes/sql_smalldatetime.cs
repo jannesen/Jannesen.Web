@@ -1,11 +1,12 @@
 ﻿using System;
 using System.Data;
-
-#pragma warning disable CA1812 // Avoid uninstantiated internal classes (created using reflection)
+using System.Diagnostics.CodeAnalysis;
 
 namespace Jannesen.Web.MSSql.Library.BaseTypes;
 
-[ValueConvertorAttributeBaseType("smalldatetime")]
+[ValueConvertorBaseType("smalldatetime")]
+[DynamicallyAccessedMembers(DynamicallyAccessedMemberTypes.All)]
+[SuppressMessage("Performance", "CA1812", Justification = "Instantiated by reflection")]
 internal sealed class sql_smalldatetime: sql_datetime
 {
     public          override            SqlDbType           DBType      => SqlDbType.SmallDateTime;

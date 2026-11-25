@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Diagnostics.CodeAnalysis;
 using System.Collections.Generic;
 using System.IO;
 using System.Threading;
@@ -11,7 +12,9 @@ using Jannesen.Web.Core;
 
 namespace Jannesen.Web.ExcelExport;
 
-[WebCoreHttpHandlerAttribute("sql-excelexport")]
+[WebCoreHttpHandler("sql-excelexport")]
+[DynamicallyAccessedMembers(DynamicallyAccessedMemberTypes.All)]
+[SuppressMessage("Performance", "CA1812", Justification = "Instantiated by reflection")]
 public class HttpHandlerExcelExport: HttpHandlerMSSql
 {
     private        readonly List<ConfigSheet>           _sheets;

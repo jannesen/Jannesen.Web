@@ -55,9 +55,12 @@ dotnet_diagnostic.CA1032.severity = none
 # CA1056: URI properties should not be strings
 dotnet_diagnostic.CA1056.severity = none
 
-
 # CA1308: Normalize strings to uppercase
 dotnet_diagnostic.CA1308.severity = none
+
+# CA1416: Validate platform compatibility (code analysis)
+dotnet_diagnostic.CA1416.severity = none
+
 
 # CA1707: Identifiers should not contain underscores
 dotnet_diagnostic.CA1707.severity = none

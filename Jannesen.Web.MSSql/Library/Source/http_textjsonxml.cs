@@ -1,15 +1,16 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Diagnostics.CodeAnalysis;
 using System.IO;
 using System.Xml;
 using Jannesen.FileFormat.Json;
 using Jannesen.Web.Core;
 
-#pragma warning disable CA1812 // Avoid uninstantiated internal classes (created using reflection)
-
 namespace Jannesen.Web.MSSql.Library.Source;
 
-[WebCoreDataSourceAttribute("textjsonxml")]
+[WebCoreDataSource("textjsonxml")]
+[DynamicallyAccessedMembers(DynamicallyAccessedMemberTypes.All)]
+[SuppressMessage("Performance", "CA1812", Justification = "Instantiated by reflection")]
 internal sealed class http_textjsonxml: WebCoreDataSource
 {
     public                                                              http_textjsonxml(string name_args): base(name_args)
@@ -28,19 +29,15 @@ internal sealed class http_textjsonxml: WebCoreDataSource
         var jsondoc = httpCall.GetProcessorResult(WebCoreProcessorTextJson.Definition).Document;
 
         using (var stringWriter = new StringWriter()) {
-#pragma warning disable CA2000 // refecence to stringWriter which is disposed
-            var xmlWriter = XmlWriter.Create(stringWriter, new XmlWriterSettings() { CloseOutput=false, OmitXmlDeclaration=true });
-#pragma warning restore CA2000
-
-            if (jsondoc is JsonObject docObject)
-                _jsonToXmlElement(xmlWriter, "json-object", docObject);
-            else
-            if (jsondoc is JsonArray docArray)
-                _jsonToXmlElement(xmlWriter, "json-array", docArray);
-            else
-                throw new WebRequestException("Invalid JSON content");
-
-            xmlWriter.Flush();
+            using (var xmlWriter = XmlWriter.Create(stringWriter, new XmlWriterSettings() { CloseOutput=false, OmitXmlDeclaration=true })) {
+                if (jsondoc is JsonObject docObject)
+                    _jsonToXmlElement(xmlWriter, "json-object", docObject);
+                else
+                if (jsondoc is JsonArray docArray)
+                    _jsonToXmlElement(xmlWriter, "json-array", docArray);
+                else
+                    throw new WebRequestException("Invalid JSON content");
+            }
 
             return new WebCoreDataValue(stringWriter.ToString());
         }

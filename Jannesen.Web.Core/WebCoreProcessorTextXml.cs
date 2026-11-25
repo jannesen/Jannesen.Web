@@ -20,9 +20,9 @@ public sealed class WebCoreProcessorTextXml: IWebCoreProcessor<WebCoreProcessRes
             using(var reader = httpCall.RequestBody.GetStreamReader("text/xml")) {
                 if (reader != null) {
                     var document = new XmlDocument() { XmlResolver=null } ;
-#pragma warning disable CA2000 // CA2000: Dispose objects before losing scope
-                    document.Load(new XmlTextReader(reader) { DtdProcessing = DtdProcessing.Prohibit, XmlResolver = null });
-#pragma warning restore CA2000
+                    using (var r = new XmlTextReader(reader) { DtdProcessing = DtdProcessing.Prohibit, XmlResolver = null }) {
+                        document.Load(r);
+                    }
                     return new WebCoreProcessResultTextXml(document);
                 }
             }

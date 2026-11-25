@@ -4,11 +4,11 @@ using Jannesen.Web.Core;
 
 namespace Jannesen.Web.MSSql.Library;
 
-public sealed class ValueConvertorAttributeBaseType: WebCoreDynamicClassAttribute
+public sealed class ValueConvertorBaseTypeAttribute: WebCoreDynamicClassAttribute
 {
     public      override    string                          Type            => "sql-type";
 
-    public                                                  ValueConvertorAttributeBaseType(string name): base(name)
+    public                                                  ValueConvertorBaseTypeAttribute(string name): base(name)
     {
     }
 

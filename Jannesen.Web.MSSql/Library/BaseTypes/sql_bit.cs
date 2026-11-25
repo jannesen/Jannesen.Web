@@ -1,11 +1,12 @@
 ﻿using System;
 using System.Data;
-
-#pragma warning disable CA1812 // Avoid uninstantiated internal classes (created using reflection)
+using System.Diagnostics.CodeAnalysis;
 
 namespace Jannesen.Web.MSSql.Library.BaseTypes;
 
-[ValueConvertorAttributeBaseType("bit")]
+[ValueConvertorBaseType("bit")]
+[DynamicallyAccessedMembers(DynamicallyAccessedMemberTypes.All)]
+[SuppressMessage("Performance", "CA1812", Justification = "Instantiated by reflection")]
 internal sealed class sql_bit: ValueConvertor_SqlNative
 {
     public          override            SqlDbType           DBType      => SqlDbType.Bit;

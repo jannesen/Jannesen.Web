@@ -1,11 +1,12 @@
 ﻿using System;
 using System.Data;
-
-#pragma warning disable CA1812 // Avoid uninstantiated internal classes (created using reflection)
+using System.Diagnostics.CodeAnalysis;
 
 namespace Jannesen.Web.MSSql.Library.BaseTypes;
 
-[ValueConvertorAttributeBaseType("xml")]
+[ValueConvertorBaseType("xml")]
+[DynamicallyAccessedMembers(DynamicallyAccessedMemberTypes.All)]
+[SuppressMessage("Performance", "CA1812", Justification = "Instantiated by reflection")]
 internal sealed class sql_xml: ValueConvertor_SqlNative
 {
     public          override            SqlDbType           DBType      => SqlDbType.Xml;

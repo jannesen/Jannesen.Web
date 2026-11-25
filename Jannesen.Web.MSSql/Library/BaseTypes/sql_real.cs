@@ -1,12 +1,13 @@
 ﻿using System;
 using System.Data;
+using System.Diagnostics.CodeAnalysis;
 using System.Globalization;
-
-#pragma warning disable CA1812 // Avoid uninstantiated internal classes (created using reflection)
 
 namespace Jannesen.Web.MSSql.Library.BaseTypes;
 
-[ValueConvertorAttributeBaseType("real")]
+[ValueConvertorBaseType("real")]
+[DynamicallyAccessedMembers(DynamicallyAccessedMemberTypes.All)]
+[SuppressMessage("Performance", "CA1812", Justification = "Instantiated by reflection")]
 internal sealed class sql_real: ValueConvertor_SqlNativeWithLength
 {
     public          override            SqlDbType           DBType      => SqlDbType.Real;

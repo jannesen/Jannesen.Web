@@ -1,11 +1,13 @@
 ﻿using System;
+using System.Diagnostics.CodeAnalysis;
 using System.Globalization;
 
-#pragma warning disable CA1812 // Avoid uninstantiated internal classes (created using reflection)
 
 namespace Jannesen.Web.MSSql.Library.BaseTypes;
 
-[ValueConvertorAttributeBaseType("numeric")]
+[ValueConvertorBaseType("numeric")]
+[DynamicallyAccessedMembers(DynamicallyAccessedMemberTypes.All)]
+[SuppressMessage("Performance", "CA1812", Justification = "Instantiated by reflection")]
 internal sealed class sql_numeric: sql_decimal
 {
     public                                                  sql_numeric(string s): base(s)

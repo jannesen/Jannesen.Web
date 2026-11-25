@@ -192,17 +192,17 @@ public sealed class WebLoader
             var tname  = reader.Next().TestName();
             var dsname = reader.Str[tprocessor.Start..reader.Peek.Start];
 
-            return _getDatasource(reader, dsname, processorname, tprocessor, args, tname);
+            return _getDatasource(dsname, processorname, tprocessor, args, tname);
         }
         else {
             reader.Next().Test(DataSourceReader.TokenType.Colon);
             var tname  = reader.Next().TestName();
             var dsname = reader.Str[tprocessor.Start..reader.Peek.Start];
 
-            return _getDatasource(reader, dsname, tprocessor, tname);
+            return _getDatasource(dsname, tprocessor, tname);
         }
     }
-    private                         IWebCoreDataSource                  _getDatasource(DataSourceReader reader, string dsname, DataSourceReader.Token tprocessor, DataSourceReader.Token tname)
+    private                         IWebCoreDataSource                  _getDatasource(string dsname, DataSourceReader.Token tprocessor, DataSourceReader.Token tname)
     {
         if (!_dataSources.TryGetValue(dsname, out var datasource)) {
             datasource = (IWebCoreDataSource)ConstructDynamicClass(new WebCoreDataSourceAttribute(tprocessor.GetString()), tname.GetString());
@@ -211,7 +211,7 @@ public sealed class WebLoader
 
         return datasource;
     }
-    private                         IWebCoreDataSource                  _getDatasource(DataSourceReader reader, string dsname, string processorname, DataSourceReader.Token tprocessor, List<IWebCoreDataSource> args,  DataSourceReader.Token tname)
+    private                         IWebCoreDataSource                  _getDatasource(string dsname, string processorname, DataSourceReader.Token tprocessor, List<IWebCoreDataSource> args,  DataSourceReader.Token tname)
     {
         if (!_dataSourcesProcessors.TryGetValue(processorname, out var processor)) {
             var argsType = new Type[args.Count];

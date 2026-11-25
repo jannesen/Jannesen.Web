@@ -4,8 +4,6 @@ using System.IO;
 using System.IO.Compression;
 using Microsoft.AspNetCore.Http;
 
-#pragma warning disable CA1815 // Override equals and operator equals on value types
-
 namespace Jannesen.Web.Core;
 
 public readonly struct WebCoreResponseCompressor
@@ -80,7 +78,7 @@ public readonly struct WebCoreResponseCompressor
 
         return null;
     }
-    public  static          byte[]                  Compress(string encoding, Stream input)
+    public      static      byte[]                  Compress(string encoding, Stream input)
     {
         ArgumentNullException.ThrowIfNull(encoding);
         ArgumentNullException.ThrowIfNull(input);

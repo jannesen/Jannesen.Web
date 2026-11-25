@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Diagnostics.CodeAnalysis;
 using System.Collections.Generic;
 using System.Net;
 using System.Xml;
@@ -9,7 +10,9 @@ using Jannesen.Web.Core;
 
 namespace Jannesen.Web.MSSql;
 
-[WebCoreHttpHandlerAttribute("sql-json2")]
+[WebCoreHttpHandler("sql-json2")]
+[DynamicallyAccessedMembers(DynamicallyAccessedMemberTypes.All)]
+[SuppressMessage("Performance", "CA1812", Justification = "Instantiated by reflection")]
 public class HttpHandlerSqlXmlJson2: HttpHandlerMSSql
 {
     private abstract class ResponseRoot

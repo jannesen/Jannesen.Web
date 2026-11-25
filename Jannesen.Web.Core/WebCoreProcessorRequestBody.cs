@@ -4,8 +4,6 @@ using System.Net;
 
 namespace Jannesen.Web.Core;
 
-#pragma warning disable CA1819 // Properties should not return arrays
-
 public sealed class WebCoreProcessorRequestBody: IWebCoreProcessor<WebCoreProcessResultRequestBody>
 {
     public static readonly  IWebCoreProcessor<WebCoreProcessResultRequestBody>    Definition = new WebCoreProcessorRequestBody();

@@ -1,12 +1,13 @@
 ﻿using System;
 using System.Data;
+using System.Diagnostics.CodeAnalysis;
 using System.Globalization;
-
-#pragma warning disable CA1812 // Avoid uninstantiated internal classes (created using reflection)
 
 namespace Jannesen.Web.MSSql.Library.BaseTypes;
 
-[ValueConvertorAttributeBaseType("datetime2")]
+[ValueConvertorBaseType("datetime2")]
+[DynamicallyAccessedMembers(DynamicallyAccessedMemberTypes.All)]
+[SuppressMessage("Performance", "CA1812", Justification = "Instantiated by reflection")]
 internal sealed class sql_datetime2: ValueConvertor_SqlNative
 {
     private readonly                    int                 _precision;

@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Diagnostics.CodeAnalysis;
 using System.Net;
 using Microsoft.Data.SqlClient;
 using Jannesen.Web.MSSql.Library;
@@ -6,7 +7,9 @@ using Jannesen.Web.Core;
 
 namespace Jannesen.Web.MSSql;
 
-[WebCoreHttpHandlerAttribute("sql-raw")]
+[WebCoreHttpHandler("sql-raw")]
+[DynamicallyAccessedMembers(DynamicallyAccessedMemberTypes.All)]
+[SuppressMessage("Performance", "CA1812", Justification = "Instantiated by reflection")]
 public class HttpHandlerSqlRaw: HttpHandlerMSSql
 {
     public                                              HttpHandlerSqlRaw(WebCoreConfigReader configReader): base(configReader)

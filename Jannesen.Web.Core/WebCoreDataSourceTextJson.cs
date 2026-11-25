@@ -1,11 +1,12 @@
 ﻿using System;
 using System.Collections.Generic;
-
-#pragma warning disable CA1812 // Avoid uninstantiated internal classes (created using reflection)
+using System.Diagnostics.CodeAnalysis;
 
 namespace Jannesen.Web.Core;
 
-[WebCoreDataSourceAttribute("textjson")]
+[WebCoreDataSource("textjson")]
+[DynamicallyAccessedMembers(DynamicallyAccessedMemberTypes.All)]
+[SuppressMessage("Performance", "CA1812", Justification = "Instantiated by reflection")]
 internal sealed class WebCoreDataSourceTextJson: WebCoreDataSource
 {
     public                                                              WebCoreDataSourceTextJson(string name_args): base(name_args)

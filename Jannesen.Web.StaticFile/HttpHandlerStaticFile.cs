@@ -1,14 +1,15 @@
 ﻿using System;
+using System.Diagnostics.CodeAnalysis;
 using System.IO;
 using System.Net;
 using Microsoft.Extensions.Caching.Memory;
 using Jannesen.Web.Core;
 
-#pragma warning disable CA3003 // Potential file path injection vulnerability was found where (_mapPhysicalPath has a path validator);
-
 namespace Jannesen.Web.StaticFile;
 
-[WebCoreHttpHandlerAttribute("staticfile")]
+[WebCoreHttpHandler("staticfile")]
+[DynamicallyAccessedMembers(DynamicallyAccessedMemberTypes.All)]
+[SuppressMessage("Performance", "CA1812", Justification = "Instantiated by reflection")]
 public class HttpHandlerStaticFile: WebCoreHttpHandler
 {
     private readonly        string              _directory;
@@ -106,11 +107,12 @@ public class HttpHandlerStaticFile: WebCoreHttpHandler
                 continue;
             }
 
-            throw new WebHttpException(HttpStatusCode.BadRequest, "Invalid character in url.");
+            throw new WebHttpException(HttpStatusCode.BadRequest, "Invalid character in url");
         }
 
         return _directory + path.Replace("/", "\\", StringComparison.Ordinal);
     }
+    [SuppressMessage("Performance", "CA3003", Justification = "physicalPath is validated by _mapPhysicalPath.")]
     private     static      FileInfo            _getFileInfo(string physicalPath)
     {
         FileInfo    fileinfo;

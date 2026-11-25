@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Diagnostics.CodeAnalysis;
 using System.Globalization;
 using System.IO;
 using System.Net;
@@ -10,7 +11,9 @@ using Jannesen.Web.Core;
 
 namespace Jannesen.Web.MSSql;
 
-[WebCoreHttpHandlerAttribute("sql-json")]
+[WebCoreHttpHandler("sql-json")]
+[DynamicallyAccessedMembers(DynamicallyAccessedMemberTypes.All)]
+[SuppressMessage("Performance", "CA1812", Justification = "Instantiated by reflection")]
 public class HttpHandlerSqlXmlJson: HttpHandlerMSSql
 {
     public      override    string                      Mimetype            => "application/json";

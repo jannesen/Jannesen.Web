@@ -1,11 +1,13 @@
 ﻿using System;
 using System.Data;
+using System.Diagnostics.CodeAnalysis;
 
-#pragma warning disable CA1812 // Avoid uninstantiated internal classes (created using reflection)
 
 namespace Jannesen.Web.MSSql.Library.BaseTypes;
 
-[ValueConvertorAttributeBaseType("image")]
+[ValueConvertorBaseType("image")]
+[DynamicallyAccessedMembers(DynamicallyAccessedMemberTypes.All)]
+[SuppressMessage("Performance", "CA1812", Justification = "Instantiated by reflection")]
 internal sealed class sql_image: ValueConvertor_SqlNative
 {
     public          override            SqlDbType           DBType      => SqlDbType.Image;

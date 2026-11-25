@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Diagnostics.CodeAnalysis;
 using System.Globalization;
 using System.IO;
 using System.Threading;
@@ -7,7 +8,9 @@ using Microsoft.AspNetCore.Http.Extensions;
 
 namespace Jannesen.Web.Core;
 
-[WebCoreResourceAttribute("logging")]
+[WebCoreResource("logging")]
+[DynamicallyAccessedMembers(DynamicallyAccessedMemberTypes.All)]
+[SuppressMessage("Performance", "CA1812", Justification = "Instantiated by reflection")]
 public class ResourceLogging: WebCoreResource
 {
     private readonly        string              _directory;
@@ -98,8 +101,6 @@ public class ResourceLogging: WebCoreResource
         writer.WriteLine(call.Request.GetEncodedPathAndQuery());
 
         foreach(var h in call.Request.Headers) {
-            var key = h.Key;
-
             for(var i = 0 ; i < h.Value.Count ; i++) {
                 var value = h.Value[i];
 

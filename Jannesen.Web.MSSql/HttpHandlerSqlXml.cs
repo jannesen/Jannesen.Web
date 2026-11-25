@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Diagnostics.CodeAnalysis;
 using System.IO;
 using System.Net;
 using System.Xml;
@@ -9,7 +10,9 @@ using Jannesen.Web.Core;
 
 namespace Jannesen.Web.MSSql;
 
-[WebCoreHttpHandlerAttribute("sql-xml")]
+[WebCoreHttpHandler("sql-xml")]
+[DynamicallyAccessedMembers(DynamicallyAccessedMemberTypes.All)]
+[SuppressMessage("Performance", "CA1812", Justification = "Instantiated by reflection")]
 public class HttpHandlerSqlXml: HttpHandlerMSSql
 {
     private readonly        bool                        _xmlIdent;

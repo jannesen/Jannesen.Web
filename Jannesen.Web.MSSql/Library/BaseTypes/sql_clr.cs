@@ -1,13 +1,14 @@
 ﻿using System;
 using System.Data;
+using System.Diagnostics.CodeAnalysis;
 using System.Reflection;
 using System.Runtime.InteropServices;
 
-#pragma warning disable CA1812 // Avoid uninstantiated internal classes (created using reflection)
-
 namespace Jannesen.Web.MSSql.Library.BaseTypes;
 
-[ValueConvertorAttributeBaseType("clr")]
+[ValueConvertorBaseType("clr")]
+[DynamicallyAccessedMembers(DynamicallyAccessedMemberTypes.All)]
+[SuppressMessage("Performance", "CA1812", Justification = "Instantiated by reflection")]
 internal sealed class sql_clr: ValueConvertor_SqlNative
 {
     private         readonly            Type                _type;

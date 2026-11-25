@@ -1,11 +1,12 @@
 ﻿using System;
 using System.Collections.Generic;
-
-#pragma warning disable CA1812 // Avoid uninstantiated internal classes (created using reflection)
+using System.Diagnostics.CodeAnalysis;
 
 namespace Jannesen.Web.Core;
 
-[WebCoreDataSourceAttribute("urlpath")]
+[WebCoreDataSource("urlpath")]
+[DynamicallyAccessedMembers(DynamicallyAccessedMemberTypes.All)]
+[SuppressMessage("Performance", "CA1812", Justification = "Instantiated by reflection")]
 internal sealed class WebCoreDataSourceUrlPath: WebCoreDataSource
 {
     public                                                              WebCoreDataSourceUrlPath(string name_args): base(name_args)

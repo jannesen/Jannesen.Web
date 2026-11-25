@@ -1,8 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
 
-#pragma warning disable CA1010 // Collections should implement generic interface. Fault in NameValueCollection.
-
 namespace Jannesen.Web.Core;
 
 public sealed class WebCoreProcessorUrlPathData: IWebCoreProcessor<WebCoreProcessResultUrlPathData>
@@ -21,20 +19,16 @@ public sealed class WebCoreProcessorUrlPathData: IWebCoreProcessor<WebCoreProces
             throw new WebHandlerConfigException("URL-PATH parameters not available, because not a wildcard handler.");
         }
 
-        var rtn = new WebCoreProcessResultUrlPathData();
-
         var names = httpCall.Handler.WildcardPathProcessor.Names;
 
         if (names != null) {
             var match = httpCall.Handler.WildcardPathProcessor.RegexMatch(httpCall.Request.Path);
 
             if (match != null) {
-                foreach(var name in names) {
-                    rtn.Add(name, match.Groups[name].Value);
-                }
+                return new WebCoreProcessResultUrlPathData(names, match);
             }
         }
 
-        return rtn;
+        return new WebCoreProcessResultUrlPathData();
     }
 }

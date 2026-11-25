@@ -1,18 +1,15 @@
 ﻿using System;
+using System.Diagnostics.CodeAnalysis;
 using System.IO;
-using System.Net;
-using Jannesen.FileFormat.Json;
 
 namespace Jannesen.Web.Core;
-
-#pragma warning disable CA1819 // Properties should not return arrays
 
 public sealed class WebCoreProcessResultRequestBody(string? contentType, byte[] body)
 {
     public          string?         ContentType     => contentType;
     public          int             ContentLength   => body.Length;
-    public          byte[]          Data            => body;    // Voor nu byte[] omdat Microsoft.Data.SqlClient ReadonlyMemory niet ondersteund.
-                                                                // See https://github.com/dotnet/SqlClient/issues/4491
+    [SuppressMessage("Performance", "CA1819", Justification = "Microsoft.Data.SqlClient don't support ReadonlyMemory<byte> https://github.com/dotnet/SqlClient/issues/4491")]
+    public          byte[]          Data            => body;
 
     public          Stream          GetStream()
     {

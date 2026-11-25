@@ -40,7 +40,7 @@ public abstract class ValueConvertor
                     parm = null;
                 }
 
-                valueType = (ValueConvertor)WebLoader.Instance.ConstructDynamicClass(new ValueConvertorAttributeBaseType(name), parm);
+                valueType = (ValueConvertor)WebLoader.Instance.ConstructDynamicClass(new ValueConvertorBaseTypeAttribute(name), parm);
                 _cache.Add(nameparameter, valueType);
             }
         }

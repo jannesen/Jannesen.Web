@@ -1,10 +1,13 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Diagnostics.CodeAnalysis;
 using System.Security.Cryptography.X509Certificates;
 
 namespace Jannesen.Web.Core;
 
-[WebCoreResourceAttribute("webservice")]
+[WebCoreResource("webservice")]
+[DynamicallyAccessedMembers(DynamicallyAccessedMemberTypes.All)]
+[SuppressMessage("Performance", "CA1812", Justification = "Instantiated by reflection")]
 public class ResourceWebService: WebCoreResource
 {
     private readonly        string                          _baseUrl;

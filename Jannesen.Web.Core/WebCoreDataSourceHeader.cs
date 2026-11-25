@@ -1,11 +1,12 @@
 ﻿using System;
 using System.Collections.Generic;
-
-#pragma warning disable CA1812 // Avoid uninstantiated internal classes (created using reflection)
+using System.Diagnostics.CodeAnalysis;
 
 namespace Jannesen.Web.Core;
 
-[WebCoreDataSourceAttribute("header")]
+[WebCoreDataSource("header")]
+[DynamicallyAccessedMembers(DynamicallyAccessedMemberTypes.All)]
+[SuppressMessage("Performance", "CA1812", Justification = "Instantiated by reflection")]
 sealed class WebCoreDataSourceHeader: WebCoreDataSource
 {
     private readonly            string                                  _name;

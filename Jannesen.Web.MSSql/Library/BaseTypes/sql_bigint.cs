@@ -1,12 +1,13 @@
 ﻿using System;
 using System.Data;
+using System.Diagnostics.CodeAnalysis;
 using System.Globalization;
-
-#pragma warning disable CA1812 // Avoid uninstantiated internal classes (created using reflection)
 
 namespace Jannesen.Web.MSSql.Library.BaseTypes;
 
-[ValueConvertorAttributeBaseType("bigint")]
+[ValueConvertorBaseType("bigint")]
+[DynamicallyAccessedMembers(DynamicallyAccessedMemberTypes.All)]
+[SuppressMessage("Performance", "CA1812", Justification = "Instantiated by reflection")]
 internal sealed class sql_bigint: ValueConvertor_SqlNative
 {
     public          override            SqlDbType           DBType      => SqlDbType.BigInt;

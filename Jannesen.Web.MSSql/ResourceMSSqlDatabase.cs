@@ -1,14 +1,15 @@
 ﻿using System;
+using System.Diagnostics.CodeAnalysis;
 using System.Net;
 using System.Security.Principal;
 using Microsoft.Data.SqlClient;
 using Jannesen.Web.Core;
 
-#pragma warning disable CA1416 // Validate platform compatibility
-
 namespace Jannesen.Web.MSSql;
 
-[WebCoreResourceAttribute("mssql")]
+[WebCoreResource("mssql")]
+[DynamicallyAccessedMembers(DynamicallyAccessedMemberTypes.All)]
+[SuppressMessage("Performance", "CA1812", Justification = "Instantiated by reflection")]
 public class ResourceMSSqlDatabase: WebCoreResource
 {
     private readonly        string              _server;
@@ -53,7 +54,6 @@ public class ResourceMSSqlDatabase: WebCoreResource
         else
             _connectString += ";Integrated Security=true";
     }
-
 
     public                  SqlConnection       GetConnection(WebCoreCall httpCall)
     {

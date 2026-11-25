@@ -1,9 +1,8 @@
 ﻿using System;
+using System.Diagnostics.CodeAnalysis;
 using System.IO;
 using System.Security.Cryptography;
 using Jannesen.Web.Core;
-
-#pragma warning disable CA5350 // Do Not Use Weak Cryptographic Algorithms (SHA1 used for etag)
 
 namespace Jannesen.Web.StaticFile.Internal;
 
@@ -23,6 +22,7 @@ internal sealed class FileCache
     public                  byte[]                      Data                    => _data ?? throw new InvalidOperationException("FileCache has with data.");
     public                  int                         FileLength              => Data.Length;
 
+    [SuppressMessage("Performance", "CA5350", Justification = "Using SHA1 To calculate a ETAG")]
     public                                              FileCache(string physicalPath, FileInfo fileinfo, string encoding)
     {
         _physicalPath     = physicalPath;
