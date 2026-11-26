@@ -3,6 +3,7 @@ using System.Buffers;
 using System.Globalization;
 using System.IO;
 using System.Net;
+using System.Threading.Tasks;
 using Microsoft.AspNetCore.Http;
 using Jannesen.FileFormat.Json;
 
@@ -68,7 +69,7 @@ public class WebCoreResponseBuffer: IWebCoreResponse
     {
         return new JsonWriter(GetStreamWriter(initialCapacity), false);
     }
-    public                  void                    Send(WebCoreCall call, HttpResponse response)
+    public            async Task                    SendAsync(WebCoreCall call, HttpResponse response)
     {
         ArgumentNullException.ThrowIfNull(call);
         ArgumentNullException.ThrowIfNull(response);
@@ -146,10 +147,10 @@ public class WebCoreResponseBuffer: IWebCoreResponse
 
             if (Data.Value.Length > 0) {
                 if (Compression) {
-                    (new WebCoreResponseCompressor(call.Request, Data.Value)).WriteTo(response);
+                    await WebCoreResponseCompressor.Compress(call.Request, Data.Value).WriteToAsync(response);
                 }
                 else {
-                    response.SendBuffer(Data.Value.Span);
+                    await response.SendBufferAsync(Data.Value);
                 }
             }
         }
@@ -157,19 +158,19 @@ public class WebCoreResponseBuffer: IWebCoreResponse
             response.Headers.ContentLength = 0;
         }
     }
-    public                  void                    WriteLoggingData(StreamWriter writer)
+    public            async Task                    WriteLoggingDataAsync(StreamWriter writer)
     {
         ArgumentNullException.ThrowIfNull(writer);
 
         if (Data.HasValue && Data.Value.Length > 0) {
             if (ContentType != null && ContentType.Contains("charset=utf-8", StringComparison.OrdinalIgnoreCase)) {
-                writer.WriteLine();
-                writer.Flush();
-                writer.BaseStream.Write(Data.Value.Span);
-                writer.WriteLine();
+                await writer.WriteLineAsync();
+                await writer.FlushAsync();
+                await writer.BaseStream.WriteAsync(Data.Value);
+                await writer.WriteLineAsync();
             }
             else {
-                writer.WriteLine("[BINARY-DATA]");
+                await writer.WriteLineAsync("[BINARY-DATA]");
             }
         }
     }

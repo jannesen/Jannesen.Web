@@ -7,6 +7,8 @@ using Microsoft.Data.SqlClient;
 using Jannesen.FileFormat.Json;
 using Jannesen.Web.MSSql.Library;
 using Jannesen.Web.Core;
+using System.Threading.Tasks;
+using System.Threading;
 
 namespace Jannesen.Web.MSSql;
 
@@ -96,7 +98,7 @@ public class HttpHandlerSqlXmlJson2: HttpHandlerMSSql
 
             if (xmlReader != null) {
                 if (!xmlReader.IsEmptyElement) {
-                    while (ReadNextElement(xmlReader))
+                    while (_readNextElement(xmlReader))
                         Response.Convert(jsonWriter, xmlReader);
                 }
             }
@@ -157,7 +159,7 @@ public class HttpHandlerSqlXmlJson2: HttpHandlerMSSql
                 xmlReader.MoveToElement();
 
                 if (!xmlReader.IsEmptyElement) {
-                    while (ReadNextElement(xmlReader)) {
+                    while (_readNextElement(xmlReader)) {
                         var name  = _normalizeName(xmlReader.Name);
                         var field = _findByName(ref curpos, name);
 
@@ -229,17 +231,17 @@ next:               pos = p + 1;
         public required         ResponseRoot Format;
     }
 
-    public      override    string                      Mimetype
+    public    override          string                      Mimetype
     {
         get {
             return _jsmodule ? "application/javascript" : "application/json";
         }
     }
 
-    private readonly        bool                        _jsmodule;
-    private readonly        ResponseMsg[]?              _responses;
+    private   readonly          bool                        _jsmodule;
+    private   readonly          ResponseMsg[]?              _responses;
 
-    public                                              HttpHandlerSqlXmlJson2(WebCoreConfigReader configReader): base(configReader)
+    public                                                  HttpHandlerSqlXmlJson2(WebCoreConfigReader configReader): base(configReader)
     {
         ArgumentNullException.ThrowIfNull(configReader);
 
@@ -278,7 +280,7 @@ next:               pos = p + 1;
         }
     }
 
-    protected   override    IWebCoreResponse            Process(WebCoreCall httpCall, SqlCommand sqlCommand)
+    protected override    async Task<IWebCoreResponse>      ProcessAsync(WebCoreCall httpCall, SqlCommand sqlCommand, CancellationToken ct)
     {
         ArgumentNullException.ThrowIfNull(httpCall);
         ArgumentNullException.ThrowIfNull(sqlCommand);
@@ -286,22 +288,23 @@ next:               pos = p + 1;
         var responseBuffer = new WebCoreResponseBuffer(Mimetype + "; charset=utf-8", true);
 
         if (_responses == null) {
-            sqlCommand.ExecuteNonQuery();
+            await sqlCommand.ExecuteNonQueryAsync(ct);
         }
         else {
-            using (var dataReader = sqlCommand.ExecuteReader()) {
-                if (HandleResponseOptions(responseBuffer, dataReader) == HttpStatusCode.OK) {
+            using (var dataReader = await sqlCommand.ExecuteReaderAsync(ct)) {
+                if (await HandleResponseOptionsAsync(responseBuffer, dataReader, ct) == HttpStatusCode.OK) {
                     var responseformat = (ResponseRoot?)null;
 
-                    if (!dataReader.Read())
+                    if (!await dataReader.ReadAsync(ct))
                         throw new WebResponseException("No datareceived from database.");
 
                     if (dataReader.GetName(0) == "responsemsg") {
                         responseformat = _findResponseMsg(dataReader.GetString(0));
-                        dataReader.NextResult();
+                        await dataReader.NextResultAsync(ct);
 
-                        if (!dataReader.Read())
+                        if (!await dataReader.ReadAsync(ct)) {
                             throw new WebResponseException("No datareceived from database.");
+                        }
                     }
                     else
                         responseformat = _findResponseMsg(null);
@@ -309,13 +312,15 @@ next:               pos = p + 1;
                     try {
                         using (var streamBuffer = responseBuffer.GetStreamWriter()) {
                             if (_jsmodule) {
+#pragma warning disable CA1849 // Onderliggende stream is een MemoryStream; async heeft geen meerwaarde
                                 streamBuffer.Write("define([], function() { return ");
+#pragma warning restore CA1849
                             }
 
                             using (var jsonWriter = new JsonWriter(streamBuffer, true)) {
-                                if (!dataReader.IsDBNull(0)) {
+                                if (!await dataReader.IsDBNullAsync(0, ct)) {
                                     using (var xmlReader = dataReader.GetXmlReader(0)) {
-                                        ReadNextElement(xmlReader);
+                                        _readNextElement(xmlReader);
                                         responseformat.Convert(jsonWriter, xmlReader);
                                     }
                                 }
@@ -325,11 +330,16 @@ next:               pos = p + 1;
                             }
 
                             if (_jsmodule) {
+#pragma warning disable CA1849 // Onderliggende stream is een MemoryStream; async heeft geen meerwaarde
                                 streamBuffer.Write(" });");
+#pragma warning restore CA1849
                             }
                         }
                     }
                     catch(NoDataException) {
+                        throw;
+                    }
+                    catch(TaskCanceledException) {
                         throw;
                     }
                     catch(Exception err) {
@@ -342,7 +352,7 @@ next:               pos = p + 1;
         return responseBuffer;
     }
 
-    protected   static      bool                        ReadNextElement(XmlReader xmlReader)
+    private   static            bool                        _readNextElement(XmlReader xmlReader)
     {
         ArgumentNullException.ThrowIfNull(xmlReader);
 
@@ -356,8 +366,7 @@ next:               pos = p + 1;
             }
         }
     }
-
-    private                 ResponseRoot                _findResponseMsg(string? responsemsg)
+    private                     ResponseRoot                _findResponseMsg(string? responsemsg)
     {
         if (_responses != null) {
             foreach(var x in _responses) {

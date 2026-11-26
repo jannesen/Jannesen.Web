@@ -4,6 +4,8 @@ using System.Linq;
 using System.IO;
 using System.Globalization;
 using System.Text;
+using System.Threading;
+using System.Threading.Tasks;
 using Microsoft.Data.SqlClient;
 using DocumentFormat.OpenXml;
 using DocumentFormat.OpenXml.Packaging;
@@ -45,9 +47,9 @@ internal sealed class ExportToExcel
         }
     }
 
-    private                 SpreadsheetDocument         _document = null!;
+    private                 SpreadsheetDocument     _document = null!;
 
-    public      static      void                        Export(IReadOnlyList<ConfigSheet> configSheets, SqlDataReader dataReader, Stream outputStream)
+    public  static          Task                    ExportAsync(IReadOnlyList<ConfigSheet> configSheets, SqlDataReader dataReader, Stream outputStream, CancellationToken ct)
     {
         var config = new ProcessConfigSheet[configSheets.Count];
 
@@ -55,22 +57,22 @@ internal sealed class ExportToExcel
             config[s] = new ProcessConfigSheet(configSheets[s]);
         }
 
-        (new ExportToExcel())._process(config, dataReader, outputStream);
+        return (new ExportToExcel())._processAsync(config, dataReader, outputStream, ct);
     }
 
-    private                 void                        _process(ProcessConfigSheet[] config, SqlDataReader dataReader, Stream outputStream)
+    private           async Task                    _processAsync(ProcessConfigSheet[] config, SqlDataReader dataReader, Stream outputStream, CancellationToken ct)
     {
         using (_document = SpreadsheetDocument.Create(outputStream, SpreadsheetDocumentType.Workbook)) {
             _document.AddWorkbookPart();
-            _document.WorkbookPart!.Workbook = new DocumentFormat.OpenXml.Spreadsheet.Workbook();
+            _document.WorkbookPart!.Workbook = new Workbook();
 
             _createStyleSheet(config);
-            _createSheets(config, dataReader);
+            await _createSheetsAsync(config, dataReader, ct);
 
             _document.WorkbookPart.Workbook.Save();
         }
     }
-    private                 void                        _createStyleSheet(ProcessConfigSheet[] config)
+    private                 void                    _createStyleSheet(ProcessConfigSheet[] config)
     {
         var excelStyleSheet = new ExcelStyleSheet();
 
@@ -90,10 +92,10 @@ internal sealed class ExportToExcel
 
         excelStyleSheet.Save(_document.WorkbookPart!);
     }
-    private                 void                        _createSheets(ProcessConfigSheet[] config, SqlDataReader dataReader)
+    private           async Task                    _createSheetsAsync(ProcessConfigSheet[] config, SqlDataReader dataReader, CancellationToken ct)
     {
         var sheetNumber = (uint)0;
-        var sheets      = new DocumentFormat.OpenXml.Spreadsheet.Sheets();
+        var sheets      = new Sheets();
 
         _document.WorkbookPart!.Workbook!.Append(new BookViews(new WorkbookView()));
         _document.WorkbookPart!.Workbook!.AppendChild(sheets);
@@ -108,7 +110,7 @@ internal sealed class ExportToExcel
             _excelFreePanes(worksheet, sheetConfig.Config.FreezeColumn, sheetConfig.Config.HeaderRows);
             _setupColumnsWidth(sheetConfig, worksheet);
             _copyHeader(sheetConfig, sheetData);
-            _copyData(sheetConfig, sheetData, dataReader);
+            await _copyDataAsync(sheetConfig, sheetData, dataReader, ct);
 
             worksheet.AppendChild(sheetData);
             _columnsMerge(sheetConfig, worksheet);
@@ -116,16 +118,16 @@ internal sealed class ExportToExcel
             worksheetPart.Worksheet = worksheet;
             worksheet.Save();
 
-            sheets.AppendChild(new DocumentFormat.OpenXml.Spreadsheet.Sheet()
+            sheets.AppendChild(new Sheet()
                                 {
                                     Id      = _document.WorkbookPart.GetIdOfPart(worksheetPart),
                                     SheetId = sheetNumber,
                                     Name    = sheetConfig.Config.Name
                                 });
         }
-        while (dataReader.NextResult());
+        while (await dataReader.NextResultAsync(ct));
     }
-    private     static      void                        _mapDataSet(ProcessConfigSheet config, SqlDataReader dataReader)
+    private static          void                    _mapDataSet(ProcessConfigSheet config, SqlDataReader dataReader)
     {
         foreach(var colcnf in config.Columns) {
             colcnf.ExcelColumnName = _excelColumnName(colcnf.Config.Col);
@@ -145,7 +147,7 @@ internal sealed class ExportToExcel
                 colcnf.FieldNr = -1;
         }
     }
-    private     static      void                        _setupColumnsWidth(ProcessConfigSheet config, Worksheet worksheet)
+    private static          void                    _setupColumnsWidth(ProcessConfigSheet config, Worksheet worksheet)
     {
         {
             var columnsWidth    = config.Config.ColumnsWidth;
@@ -175,7 +177,7 @@ internal sealed class ExportToExcel
                 worksheet.Append(columns);
         }
     }
-    private     static      void                        _copyHeader(ProcessConfigSheet config, SheetData sheetData)
+    private static          void                    _copyHeader(ProcessConfigSheet config, SheetData sheetData)
     {
         for (var row = 0 ; row < config.Config.HeaderRows ; ++row) {
             var headerRow  = new Row { RowIndex = (uint)row + 1 };
@@ -197,12 +199,12 @@ internal sealed class ExportToExcel
             sheetData.Append(headerRow);
         }
     }
-    private     static      void                        _copyData(ProcessConfigSheet config, SheetData sheetData, SqlDataReader dataReader)
+    private static    async Task                    _copyDataAsync(ProcessConfigSheet config, SheetData sheetData, SqlDataReader dataReader, CancellationToken ct)
     {
         var rownr = (uint)config.Config.HeaderRows;
         var r     = 0;
 
-        while (dataReader.Read()) {
+        while (await dataReader.ReadAsync(ct)) {
             var row    = new Row { RowIndex = ++rownr };
             var srownr = rownr.ToString(CultureInfo.InvariantCulture);
             var odd    = (++r % 2) == 1;
@@ -210,11 +212,10 @@ internal sealed class ExportToExcel
             foreach (var colcfg in config.Columns) {
                 if (colcfg.FieldNr >= 0) {
                     var cell = new Cell() {
-                                    CellReference = colcfg.ExcelColumnName + srownr
-                                };
+                                   CellReference = colcfg.ExcelColumnName + srownr
+                               };
 
-
-                    if (!dataReader.IsDBNull(colcfg.FieldNr)) {
+                    if (!await dataReader.IsDBNullAsync(colcfg.FieldNr, ct)) {
                         CellValues      dataType;
                         string          textValue;
 
@@ -277,7 +278,7 @@ internal sealed class ExportToExcel
             sheetData.Append(row);
         }
     }
-    private     static      void                        _columnsMerge(ProcessConfigSheet config, Worksheet worksheet)
+    private static          void                    _columnsMerge(ProcessConfigSheet config, Worksheet worksheet)
     {
         foreach(var colcfg in config.Columns) {
             if (colcfg.Config.ColSpan > 1 || colcfg.Config.RowSpan > 1) {
@@ -287,7 +288,7 @@ internal sealed class ExportToExcel
         }
     }
 
-    private     static      void                        _excelMergeCells(Worksheet worksheet, int col1, int row1, int col2, int row2)
+    private static          void                    _excelMergeCells(Worksheet worksheet, int col1, int row1, int col2, int row2)
     {
         var r = _excelCellName(col1, row1) + ":" + _excelCellName(col2, row2);
 
@@ -296,7 +297,7 @@ internal sealed class ExportToExcel
                                                     Reference = new StringValue(r)
                                                 });
     }
-    private     static      void                        _excelFreePanes(Worksheet worksheet, int col, int row)
+    private static          void                    _excelFreePanes(Worksheet worksheet, int col, int row)
     {
         var sheetView = new SheetView() {
                             TabSelected = true,
@@ -316,11 +317,11 @@ internal sealed class ExportToExcel
         sheetViews.Append(sheetView);
         worksheet.Append(sheetViews);
     }
-    private     static      string                      _excelCellName(int colnr, int rownr)
+    private static          string                  _excelCellName(int colnr, int rownr)
     {
         return _excelColumnName(colnr) + (rownr+1).ToString(CultureInfo.InvariantCulture);
     }
-    private     static      string                      _excelColumnName(int colnr)
+    private static          string                  _excelColumnName(int colnr)
     {
         if (colnr < 26)
             return ((char)('A' + colnr)).ToString(CultureInfo.InvariantCulture);
@@ -332,7 +333,7 @@ internal sealed class ExportToExcel
 
         return builder.ToString();
     }
-    private     static      MergeCells                  _getMergeCells(Worksheet worksheet)
+    private static          MergeCells              _getMergeCells(Worksheet worksheet)
     {
         if (worksheet.Elements<MergeCells>().Any())
             return worksheet.Elements<MergeCells>().First();

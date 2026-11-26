@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Threading.Tasks;
 using System.Xml;
 
 namespace Jannesen.Web.Core;
@@ -12,7 +13,7 @@ public sealed class WebCoreProcessorTextXml: IWebCoreProcessor<WebCoreProcessRes
     {
         return [ WebCoreProcessorRequestBody.Processor ];
     }
-    public          object                              Process(WebCoreCall httpCall)
+    public          ValueTask<object>                   ProcessAsync(WebCoreCall httpCall)
     {
         ArgumentNullException.ThrowIfNull(httpCall);
 
@@ -23,11 +24,14 @@ public sealed class WebCoreProcessorTextXml: IWebCoreProcessor<WebCoreProcessRes
                     using (var r = new XmlTextReader(reader) { DtdProcessing = DtdProcessing.Prohibit, XmlResolver = null }) {
                         document.Load(r);
                     }
-                    return new WebCoreProcessResultTextXml(document);
+                    return ValueTask.FromResult((object)new WebCoreProcessResultTextXml(document));
                 }
             }
 
-            return new WebCoreProcessResultTextXml(null);
+            return ValueTask.FromResult((object)new WebCoreProcessResultTextXml(null));
+        }
+        catch(TaskCanceledException) {
+            throw;
         }
         catch(Exception err) {
             throw new WebRequestException("Error in XML HTTP-BODY.", err);

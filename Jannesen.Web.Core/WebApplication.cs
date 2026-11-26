@@ -62,7 +62,7 @@ public sealed class WebApplication: IDisposable
         var h = applConfig.GetHttpHandler(context.Request.Path, context.Request.Method);
 
         if (h != null) {
-            return Task.Run(() => h.ProcessRequest(applConfig, context));
+            return h.ProcessRequestAsync(applConfig, context);
         }
 
         return next(context);

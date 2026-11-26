@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Threading.Tasks;
 using Jannesen.FileFormat.Json;
 
 namespace Jannesen.Web.Core;
@@ -12,7 +13,7 @@ public sealed class WebCoreProcessorTextJson: IWebCoreProcessor<WebCoreProcessRe
     {
         return [ WebCoreProcessorRequestBody.Processor ];
     }
-    public          object                              Process(WebCoreCall httpCall)
+    public          ValueTask<object>                   ProcessAsync(WebCoreCall httpCall)
     {
         ArgumentNullException.ThrowIfNull(httpCall);
 
@@ -20,12 +21,15 @@ public sealed class WebCoreProcessorTextJson: IWebCoreProcessor<WebCoreProcessRe
             var stream = httpCall.RequestBody.GetStreamReader("application/json");
             if (stream != null) {
                 using(var reader = new JsonReader(stream)) {
-                    return new WebCoreProcessResultTextJson(reader.ParseDocument());
+                    return ValueTask.FromResult((object)new WebCoreProcessResultTextJson(reader.ParseDocument()));
                 }
             }
             else {
-                return new WebCoreProcessResultTextJson(null);
+                return ValueTask.FromResult((object)new WebCoreProcessResultTextJson(null));
             }
+        }
+        catch(TaskCanceledException) {
+            throw;
         }
         catch(Exception err) {
             throw new WebRequestException("Error in JSON HTTP-BODY.", err);

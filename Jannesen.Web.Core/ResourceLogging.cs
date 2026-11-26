@@ -3,6 +3,7 @@ using System.Diagnostics.CodeAnalysis;
 using System.Globalization;
 using System.IO;
 using System.Threading;
+using System.Threading.Tasks;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Http.Extensions;
 
@@ -14,7 +15,7 @@ namespace Jannesen.Web.Core;
 public class ResourceLogging: WebCoreResource
 {
     private readonly        string              _directory;
-    private readonly        Lock                _logLock;
+    private readonly        SemaphoreSlim       _logLock;
     private                 FileStream?         _filestream;
     private                 DateTime            _nextFile;
 
@@ -26,7 +27,7 @@ public class ResourceLogging: WebCoreResource
         ArgumentNullException.ThrowIfNull(configReader);
 
         _directory   = configReader.GetValueString("directory");
-        _logLock     = new Lock();
+        _logLock     = new SemaphoreSlim(1, 1);
         _filestream  = null;
         _nextFile    = DateTime.MinValue;
     }
@@ -37,41 +38,46 @@ public class ResourceLogging: WebCoreResource
             _filestream?.Dispose();
             _filestream = null;
         }
+        _logLock.Dispose();
         base.Dispose(disposing);
     }
 
-    public                  void                Logging(WebCoreCall call, IWebCoreResponse response, HttpResponse httpResponse)
+    public            async Task                LoggingAsync(WebCoreCall call, IWebCoreResponse response, HttpResponse httpResponse)
     {
         ArgumentNullException.ThrowIfNull(call);
 
-        lock(_logLock) {
-            try {
-                using (var writer = _getLogStream()) {
-                    _logRequest(writer, call);
-                    _logResponse(writer, response, httpResponse);
-                    _logEnd(writer);
-                }
-            }
-            catch(Exception logerr) {
-                Application.LogError("Logging failed", logerr);
+        await _logLock.WaitAsync();
+        try {
+            using (var writer = _getLogStream()) {
+                await _logRequestAsync(writer, call);
+                await _logResponseAsync(writer, response, httpResponse);
+                await _logEndAsync(writer);
             }
         }
+        catch(Exception logerr) {
+            Application.LogError("Logging failed", logerr);
+        }
+        finally {
+            _logLock.Release();
+        }
     }
-    public                  void                Logging(WebCoreCall call, Exception err)
+    public            async Task                LoggingAsync(WebCoreCall call, Exception err)
     {
         ArgumentNullException.ThrowIfNull(call);
 
-        lock(_logLock) {
-            try {
-                using (var writer = _getLogStream()) {
-                    _logRequest(writer, call);
-                    _logError(writer, err);
-                    _logEnd(writer);
-                }
+        await _logLock.WaitAsync();
+        try {
+            using (var writer = _getLogStream()) {
+                await _logRequestAsync(writer, call);
+                await _logErrorAsync(writer, err);
+                await _logEndAsync(writer);
             }
-            catch(Exception logerr) {
-                Application.LogError("Logging failed", logerr);
-            }
+        }
+        catch(Exception logerr) {
+            Application.LogError("Logging failed", logerr);
+        }
+        finally {
+            _logLock.Release();
         }
     }
 
@@ -91,14 +97,14 @@ public class ResourceLogging: WebCoreResource
 
         return new StreamWriter(_filestream, System.Text.Encoding.UTF8, 0x10000, true);
     }
-    private     static      void                _logRequest(StreamWriter writer, WebCoreCall call)
+    private static    async Task                _logRequestAsync(StreamWriter writer, WebCoreCall call)
     {
-        writer.Write("### REQUEST ### @");
-        writer.WriteLine(call.Timestamp.ToString("yyyy-dd-MM HH:mm:ss", CultureInfo.InvariantCulture));
+        await writer.WriteAsync("### REQUEST ### @");
+        await writer.WriteLineAsync(call.Timestamp.ToString("yyyy-dd-MM HH:mm:ss", CultureInfo.InvariantCulture));
 
-        writer.Write(call.Request.Method);
-        writer.Write(" ");
-        writer.WriteLine(call.Request.GetEncodedPathAndQuery());
+        await writer.WriteAsync(call.Request.Method);
+        await writer.WriteAsync(" ");
+        await writer.WriteLineAsync(call.Request.GetEncodedPathAndQuery());
 
         foreach(var h in call.Request.Headers) {
             for(var i = 0 ; i < h.Value.Count ; i++) {
@@ -110,34 +116,34 @@ public class ResourceLogging: WebCoreResource
                     break;
                 }
 
-                writer.Write(h.Key);
-                writer.Write(": ");
-                writer.WriteLine(value);
+                await writer.WriteAsync(h.Key);
+                await writer.WriteAsync(": ");
+                await writer.WriteLineAsync(value);
             }
         }
 
         var body = call.GetProcessorResultOptional(WebCoreProcessorRequestBody.Processor);
         if (body != null) {
             if (body.ContentType != null && body.ContentType.Contains("charset=utf-8", StringComparison.OrdinalIgnoreCase)) {
-                writer.WriteLine();
-                writer.Flush();
-                writer.BaseStream.Write(body.Data, 0, body.Data.Length);
-                writer.WriteLine();
+                await writer.WriteLineAsync();
+                await writer.FlushAsync();
+                await writer.BaseStream.WriteAsync(new ReadOnlyMemory<byte>(body.Data, 0, body.Data.Length));
+                await writer.WriteLineAsync();
             }
             else {
-                writer.WriteLine("[BINARY-DATA]");
+                await writer.WriteLineAsync("[BINARY-DATA]");
             }
         }
     }
-    private     static      void                _logResponse(StreamWriter writer, IWebCoreResponse response, HttpResponse httpResponse)
+    private static    async Task                _logResponseAsync(StreamWriter writer, IWebCoreResponse response, HttpResponse httpResponse)
     {
         ArgumentNullException.ThrowIfNull(writer);
         ArgumentNullException.ThrowIfNull(response);
         ArgumentNullException.ThrowIfNull(httpResponse);
 
-        writer.WriteLine("### RESPONSE ");
+        await writer.WriteLineAsync("### RESPONSE ");
 
-        writer.WriteLine(httpResponse.StatusCode);
+        await writer.WriteLineAsync(httpResponse.StatusCode.ToString(CultureInfo.InvariantCulture));
 
         var hasContentLength = false;
 
@@ -150,33 +156,29 @@ public class ResourceLogging: WebCoreResource
                 if (key == "Content-Length")
                     hasContentLength = true;
 
-                writer.Write(key);
-                writer.Write(": ");
-                writer.WriteLine(value);
+                await writer.WriteAsync(key);
+                await writer.WriteAsync(": ");
+                await writer.WriteLineAsync(value);
             }
         }
 
         if (hasContentLength) {
-            response.WriteLoggingData(writer);
+            await response.WriteLoggingDataAsync(writer);
         }
     }
-    private     static      void                _logError(StreamWriter writer, Exception? err)
+    private static    async Task                _logErrorAsync(StreamWriter writer, Exception? err)
     {
-        ArgumentNullException.ThrowIfNull(writer);
-
-        writer.WriteLine("### ERROR");
+        await writer.WriteLineAsync("### ERROR");
 
         while (err != null) {
-            writer.WriteLine("[" + err.GetType().Name + "]: " + err.Message);
+            await writer.WriteLineAsync("[" + err.GetType().Name + "]: " + err.Message);
             err = err.InnerException;
         }
     }
-    private     static      void                _logEnd(StreamWriter writer)
+    private static    async Task                _logEndAsync(StreamWriter writer)
     {
-        ArgumentNullException.ThrowIfNull(writer);
-
-        writer.WriteLine("###");
-        writer.WriteLine();
-        writer.WriteLine();
+        await writer.WriteLineAsync("###");
+        await writer.WriteLineAsync();
+        await writer.WriteLineAsync();
     }
 }

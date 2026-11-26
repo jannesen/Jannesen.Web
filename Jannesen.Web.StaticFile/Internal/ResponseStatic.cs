@@ -5,6 +5,7 @@ using System.Net;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Http.Features;
 using Jannesen.Web.Core;
+using System.Threading.Tasks;
 
 namespace Jannesen.Web.StaticFile.Internal;
 
@@ -33,7 +34,7 @@ abstract class ResponseStatic: IWebCoreResponse
         _cacheMaxAge  = -1;
     }
 
-    public                  void                Send(WebCoreCall call, HttpResponse response)
+    public                  Task                SendAsync(WebCoreCall call, HttpResponse response)
     {
         var etag            = (string?)null;
         var ifModifiedSince = (DateTime?)null;
@@ -59,18 +60,19 @@ abstract class ResponseStatic: IWebCoreResponse
                                                         };
 
         if ((etag != null             && _eTag == etag                   ) ||
-            (ifModifiedSince.HasValue && _lastModified == ifModifiedSince))
-        {
+            (ifModifiedSince.HasValue && _lastModified == ifModifiedSince)) {
             response.StatusCode = (int)HttpStatusCode.NotModified;
-            return;
+            return Task.CompletedTask;
         }
 
         response.StatusCode = (int)HttpStatusCode.OK;
-        if (call.Request.Method != "HEAD") {
-            SendBodyData(response);
+        if (call.Request.Method == "HEAD") {
+            return Task.CompletedTask;
         }
-    }
-    public      abstract    void                WriteLoggingData(StreamWriter writer);
 
-    protected   abstract    void                SendBodyData(HttpResponse response);
+        return SendBodyDataAsync(response);
+    }
+    public      abstract    Task                WriteLoggingDataAsync(StreamWriter writer);
+
+    protected   abstract    Task                SendBodyDataAsync(HttpResponse response);
 }

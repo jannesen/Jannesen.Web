@@ -1,7 +1,8 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.IO;
 using System.Net;
+using System.Threading;
+using System.Threading.Tasks;
 using Microsoft.AspNetCore.Http;
 using Microsoft.Extensions.Caching.Memory;
 
@@ -25,6 +26,7 @@ public class WebCoreCall
     public                  DateTime                            Timestamp           => _timestamp;
     public                  HttpContext                         Context             => _context;
     public                  HttpRequest                         Request             => _context.Request;
+    public                  CancellationToken                   RequestAborted      => _context.RequestAborted;
     public                  IMemoryCache                        Cache               => _applicationConfig.Application.Cache;
     public                  WebCoreHttpHandler                  Handler             => _handler;
     public                  string                              HttpMethod          => _context.Request.Method;
@@ -41,13 +43,13 @@ public class WebCoreCall
         _processorResult        = new List<ProcessorResult>();
     }
 
-    public                  void                                LoadProcessors()
+    public           async ValueTask                            LoadProcessorsAsync()
     {
         foreach(var processor in _handler.Processors) {
             _processorResult.Add(new ProcessorResult() {
-                                        Processor  = processor,
-                                        Result     = processor.Process(this)
-                                    });
+                                     Processor = processor,
+                                     Result    = await processor.ProcessAsync(this)
+                                 });
 
         }
     }

@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Threading.Tasks;
 using System.Collections.Generic;
 
 namespace Jannesen.Web.Core;
@@ -11,7 +12,7 @@ public sealed class WebCoreProcessorUrlPathData: IWebCoreProcessor<WebCoreProces
     {
         return [];
     }
-    public          object                              Process(WebCoreCall httpCall)
+    public          ValueTask<object>                   ProcessAsync(WebCoreCall httpCall)
     {
         ArgumentNullException.ThrowIfNull(httpCall);
 
@@ -25,10 +26,10 @@ public sealed class WebCoreProcessorUrlPathData: IWebCoreProcessor<WebCoreProces
             var match = httpCall.Handler.WildcardPathProcessor.RegexMatch(httpCall.Request.Path);
 
             if (match != null) {
-                return new WebCoreProcessResultUrlPathData(names, match);
+                return ValueTask.FromResult((object)new WebCoreProcessResultUrlPathData(names, match));
             }
         }
 
-        return new WebCoreProcessResultUrlPathData();
+        return ValueTask.FromResult((object)new WebCoreProcessResultUrlPathData());
     }
 }

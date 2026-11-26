@@ -3,6 +3,7 @@ using System.Diagnostics.CodeAnalysis;
 using System.Collections.Generic;
 using System.IO;
 using System.Threading;
+using System.Threading.Tasks;
 using Microsoft.Data.SqlClient;
 using DocumentFormat.OpenXml.Packaging;
 using DocumentFormat.OpenXml;
@@ -17,10 +18,10 @@ namespace Jannesen.Web.ExcelExport;
 [SuppressMessage("Performance", "CA1812", Justification = "Instantiated by reflection")]
 public class HttpHandlerExcelExport: HttpHandlerMSSql
 {
-    private        readonly List<ConfigSheet>           _sheets;
-    private static readonly Lock                        _singleLock = new Lock();
+    private        readonly     List<ConfigSheet>           _sheets;
+    private static readonly     SemaphoreSlim               _singleLock = new(1, 1);
 
-    public                                              HttpHandlerExcelExport(WebCoreConfigReader configReader): base(configReader)
+    public                                                  HttpHandlerExcelExport(WebCoreConfigReader configReader): base(configReader)
     {
         ArgumentNullException.ThrowIfNull(configReader);
 
@@ -41,16 +42,20 @@ public class HttpHandlerExcelExport: HttpHandlerMSSql
         }
     }
 
-    protected   override    IWebCoreResponse            Process(WebCoreCall httpCall, SqlDataReader dataReader)
+    protected override    async Task<IWebCoreResponse>      ProcessAsync(WebCoreCall httpCall, SqlDataReader dataReader, CancellationToken ct)
     {
         var webResponseBuffer = new WebCoreResponseBuffer("application/vnd.openxmlformats-officedocument.spreadsheetml.sheet", false);
 
-        HandleResponseOptions(webResponseBuffer, dataReader);
+        await HandleResponseOptionsAsync(webResponseBuffer, dataReader, ct);
 
-        lock(_singleLock) {
+        await _singleLock.WaitAsync(ct);
+        try {
             using (var stream = webResponseBuffer.GetStream()) {
-                ExportToExcel.Export(_sheets, dataReader, stream);
+                await ExportToExcel.ExportAsync(_sheets, dataReader, stream, ct);
             }
+        }
+        finally {
+            _singleLock.Release();
         }
 
         return webResponseBuffer;

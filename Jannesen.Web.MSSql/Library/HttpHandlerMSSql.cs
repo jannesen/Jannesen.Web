@@ -1,6 +1,8 @@
 ﻿using System;
 using System.Net;
 using System.Data;
+using System.Threading;
+using System.Threading.Tasks;
 using Microsoft.Data.SqlClient;
 using Jannesen.Web.Core;
 
@@ -8,12 +10,12 @@ namespace Jannesen.Web.MSSql.Library;
 
 public abstract class HttpHandlerMSSql: WebCoreHttpHandler
 {
-    private readonly        string                      _procedure;
-    private readonly        string                      _database;
-    private readonly        int                         _timeout;
-    private readonly        ParameterList               _parameters;
+    private readonly        string                          _procedure;
+    private readonly        string                          _database;
+    private readonly        int                             _timeout;
+    private readonly        ParameterList                   _parameters;
 
-    protected                                           HttpHandlerMSSql(WebCoreConfigReader configReader): base(configReader)
+    protected                                               HttpHandlerMSSql(WebCoreConfigReader configReader): base(configReader)
     {
         ArgumentNullException.ThrowIfNull(configReader);
 
@@ -23,30 +25,32 @@ public abstract class HttpHandlerMSSql: WebCoreHttpHandler
         _parameters      = new ParameterList();
     }
 
-    protected               void                        ParseParameter(WebCoreConfigReader configReader)
+    protected               void                            ParseParameter(WebCoreConfigReader configReader)
     {
         ArgumentNullException.ThrowIfNull(configReader);
 
         _parameters.Add(new ParameterValue(this, configReader));
     }
 
-    public      override    IWebCoreResponse            Process(WebCoreCall httpCall)
+    public     override   async Task<IWebCoreResponse>      ProcessAsync(WebCoreCall httpCall)
     {
+        ArgumentNullException.ThrowIfNull(httpCall);
         var retry_count = 0;
 
-retry:      using (var sqlConnection = GetConnection(httpCall))
-        {
+        var ct = httpCall.RequestAborted;
+
+retry:  using (var sqlConnection = await GetConnectionAsync(httpCall, ct)) {
             using (var sqlCommand = new SqlCommand(_procedure, sqlConnection) {CommandType = CommandType.StoredProcedure, CommandTimeout = _timeout } ) {
                 _parameters.AddParametersToCommand(sqlCommand, httpCall);
 
                 try {
-                    return Process(httpCall, sqlCommand);
+                    return await ProcessAsync(httpCall, sqlCommand, ct);
                 }
                 catch(Exception err) {
                     if (retry_count <= 3 && _deadlockError(err)) {
                         httpCall.ApplicationConfig.Application.LogWarning("Deadlock on "+ sqlCommand.CommandText);
                         ++retry_count;
-                        System.Threading.Thread.Sleep(150);
+                        await Task.Delay(150, ct);
                         goto retry;
                     }
 
@@ -55,7 +59,7 @@ retry:      using (var sqlConnection = GetConnection(httpCall))
             }
         }
     }
-    public      override    WebCoreErrorData?           ProcessError(Exception err)
+    public     override         WebCoreErrorData?           ProcessError(Exception err)
     {
         if (err is SqlException sqlErr) {
             var msg = err.Message;
@@ -95,34 +99,34 @@ retry:      using (var sqlConnection = GetConnection(httpCall))
         return null;
     }
 
-    protected   virtual     IWebCoreResponse            Process(WebCoreCall httpCall, SqlCommand sqlCommand)
+    protected  virtual    async Task<IWebCoreResponse>      ProcessAsync(WebCoreCall httpCall, SqlCommand sqlCommand, CancellationToken ct)
     {
         ArgumentNullException.ThrowIfNull(httpCall);
         ArgumentNullException.ThrowIfNull(sqlCommand);
 
-        using (var dataReader = sqlCommand.ExecuteReader()) {
-            return Process(httpCall, dataReader);
+        using (var dataReader = await sqlCommand.ExecuteReaderAsync(ct)) {
+            return await ProcessAsync(httpCall, dataReader, ct);
         }
     }
-    protected   virtual     IWebCoreResponse            Process(WebCoreCall httpCall, SqlDataReader dataReader)
+    protected  virtual    async Task<IWebCoreResponse>      ProcessAsync(WebCoreCall httpCall, SqlDataReader dataReader, CancellationToken ct)
     {
         throw new NotImplementedException("Not implemented HttpHandlerMSSql.Process");
     }
 
-    protected               SqlConnection               GetConnection(WebCoreCall httpCall)
+    protected                   Task<SqlConnection>         GetConnectionAsync(WebCoreCall httpCall, CancellationToken ct)
     {
         ArgumentNullException.ThrowIfNull(httpCall);
 
-        return httpCall.ApplicationConfig.GetResource<ResourceMSSqlDatabase>(_database).GetConnection(httpCall);
+        return httpCall.ApplicationConfig.GetResource<ResourceMSSqlDatabase>(_database).GetConnectionAsync(httpCall, ct);
     }
-    protected   static      HttpStatusCode              HandleResponseOptions(WebCoreResponseBuffer webResponseBuffer, SqlDataReader dataReader)
+    protected  static     async Task<HttpStatusCode>        HandleResponseOptionsAsync(WebCoreResponseBuffer webResponseBuffer, SqlDataReader dataReader, CancellationToken ct)
     {
         ArgumentNullException.ThrowIfNull(webResponseBuffer);
         ArgumentNullException.ThrowIfNull(dataReader);
 
         try {
             if (dataReader.FieldCount>0 && dataReader.GetName(0).StartsWith("opt.", StringComparison.Ordinal)) {
-                if (dataReader.Read()) {
+                if (await dataReader.ReadAsync(ct)) {
                     for (var i = 0 ; i < dataReader.FieldCount ; ++i) {
                         var fieldname = dataReader.GetName(i);
 
@@ -153,7 +157,7 @@ retry:      using (var sqlConnection = GetConnection(httpCall))
                     }
                 }
 
-                dataReader.NextResult();
+                await dataReader.NextResultAsync(ct);
             }
         }
         catch(Exception err) {
@@ -163,14 +167,14 @@ retry:      using (var sqlConnection = GetConnection(httpCall))
         return webResponseBuffer.StatusCode;
     }
 
-    private     static      bool                        _deadlockError(Exception err)
+    private    static           bool                        _deadlockError(Exception err)
     {
         while (err.InnerException != null)
             err = err.InnerException;
 
         return err is SqlException sqlErr &&  sqlErr.Number == 1205;
     }
-    private     static      WebCoreErrorData            _createErrorData(string code, string message)
+    private    static           WebCoreErrorData            _createErrorData(string code, string message)
     {
         return new WebCoreErrorData() {
                     StatusCode = code switch {

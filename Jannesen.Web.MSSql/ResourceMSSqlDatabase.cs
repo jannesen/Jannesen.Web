@@ -2,6 +2,8 @@
 using System.Diagnostics.CodeAnalysis;
 using System.Net;
 using System.Security.Principal;
+using System.Threading;
+using System.Threading.Tasks;
 using Microsoft.Data.SqlClient;
 using Jannesen.Web.Core;
 
@@ -12,24 +14,24 @@ namespace Jannesen.Web.MSSql;
 [SuppressMessage("Performance", "CA1812", Justification = "Instantiated by reflection")]
 public class ResourceMSSqlDatabase: WebCoreResource
 {
-    private readonly        string              _server;
-    private readonly        string?             _instance;
-    private readonly        string              _database;
-    private readonly        bool                _iisUserIdentity;
-    private readonly        string?             _username;
-    private readonly        string?             _passwd;
-    private readonly        string              _connectString;
+    private readonly        string                  _server;
+    private readonly        string?                 _instance;
+    private readonly        string                  _database;
+    private readonly        bool                    _iisUserIdentity;
+    private readonly        string?                 _username;
+    private readonly        string?                 _passwd;
+    private readonly        string                  _connectString;
 
-    public      override    string              Type                => "mssql";
-    public                  string              Server              => _server;
-    public                  string?             Instance            => _instance;
-    public                  string              Database            => _database;
-    public                  bool                IISUserIdentityswd  => _iisUserIdentity;
-    public                  string?             Username            => _username;
-    public                  string?             Passwd              => _passwd;
+    public      override    string                  Type                => "mssql";
+    public                  string                  Server              => _server;
+    public                  string?                 Instance            => _instance;
+    public                  string                  Database            => _database;
+    public                  bool                    IISUserIdentityswd  => _iisUserIdentity;
+    public                  string?                 Username            => _username;
+    public                  string?                 Passwd              => _passwd;
 
 
-    public                                      ResourceMSSqlDatabase(WebCoreConfigReader configReader): base(configReader)
+    public                                          ResourceMSSqlDatabase(WebCoreConfigReader configReader): base(configReader)
     {
         ArgumentNullException.ThrowIfNull(configReader);
 
@@ -55,26 +57,32 @@ public class ResourceMSSqlDatabase: WebCoreResource
             _connectString += ";Integrated Security=true";
     }
 
-    public                  SqlConnection       GetConnection(WebCoreCall httpCall)
+    public                  Task<SqlConnection>     GetConnectionAsync(WebCoreCall httpCall, CancellationToken ct)
     {
         ArgumentNullException.ThrowIfNull(httpCall);
 
-        if (_iisUserIdentity) {
-            var windowsIdentity = httpCall.Context.User.Identity as WindowsIdentity
-                                    ?? throw new WebHttpException(HttpStatusCode.Unauthorized, "No windows Identity available.");
-
-            return WindowsIdentity.RunImpersonated<SqlConnection>(windowsIdentity.AccessToken, ()=> GetConnection());
-        }
-        else {
-            return GetConnection();
-        }
+        return _getConnectionAsync(_iisUserIdentity
+                                        ? httpCall.Context.User.Identity as WindowsIdentity
+                                              ?? throw new WebHttpException(HttpStatusCode.Unauthorized, "No windows Identity available.")
+                                        : null,
+                                   ct);
     }
-    public                  SqlConnection       GetConnection()
+    public                  Task<SqlConnection>     GetConnectionAsync(CancellationToken ct)
+    {
+        return _getConnectionAsync(null, ct);
+    }
+    private           async Task<SqlConnection>     _getConnectionAsync(WindowsIdentity? identity, CancellationToken ct)
     {
         var sqlConnection = new SqlConnection(_connectString);
 
         try {
-            sqlConnection.Open();
+            if (identity != null) {
+                await WindowsIdentity.RunImpersonatedAsync(identity.AccessToken, ()=> sqlConnection.OpenAsync(ct));
+            }
+            else {
+                await sqlConnection.OpenAsync(ct);
+            }
+
             return sqlConnection;
         }
         catch(Exception) {

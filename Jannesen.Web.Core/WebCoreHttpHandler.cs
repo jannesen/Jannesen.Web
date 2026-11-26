@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Net;
+using System.Threading.Tasks;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Http.Extensions;
 
@@ -39,15 +40,15 @@ public abstract class WebCoreHttpHandler
         _wildcardPathProcessor = WebCoreWildcardPathProcessor.GetProcessor(_path);
     }
 
-    public      virtual     void                                ProcessRequest(WebApplicationConfig applicationConfig, HttpContext context)
+    public      virtual     Task                                ProcessRequestAsync(WebApplicationConfig applicationConfig, HttpContext context)
     {
         ArgumentNullException.ThrowIfNull(applicationConfig);
         ArgumentNullException.ThrowIfNull(context);
 
-        _processRequest(applicationConfig, context);
+        return _processRequest(applicationConfig, context);
     }
 
-    public      abstract    IWebCoreResponse                    Process(WebCoreCall httpCall);
+    public      abstract    Task<IWebCoreResponse>              ProcessAsync(WebCoreCall httpCall);
     public      virtual     WebCoreErrorData?                   ProcessError(Exception err)
     {
         return null;
@@ -78,14 +79,14 @@ public abstract class WebCoreHttpHandler
 
         _processors.Add(processor);
     }
-    private                 void                                _processRequest(WebApplicationConfig applicationConfig, HttpContext context)
+    private           async Task                                _processRequest(WebApplicationConfig applicationConfig, HttpContext context)
     {
-        var             httpCall    = new WebCoreCall(applicationConfig, context, this);
-        IWebCoreResponse webResponse;
+        var                 httpCall    = new WebCoreCall(applicationConfig, context, this);
+        IWebCoreResponse    webResponse;
 
         try {
-            httpCall.LoadProcessors();
-            webResponse = Process(httpCall);
+            await httpCall.LoadProcessorsAsync();
+            webResponse = await ProcessAsync(httpCall);
         }
         catch(WebHttpException err) {
             switch(err.StatusCode) {
@@ -102,9 +103,14 @@ public abstract class WebCoreHttpHandler
                 break;
 
             default:
-                _logging?.Logging(httpCall, err);
+                if (_logging != null) {
+                    await _logging.LoggingAsync(httpCall, err);
+                }
                 throw;
             }
+        }
+        catch(TaskCanceledException) {
+            throw;
         }
         catch(Exception err) {
             if (!(err is WebException werr && werr.logError == false)) {
@@ -115,8 +121,10 @@ public abstract class WebCoreHttpHandler
         }
 
         if (webResponse != null) {
-            webResponse.Send(httpCall, context.Response);
-            _logging?.Logging(httpCall, webResponse, context.Response);
+            await webResponse.SendAsync(httpCall, context.Response);
+            if (_logging != null) {
+                await _logging.LoggingAsync(httpCall, webResponse, context.Response);
+            }
         }
     }
 }

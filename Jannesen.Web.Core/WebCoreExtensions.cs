@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Net;
+using System.Threading.Tasks;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Http.Features;
 
@@ -59,12 +60,12 @@ public static class WebCoreExtensions
     }
 
     extension(HttpResponse response) {
-        public  void            SendBuffer(ReadOnlySpan<byte> data)
+        public  ValueTask       SendBufferAsync(ReadOnlyMemory<byte> data)
         {
             ArgumentNullException.ThrowIfNull(response);
             response.HttpContext.Features.Get<IHttpResponseBodyFeature>()?.DisableBuffering();
             response.ContentLength = data.Length;
-            response.Body.Write(data);
+            return response.Body.WriteAsync(data);
         }
     }
 

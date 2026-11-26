@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Net;
+using System.Threading.Tasks;
 
 namespace Jannesen.Web.Core;
 
@@ -12,7 +13,7 @@ public sealed class WebCoreProcessorRequestBody: IWebCoreProcessor<WebCoreProces
     {
         return [];
     }
-    public          object                              Process(WebCoreCall httpCall)
+    public    async ValueTask<object>                   ProcessAsync(WebCoreCall httpCall)
     {
         ArgumentNullException.ThrowIfNull(httpCall);
 
@@ -25,7 +26,7 @@ public sealed class WebCoreProcessorRequestBody: IWebCoreProcessor<WebCoreProces
                 var size = 0;
                 int rs;
 
-                while (size < contentLength && (rs = inputStream.Read(buf, size, contentLength - size)) > 0) {
+                while (size < contentLength && (rs = await inputStream.ReadAsync(new Memory<byte>(buf, size, contentLength - size))) > 0) {
                     size += rs;
                 }
 

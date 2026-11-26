@@ -2,6 +2,7 @@
 using System.Diagnostics.CodeAnalysis;
 using System.IO;
 using System.Net;
+using System.Threading.Tasks;
 using Microsoft.Extensions.Caching.Memory;
 using Jannesen.Web.Core;
 
@@ -12,15 +13,15 @@ namespace Jannesen.Web.StaticFile;
 [SuppressMessage("Performance", "CA1812", Justification = "Instantiated by reflection")]
 public class HttpHandlerStaticFile: WebCoreHttpHandler
 {
-    private readonly        string              _directory;
-    private readonly        string              _mimetype;
-    private readonly        bool                _compress;
-    private readonly        int                 _cacheMaxAge;
-    private readonly        int                 _versionCacheMaxAge;
+    private readonly        string                  _directory;
+    private readonly        string                  _mimetype;
+    private readonly        bool                    _compress;
+    private readonly        int                     _cacheMaxAge;
+    private readonly        int                     _versionCacheMaxAge;
 
-    public  override        string              Mimetype            => _mimetype;
+    public  override        string                  Mimetype            => _mimetype;
 
-    public                                      HttpHandlerStaticFile(WebCoreConfigReader configReader): base(configReader)
+    public                                          HttpHandlerStaticFile(WebCoreConfigReader configReader): base(configReader)
     {
         ArgumentNullException.ThrowIfNull(configReader);
 
@@ -33,7 +34,7 @@ public class HttpHandlerStaticFile: WebCoreHttpHandler
         configReader.NoChildElements();
     }
 
-    public  override        IWebCoreResponse    Process(WebCoreCall httpCall)
+    public  override  async Task<IWebCoreResponse>  ProcessAsync(WebCoreCall httpCall)
     {
         ArgumentNullException.ThrowIfNull(httpCall);
 
@@ -45,7 +46,7 @@ public class HttpHandlerStaticFile: WebCoreHttpHandler
             var compressEncoding = WebCoreResponseCompressor.GetResponseCompressionEncoding(httpCall.Request.Headers.AcceptEncoding);
 
             if (compressEncoding != null) {
-                var cacheKey         = "StaticFile/" + compressEncoding +"/" + physicalPath;
+                var cacheKey         = $"StaticFile/{compressEncoding}/{physicalPath}";
                 var webFileCache     = (Internal.FileCache?)httpCall.Cache.Get(cacheKey);
 
                 if (webFileCache != null && webFileCache.HasData) {
@@ -55,7 +56,7 @@ public class HttpHandlerStaticFile: WebCoreHttpHandler
                 }
 
                 if (webFileCache == null) {
-                    webFileCache = new Internal.FileCache(physicalPath, fileinfo, compressEncoding);
+                    webFileCache = await Task.Run(() => new Internal.FileCache(physicalPath, fileinfo, compressEncoding));
                     httpCall.Cache.Set(cacheKey,
                                         webFileCache,
                                         new MemoryCacheEntryOptions() {
@@ -85,7 +86,7 @@ public class HttpHandlerStaticFile: WebCoreHttpHandler
         return response;
     }
 
-    private                 string              _mapPhysicalPath(WebCoreCall httpCall)
+    private                 string                  _mapPhysicalPath(WebCoreCall httpCall)
     {
         var path = httpCall.Request.Path.Value ?? throw new InvalidOperationException("path is null.");
 
@@ -113,7 +114,7 @@ public class HttpHandlerStaticFile: WebCoreHttpHandler
         return _directory + path.Replace("/", "\\", StringComparison.Ordinal);
     }
     [SuppressMessage("Performance", "CA3003", Justification = "physicalPath is validated by _mapPhysicalPath.")]
-    private     static      FileInfo            _getFileInfo(string physicalPath)
+    private     static      FileInfo                _getFileInfo(string physicalPath)
     {
         FileInfo    fileinfo;
 

@@ -3,6 +3,8 @@ using System.Diagnostics.CodeAnalysis;
 using System.Globalization;
 using System.IO;
 using System.Net;
+using System.Threading;
+using System.Threading.Tasks;
 using System.Xml;
 using Microsoft.Data.SqlClient;
 using Jannesen.FileFormat.Json;
@@ -16,9 +18,9 @@ namespace Jannesen.Web.MSSql;
 [SuppressMessage("Performance", "CA1812", Justification = "Instantiated by reflection")]
 public class HttpHandlerSqlXmlJson: HttpHandlerMSSql
 {
-    public      override    string                      Mimetype            => "application/json";
+    public    override          string                    Mimetype            => "application/json";
 
-    public                                              HttpHandlerSqlXmlJson(WebCoreConfigReader configReader): base(configReader)
+    public                                                HttpHandlerSqlXmlJson(WebCoreConfigReader configReader): base(configReader)
     {
         ArgumentNullException.ThrowIfNull(configReader);
 
@@ -32,15 +34,18 @@ public class HttpHandlerSqlXmlJson: HttpHandlerMSSql
         }
     }
 
-    protected   override    IWebCoreResponse            Process(WebCoreCall httpCall, SqlDataReader dataReader)
+    protected override    async Task<IWebCoreResponse>    ProcessAsync(WebCoreCall httpCall, SqlDataReader dataReader, CancellationToken ct)
     {
         var   webResponseBuffer = WebCoreResponseBuffer.CreateJson();
 
-        if (HandleResponseOptions(webResponseBuffer, dataReader) == HttpStatusCode.OK) {
+        if (await HandleResponseOptionsAsync(webResponseBuffer, dataReader, ct) == HttpStatusCode.OK) {
             object? json;
 
             try {
-                json = _xmlToJson(dataReader);
+                json = _xmlToJson(dataReader, ct);
+            }
+            catch(TaskCanceledException) {
+                throw;
             }
             catch(Exception err) {
                 throw new WebResponseException("Convertion from XML to JSON failed.", err);
@@ -54,21 +59,23 @@ public class HttpHandlerSqlXmlJson: HttpHandlerMSSql
         return webResponseBuffer;
     }
 
-    private                 object?                     _xmlToJson(SqlDataReader dataReader)
+    private               async Task<object?>             _xmlToJson(SqlDataReader dataReader, CancellationToken ct)
     {
         using (var memoryStream = new MemoryStream()) {
             var fempty = true;
 
             using (var textStream  = new StreamWriter(memoryStream, new System.Text.UTF8Encoding(false), 1024, true)) {
                 do {
-                    while(dataReader.Read()) {
-                        if (!dataReader.IsDBNull(0)) {
+                    while(await dataReader.ReadAsync(ct)) {
+                        if (!await dataReader.IsDBNullAsync(0, ct)) {
+#pragma warning disable CA1849 // Onderliggende stream is een MemoryStream; async heeft geen meerwaarde
                             textStream.Write(dataReader.GetString(0));
+#pragma warning restore CA1849
                             fempty = false;
                         }
                     }
                 }
-                while (dataReader.NextResult());
+                while (await dataReader.NextResultAsync(ct));
             }
 
             if (!fempty) {
@@ -100,7 +107,7 @@ public class HttpHandlerSqlXmlJson: HttpHandlerMSSql
             }
         }
     }
-    private                 object?                     _parseToJsonChild(XmlTextReader xmlReader)
+    private                     object?                   _parseToJsonChild(XmlTextReader xmlReader)
     {
         var rtn = (object?)null;
 
@@ -139,7 +146,7 @@ public class HttpHandlerSqlXmlJson: HttpHandlerMSSql
 
         return rtn;
     }
-    private                 JsonObject                  _parseToJsonObject(XmlTextReader xmlReader)
+    private                     JsonObject                _parseToJsonObject(XmlTextReader xmlReader)
     {
         var jsonObject = new JsonObject();
 
@@ -207,7 +214,7 @@ public class HttpHandlerSqlXmlJson: HttpHandlerMSSql
             }
         }
     }
-    private                 JsonArray                   _parseToJsonArray(XmlTextReader xmlReader)
+    private                     JsonArray                 _parseToJsonArray(XmlTextReader xmlReader)
     {
         var rtn = new JsonArray();
 
@@ -231,7 +238,7 @@ public class HttpHandlerSqlXmlJson: HttpHandlerMSSql
 
         return rtn;
     }
-    private     static      string?                     _parseElementValue(XmlTextReader xmlReader)
+    private   static            string?                   _parseElementValue(XmlTextReader xmlReader)
     {
         if (!xmlReader.IsEmptyElement) {
             var rtn = "";
@@ -262,12 +269,12 @@ public class HttpHandlerSqlXmlJson: HttpHandlerMSSql
             return "";
         }
     }
-    private     static      void                        _parseReadNode(XmlTextReader xmlReader)
+    private   static            void                      _parseReadNode(XmlTextReader xmlReader)
     {
         if (!xmlReader.Read())
             throw new WebConversionException("Reading EOF on xml-document.");
     }
-    private     static      object?                     _jsonConvertValue(char t, string? svalue)
+    private   static            object?                   _jsonConvertValue(char t, string? svalue)
     {
         switch(t) {
         case 's':   return svalue;

@@ -2,18 +2,19 @@
 using System.Buffers;
 using System.IO;
 using System.IO.Compression;
+using System.Threading.Tasks;
 using Microsoft.AspNetCore.Http;
 
 namespace Jannesen.Web.Core;
 
 public readonly struct WebCoreResponseCompressor
 {
-    public                  ReadOnlyMemory<byte>    Data            { get; private init; }
-    public                  string?                 Encoding        { get; private init; }
+    public                  ReadOnlyMemory<byte>        Data            { get; private init; }
+    public                  string?                     Encoding        { get; private init; }
 
-    private static readonly string[]                _compressors = [ "br", "gzip", "deflate" ];
+    private static readonly string[]                    _compressors = [ "br", "gzip", "deflate" ];
 
-    public                                          WebCoreResponseCompressor(HttpRequest request, ReadOnlyMemory<byte> data)
+    public      static      WebCoreResponseCompressor   Compress(HttpRequest request, ReadOnlyMemory<byte> data)
     {
         ArgumentNullException.ThrowIfNull(request);
 
@@ -30,18 +31,21 @@ public readonly struct WebCoreResponseCompressor
                 var writen = bufferWriter.WrittenMemory;
 
                 if (writen.Length < data.Length) {
-                    Encoding = encoding;
-                    Data     = writen;
+                    return new WebCoreResponseCompressor() {
+                               Encoding = encoding,
+                               Data     = writen
+                           };
                 }
             }
         }
-        else {
-            Encoding = null;
-            Data     = data;
-        }
+
+        return new WebCoreResponseCompressor() {
+                   Encoding = null,
+                   Data     = data
+               };
     }
 
-    public      static      string?                 GetResponseCompressionEncoding(string? acceptEncoding)
+    public      static      string?                     GetResponseCompressionEncoding(string? acceptEncoding)
     {
         var f = _compressors.Length;
 
@@ -78,7 +82,7 @@ public readonly struct WebCoreResponseCompressor
 
         return null;
     }
-    public      static      byte[]                  Compress(string encoding, Stream input)
+    public      static      byte[]                      Compress(string encoding, Stream input)
     {
         ArgumentNullException.ThrowIfNull(encoding);
         ArgumentNullException.ThrowIfNull(input);
@@ -92,7 +96,7 @@ public readonly struct WebCoreResponseCompressor
         }
     }
 
-    public                  void                    WriteTo(HttpResponse response)
+    public                  ValueTask                   WriteToAsync(HttpResponse response)
     {
         ArgumentNullException.ThrowIfNull(response);
 
@@ -100,10 +104,10 @@ public readonly struct WebCoreResponseCompressor
             response.Headers.ContentEncoding = Encoding;
         }
 
-        response.SendBuffer(Data.Span);
+        return response.SendBufferAsync(Data);
     }
 
-    private     static      Stream                  _createCompressor(string encoding, Stream s)
+    private     static      Stream                      _createCompressor(string encoding, Stream s)
     {
         return encoding switch {
                     "br"      => new BrotliStream (s, CompressionMode.Compress, false),
@@ -112,7 +116,7 @@ public readonly struct WebCoreResponseCompressor
                     _         => throw new InvalidOperationException("Unknown compressor '" + encoding + "'.")
                 };
     }
-    private     static      int                     _initCapacity(int inlength)
+    private     static      int                         _initCapacity(int inlength)
     {
         return inlength switch {
                     <  4096     => inlength,

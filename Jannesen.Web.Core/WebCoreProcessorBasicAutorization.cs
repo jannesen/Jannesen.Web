@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Threading.Tasks;
 
 namespace Jannesen.Web.Core;
 
@@ -11,7 +12,7 @@ public class WebCoreProcessorBasicAutorization: IWebCoreProcessor<WebCoreProcess
     {
         return [];
     }
-    public          object                                  Process(WebCoreCall httpCall)
+    public          ValueTask<object>                       ProcessAsync(WebCoreCall httpCall)
     {
         ArgumentNullException.ThrowIfNull(httpCall);
 
@@ -21,10 +22,10 @@ public class WebCoreProcessorBasicAutorization: IWebCoreProcessor<WebCoreProcess
             var authstrPos  = authstr.IndexOf(':', StringComparison.Ordinal);
 
             if (authstrPos>=0) {
-                return new WebCoreProcessResultBasicAutorization(
-                               authstr.Substring(0, authstrPos),
-                               authstr.Substring(authstrPos+1)
-                           );
+                return ValueTask.FromResult((object)new WebCoreProcessResultBasicAutorization(
+                                                        authstr.Substring(0, authstrPos),
+                                                        authstr.Substring(authstrPos+1)
+                                                    ));
             }
         }
 

@@ -1,5 +1,6 @@
 ﻿using System;
 using System.IO;
+using System.Threading.Tasks;
 using Microsoft.AspNetCore.Http;
 
 namespace Jannesen.Web.Core;
@@ -13,18 +14,18 @@ public class WebCoreResponseRedirect: IWebCoreResponse
         Target = target;
     }
 
-    public                  void                Send(WebCoreCall call, HttpResponse response)
+    public                  Task                SendAsync(WebCoreCall call, HttpResponse response)
     {
         ArgumentNullException.ThrowIfNull(response);
 
         response.Redirect(Target);
+        return Task.CompletedTask;
     }
-
-    public                  void                WriteLoggingData(StreamWriter writer)
+    public            async Task                WriteLoggingDataAsync(StreamWriter writer)
     {
         ArgumentNullException.ThrowIfNull(writer);
 
-        writer.WriteLine("REDIRECT TO: " + Target);
-        writer.WriteLine();
+        await writer.WriteLineAsync("REDIRECT TO: " + Target);
+        await writer.WriteLineAsync();
     }
 }
